@@ -1,0 +1,169 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-resizable-behavior/iron-resizable-behavior.html">
+
+<!--
+Scene 모델을 3D로 렌더링해서 보여주는 컴포넌트이다.
+
+Example:
+
+    <things-scene-three-container model="[[model]]" data="[[data]]">
+    </things-scene-three-container>
+
+@demo demo/index.html
+@hero hero.svg
+-->
+
+<dom-module id="things-scene-three-container">
+  <template>
+    <style>
+      :host {
+        width : 100%;
+        height: 100%;
+        display: block;
+        overflow: hidden;
+        margin: 0px;
+        font-family: Monospace;
+        font-weight: bold;
+        @apply(--things-scene-three-container);
+      }
+
+      #tooltip {
+        position: absolute;
+        left: 0;
+        top : 0;
+        max-width : 300px;
+        background-color: #fff;
+        border : 3px solid #666;
+        padding: 5px 10px;
+        border-radius: 10px;
+        display: none;
+        white-space: pre-line;
+      }
+    </style>
+
+    <div id="tooltip">
+    </div>
+
+  </template>
+
+  <script src="./things-scene-three-container.js"></script>
+
+  <script>
+    var STATUS_COLORS = ['black', '#ccaa76', '#ff1100', '#252525', '#6ac428']
+
+    Polymer({
+      is: 'things-scene-three-container',
+
+      behaviors: [
+        Polymer.IronResizableBehavior
+      ],
+
+      properties: {
+        model: {
+          type: Object
+        },
+        data : {
+          type : Object
+        }
+      },
+
+      listeners: {
+        'iron-resize': '_onIronResize',
+      },
+
+      observers: [
+        "_onModelChanged(model)",
+        "_onDataChanged(data)"
+      ],
+
+      ready: function() {
+      },
+
+      attached: function() {
+        this.async(this.notifyResize, 1);
+      },
+
+      detached: function() {
+      },
+
+      startAnimation : function(){
+        this.viewer.run()
+      },
+
+      stopAnimation : function(){
+        this.viewer.stop()
+      },
+
+      _onIronResize: function(e) {
+        if(!this.viewer)
+          return;
+
+        var renderer = this.viewer._renderer;
+        var camera = this.viewer._camera;
+
+        this.viewer.SCREEN_WIDTH = this.clientWidth
+        this.viewer.SCREEN_HEIGHT = this.clientHeight
+
+        // notify the renderer of the size change
+        // renderer.setSize( window.innerWidth, window.innerHeight );
+        renderer.setSize( this.viewer.SCREEN_WIDTH, this.viewer.SCREEN_HEIGHT );
+        // update the camera
+        camera.aspect	= this.viewer.SCREEN_WIDTH / this.viewer.SCREEN_HEIGHT;
+        camera.updateProjectionMatrix();
+      },
+
+      _onModelChanged: function(model) {
+        if(!this.viewer){
+          this.viewer = new ThingsScene3dViewer.WebGL3dViewer(null, model)
+          return
+        }
+
+        this.data = null;
+        this.viewer._model = model
+
+        this.viewer.init()
+
+      },
+
+      _onDataChanged: function(data) {
+
+        if(!this.viewer)
+          return
+
+        if(!data)
+          return
+
+        data.forEach(d => {
+          let stock = this.viewer._scene.getObjectByName(d.loc, true)
+          if(stock) {
+            stock.userData = d;
+          }
+
+          if(stock){
+            stock.material.color.set(STATUS_COLORS[d.status])
+
+            if(d.status === 0) {
+              stock.visible = false
+            } else {
+              stock.visible = true
+            }
+
+          }
+
+        })
+
+      }
+
+    });
+  </script>
+</dom-module>
