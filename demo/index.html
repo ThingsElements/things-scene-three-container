@@ -16,7 +16,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <script src="../../webcomponentsjs/webcomponents-lite.min.js"></script>
 
-    <link rel="import" href="../things-scene-three-container.html">
+    <link rel="import" href="../../things-scene-viewer/things-scene-viewer.html">
+    <link rel="import" href="../../things-scene-modeler/things-scene-properties.html">
+    <link rel="import" href="../../things-scene-indoor-map/things-scene-indoor-map.html">
+
+    <link rel="import" href="./things-scene-three-container.html">
+
+    <style is="custom-style">
+
+    @font-face {
+      font-family: "Bitstream Vera Serif Bold";
+      src: url("fonts/VeraSeBd.ttf");
+    }
+
+    things-scene-viewer {
+      display: block;
+      width: 100%;
+      height: 560px;
+    }
+
+    </style>
   </head>
   <body unresolved>
 
@@ -48,18 +67,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <p>An example of <code>&lt;things-scene-three-container&gt;</code>:</p>
 
-      <main>
-        <div class="content">
-          <things-scene-three-container id="viewer" model="[[model]]" data="[[data]]">
-          </things-scene-three-container>
-        </div>
-        <div class="button-group">
-          <button id="reset">Reset</button>
-          <button id="change">Change Model</button>
-          <button id="start">Start Rotation</button>
-          <button id="stop">Stop Rotation</button>
-        </div>
-      </main>
+      <things-scene-viewer id='scene'
+                           scene='{{scene}}'
+                           selected='{{selected}}'
+                           model='[[model]]'
+                           mode="1">
+        <things-scene-layer type="selection-layer"></things-scene-layer>
+        <things-scene-layer type="modeling-layer"></things-scene-layer>
+        <things-scene-handler type="text-editor"></things-scene-handler>
+        <things-scene-handler type="move-handler"></things-scene-handler>
+      </things-scene-viewer>
+
+      <things-scene-properties scene="[[scene]]"
+                               selected="[[selected]]"
+                               model="{{target}}"
+                               bounds="{{bounds}}">
+        <fieldset class="same-width">
+          <legend>Three Container Properties</legend>
+
+          <label>3D Mode</label>
+          <input type="checkbox" checked="{{target.mode_threed::change}}">
+
+        </fieldset>
+      </things-scene-properties>
 
     </template>
 
@@ -68,40 +98,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var app = document.querySelector('#app')
 
         var zeroToNine = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-
-        app.$.change.addEventListener('click', function() {
-
-          app.model = {
-            width: 1200,
-            height: 800,
-            unit: 'cm',
-            components: [{
-              type : 'rack',
-              location : 'LOC',
-              left : 700,
-              top : 500,
-              width : 300,
-              height : 200,
-              depth : 100,
-              shelves : 3
-            }]
-          }
-
-        })
-
-        app.$.reset.addEventListener('click', function() {
-
-          app.model = model
-
-        })
-
-        app.$.stop.addEventListener('click', function() {
-          app.$.viewer.stopRotation()
-        })
-
-        app.$.start.addEventListener('click', function() {
-          app.$.viewer.startRotation()
-        })
 
         function buildRow(top, left, area) {
 
@@ -187,63 +183,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           depth : 10
         })
 
-        var model = {
-          width: 1200,
-          height: 800,
+        app.model = {
+          width: 1600,
+          height: 1200,
           unit: 'cm',
-          // color : '#000',
-          components: racks
+          components: [{
+            type: 'rect',
+            left: 100,
+            top: 100,
+            width: 200,
+            height: 200,
+            fillStyle: 'red'
+          }, {
+            type: 'three-container',
+            left: 100,
+            top: 100,
+            width: 1200,
+            height: 800,
+            text: 'F1',
+            textAlign: 'top',
+            fillStyle: 'darkgray',
+            mode_threed: true,
+            components: racks
+          }]
         }
-
-        function dataGen(model, delayed) {
-          var rows = []
-
-          for(var i = 0; i < model.length; i++) {
-            var m = model[i];
-            var shelves = m.shelves;
-            var loc = m.location;
-
-            for(var j = 0; j < shelves; j ++) {
-              var status = 1;
-
-              // if(delayed && (Math.floor(Math.random() * 100) % 100 === 0) ) {
-              //
-              //   if(Math.floor(Math.random() * 100) % 100 === 0){
-              //     status = Math.floor(Math.random() * 5)
-              //   }
-              //
-              //   rows.push({
-              //     loc : loc + '_' + (j+1),
-              //     status: status
-              //   })
-              // } else {
-
-                if(Math.floor(Math.random() * 10) % 10 === 0){
-                  status = Math.floor(Math.random() * 5)
-                }
-
-                rows.push({
-                  loc : loc + '_' + (j+1),
-                  status: status
-                })
-              // }
-            }
-          }
-
-          return rows
-        }
-
-        function rotateCam() {
-          app.viewer.rotateCam(45)
-        }
-
-        app.model = model
-        app.data = dataGen(racks)
-
-        setInterval(function(){
-          app.data = dataGen(racks)
-
-        }, 5000)
 
       });
     </script>

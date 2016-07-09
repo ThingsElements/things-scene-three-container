@@ -1,7 +1,3 @@
-import THREE from './threejs'
-import hilbert3D from './threejs/hilbert3D'
-// import THREEx from './threejs/threeX'
-
 export default class Stock extends THREE.Mesh {
 
   constructor(model) {

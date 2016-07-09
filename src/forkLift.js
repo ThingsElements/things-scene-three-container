@@ -1,28 +1,24 @@
-import THREE from './threejs'
-import hilbert3D from './threejs/hilbert3D'
-// import THREEx from './threejs/threeX'
-
-THREE.Loader.Handlers.add( /\.tga$/i, new THREE.TGALoader() );
-
-let objLoader = new THREE.OBJLoader();
-let mtlLoader = new THREE.MTLLoader();
-objLoader.setPath('obj/Fork_lift/')
-mtlLoader.setPath('obj/Fork_lift/')
-
 var extObj
 
+function init() {
+  THREE.Loader.Handlers.add( /\.tga$/i, new THREE.TGALoader() );
 
-mtlLoader.load('ForkLift.mtl', function(materials){
-  materials.preload();
-  objLoader.setMaterials(materials)
-  materials.side = THREE.frontSide
+  let objLoader = new THREE.OBJLoader();
+  let mtlLoader = new THREE.MTLLoader();
 
-  objLoader.load('ForkLift.obj', function(obj){
-    extObj = obj
+  objLoader.setPath('obj/Fork_lift/')
+  mtlLoader.setPath('obj/Fork_lift/')
+
+  mtlLoader.load('ForkLift.mtl', function(materials){
+    materials.preload();
+    objLoader.setMaterials(materials)
+    materials.side = THREE.frontSide
+
+    objLoader.load('ForkLift.obj', function(obj){
+      extObj = obj
+    })
   })
-})
-
-
+}
 
 export default class ForkLift extends THREE.Object3D {
 
@@ -37,6 +33,9 @@ export default class ForkLift extends THREE.Object3D {
   }
 
   static get extObject() {
+    if(!extObj)
+      init()
+
     return extObj
   }
 

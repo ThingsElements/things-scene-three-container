@@ -1,7 +1,4 @@
-import THREE from './threejs'
-import hilbert3D from './threejs/hilbert3D'
 import Stock from './stock'
-// import THREEx from './threejs/threeX'
 
 export default class Rack extends THREE.Object3D {
 

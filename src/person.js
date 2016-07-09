@@ -1,26 +1,22 @@
-import THREE from './threejs'
-import hilbert3D from './threejs/hilbert3D'
-// import THREEx from './threejs/threeX'
-
-
-let objLoader = new THREE.OBJLoader();
-let mtlLoader = new THREE.MTLLoader();
-objLoader.setPath('obj/Casual_Man_02/')
-mtlLoader.setPath('obj/Casual_Man_02/')
-
 var extObj
 
+function init() {
+  let objLoader = new THREE.OBJLoader();
+  let mtlLoader = new THREE.MTLLoader();
 
-mtlLoader.load('Casual_Man.mtl', function(materials){
-  materials.preload();
-  objLoader.setMaterials(materials)
-  materials.side = THREE.frontSide
+  objLoader.setPath('obj/Casual_Man_02/')
+  mtlLoader.setPath('obj/Casual_Man_02/')
 
-  objLoader.load('Casual_Man.obj', function(obj){
-    extObj = obj
+  mtlLoader.load('Casual_Man.mtl', function(materials){
+    materials.preload();
+    objLoader.setMaterials(materials)
+    materials.side = THREE.frontSide
+
+    objLoader.load('Casual_Man.obj', function(obj){
+      extObj = obj
+    })
   })
-})
-
+}
 
 export default class Person extends THREE.Object3D {
 
@@ -35,6 +31,9 @@ export default class Person extends THREE.Object3D {
   }
 
   static get extObject() {
+    if(!extObj)
+      init()
+
     return extObj
   }
 

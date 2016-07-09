@@ -1,11 +1,8 @@
-import THREE from './threejs'
-import THREEx from './threejs/threeX'
 import Rack from './rack'
 import ForkLift from './forkLift'
 import Person from './person'
 
 export default class WebGL3dViewer {
-
 
   constructor(target, model, data) {
 
