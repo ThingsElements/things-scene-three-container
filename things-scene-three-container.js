@@ -16,13 +16,11 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var extObj;
 
 function init() {
-  THREE.Loader.Handlers.add(/\.tga$/i, new THREE.TGALoader());
-
   var objLoader = new THREE.OBJLoader();
   var mtlLoader = new THREE.MTLLoader();
 
-  objLoader.setPath('obj/Fork_lift/');
-  mtlLoader.setPath('obj/Fork_lift/');
+  objLoader.setPath('/obj/Fork_lift/');
+  mtlLoader.setPath('/obj/Fork_lift/');
 
   mtlLoader.load('ForkLift.mtl', function (materials) {
     materials.preload();
@@ -179,11 +177,16 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var extObj;
 
 function init() {
+
+  var tgaLoader = new THREE.TGALoader();
+
+  THREE.Loader.Handlers.add(/\.tga$/i, tgaLoader);
+
   var objLoader = new THREE.OBJLoader();
   var mtlLoader = new THREE.MTLLoader();
 
-  objLoader.setPath('obj/Casual_Man_02/');
-  mtlLoader.setPath('obj/Casual_Man_02/');
+  objLoader.setPath('/obj/Casual_Man_02/');
+  mtlLoader.setPath('/obj/Casual_Man_02/');
 
   mtlLoader.load('Casual_Man.mtl', function (materials) {
     materials.preload();

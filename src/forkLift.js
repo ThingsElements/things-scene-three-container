@@ -1,13 +1,11 @@
 var extObj
 
 function init() {
-  THREE.Loader.Handlers.add( /\.tga$/i, new THREE.TGALoader() );
-
   let objLoader = new THREE.OBJLoader();
   let mtlLoader = new THREE.MTLLoader();
 
-  objLoader.setPath('obj/Fork_lift/')
-  mtlLoader.setPath('obj/Fork_lift/')
+  objLoader.setPath('/obj/Fork_lift/')
+  mtlLoader.setPath('/obj/Fork_lift/')
 
   mtlLoader.load('ForkLift.mtl', function(materials){
     materials.preload();

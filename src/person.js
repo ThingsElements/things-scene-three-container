@@ -1,11 +1,16 @@
 var extObj
 
 function init() {
+
+  let tgaLoader = new THREE.TGALoader();
+
+  THREE.Loader.Handlers.add( /\.tga$/i, tgaLoader);
+
   let objLoader = new THREE.OBJLoader();
   let mtlLoader = new THREE.MTLLoader();
 
-  objLoader.setPath('obj/Casual_Man_02/')
-  mtlLoader.setPath('obj/Casual_Man_02/')
+  objLoader.setPath('/obj/Casual_Man_02/')
+  mtlLoader.setPath('/obj/Casual_Man_02/')
 
   mtlLoader.load('Casual_Man.mtl', function(materials){
     materials.preload();
@@ -15,6 +20,7 @@ function init() {
     objLoader.load('Casual_Man.obj', function(obj){
       extObj = obj
     })
+
   })
 }
 
