@@ -1,6 +1,10 @@
 var extObj
 
 function init() {
+  if(init.done)
+    return
+
+  init.done = true
 
   let tgaLoader = new THREE.TGALoader();
 

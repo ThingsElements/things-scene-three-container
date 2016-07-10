@@ -16,6 +16,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var extObj;
 
 function init() {
+  if (init.done) return;
+
+  init.done = true;
+
   var objLoader = new THREE.OBJLoader();
   var mtlLoader = new THREE.MTLLoader();
 
@@ -177,6 +181,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var extObj;
 
 function init() {
+  if (init.done) return;
+
+  init.done = true;
 
   var tgaLoader = new THREE.TGALoader();
 

@@ -1,6 +1,11 @@
 var extObj
 
 function init() {
+  if(init.done)
+    return
+
+  init.done = true
+
   let objLoader = new THREE.OBJLoader();
   let mtlLoader = new THREE.MTLLoader();
 
