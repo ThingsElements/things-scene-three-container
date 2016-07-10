@@ -6,11 +6,11 @@ var ThreeLayout = {
   },
 
   capturables: function(container) {
-    return container.get('mode_threed') ? [] : container.components
+    return container.get('threed') ? [] : container.components
   },
 
   drawables: function(container) {
-    return container.get('mode_threed') ? [] : container.components
+    return container.get('threed') ? [] : container.components
   },
 
   isStuck: function(component) {

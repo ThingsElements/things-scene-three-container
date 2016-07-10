@@ -3,6 +3,7 @@ import ForkLift from './forkLift'
 import Person from './person'
 
 import ThreeLayout from './three-layout'
+import ThreeControls from './three-controls'
 
 var { Component, Container, Layout } = scene
 
@@ -83,7 +84,7 @@ export default class ThreeContainer extends Container {
     var {
       width,
       height,
-      angle = 45,
+      fov = 45,
       near = 0.1,
       far = 20000,
       fillStyle = '#424b57',
@@ -97,7 +98,7 @@ export default class ThreeContainer extends Container {
     // CAMERA
     var aspect = width / height
 
-    this._camera = new THREE.PerspectiveCamera(angle, aspect, near, far)
+    this._camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
     this._scene3d.add(this._camera)
     this._camera.position.set(800,800,800)
     this._camera.lookAt(this._scene3d.position)
@@ -116,6 +117,7 @@ export default class ThreeContainer extends Container {
 
     // CONTROLS
     // this._controls = new THREE.OrbitControls(this._camera, this._renderer.domElement)
+    this._controls = new ThreeControls(this._camera, this)
 
     // LIGHT
     var _light = new THREE.PointLight(light)
@@ -140,16 +142,34 @@ export default class ThreeContainer extends Container {
     return this._scene3d
   }
 
+  render_threed() {
+    this._renderer && this._renderer.render(this.scene3d, this._camera)
+    this.invalidate()
+  }
+
   /* Container Overides .. */
 
   _draw(ctx) {
 
-    var { left, top, width, height, mode_threed } = this.model
+    var {
+      left,
+      top,
+      width,
+      height,
+      threed,
+      fov = 45,
+      near = 0.1,
+      far = 20000,
+      zoom = 100,
+      light = 0xffffff
+    } = this.model
 
-    if(mode_threed) {
-      var scene = this.scene3d
+    if(threed) {
 
-      this._renderer.render(scene, this._camera);
+      if(!this._scene3d) {
+        this.init_scene3d()
+        this.render_threed()
+      }
 
       ctx.drawImage(
         this._renderer.domElement, 0, 0, width, height,
@@ -164,39 +184,63 @@ export default class ThreeContainer extends Container {
     return Layout.get('three')
   }
 
-  // get stuck() {
-  //   if(this.get('mode_threed'))
-  //     return true
-  //   return super.stuck
-  // }
-
   onchange(after, before) {
-    this.destroy_scene3d()
+    if(after.hasOwnProperty('width')
+      || after.hasOwnProperty('height')
+      || after.hasOwnProperty('threed'))
+      this.destroy_scene3d()
+
     this.invalidate()
   }
 
   onmousedown(e) {
-    // this._mouse.x = ( e.offsetX / this.SCREEN_WIDTH ) * 2 - 1;
-    // this._mouse.y = - ( e.offsetY / this.SCREEN_HEIGHT ) * 2 + 1;
+    if(this._controls && this.get('threed'))
+      this._controls.onMouseDown(e)
   }
 
   onmousemove(e) {
-    // the following line would stop any other event handler from firing
-    // (such as the mouse's TrackballControls)
-    // event.preventDefault();
+    if(this._controls && this.get('threed'))
+      this._controls.onMouseMove(e)
+  }
 
-    // update the mouse variable
-    // this._mouse.x = ( e.offsetX / this.SCREEN_WIDTH ) * 2 - 1;
-    // this._mouse.y = - ( e.offsetY / this.SCREEN_HEIGHT ) * 2 + 1;
+  onmousewheel(e) {
+    if(this._controls && this.get('threed'))
+      this._controls.onMouseWheel(e)
   }
 
   ondragstart(e) {
+    if(this._controls && this.get('threed'))
+      this._controls.onDragStart(e)
   }
 
   ondragmove(e) {
+    if(this._controls && this.get('threed'))
+      this._controls.onDragMove(e)
   }
 
   ondragend(e) {
+    if(this._controls && this.get('threed'))
+      this._controls.onDragEnd(e)
+  }
+
+  ontouchstart(e) {
+    if(this._controls && this.get('threed'))
+      this._controls.onTouchStart(e)
+  }
+
+  ontouchmove(e) {
+    if(this._controls && this.get('threed'))
+      this._controls.onTouchMove(e)
+  }
+
+  ontouchend(e) {
+    if(this._controls && this.get('threed'))
+      this._controls.onTouchEnd(e)
+  }
+
+  onkeydown(e) {
+    if(this._controls && this.get('threed'))
+      this._controls.onKeyDown(e)
   }
 
 }
