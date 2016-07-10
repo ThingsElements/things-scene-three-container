@@ -194,52 +194,52 @@ export default class ThreeContainer extends Container {
   }
 
   onmousedown(e) {
-    if(this._controls && this.get('threed'))
+    if(this._controls)
       this._controls.onMouseDown(e)
   }
 
   onmousemove(e) {
-    if(this._controls && this.get('threed'))
+    if(this._controls)
       this._controls.onMouseMove(e)
   }
 
   onmousewheel(e) {
-    if(this._controls && this.get('threed'))
+    if(this._controls)
       this._controls.onMouseWheel(e)
   }
 
   ondragstart(e) {
-    if(this._controls && this.get('threed'))
+    if(this._controls)
       this._controls.onDragStart(e)
   }
 
   ondragmove(e) {
-    if(this._controls && this.get('threed'))
+    if(this._controls)
       this._controls.onDragMove(e)
   }
 
   ondragend(e) {
-    if(this._controls && this.get('threed'))
+    if(this._controls)
       this._controls.onDragEnd(e)
   }
 
   ontouchstart(e) {
-    if(this._controls && this.get('threed'))
+    if(this._controls)
       this._controls.onTouchStart(e)
   }
 
   ontouchmove(e) {
-    if(this._controls && this.get('threed'))
+    if(this._controls)
       this._controls.onTouchMove(e)
   }
 
   ontouchend(e) {
-    if(this._controls && this.get('threed'))
+    if(this._controls)
       this._controls.onTouchEnd(e)
   }
 
   onkeydown(e) {
-    if(this._controls && this.get('threed'))
+    if(this._controls)
       this._controls.onKeyDown(e)
   }
 
