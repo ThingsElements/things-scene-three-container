@@ -235,7 +235,10 @@ var ThreeControls = function( object, component ) {
     if(this.enabled === false || this.enableRotate === false)
       return;
 
-    state = STATE.ROTATE
+    if(event.altKey === true) 
+      state = STATE.PAN
+    else 
+      state = STATE.ROTATE
 
     switch(state) {
     case STATE.ROTATE:
@@ -258,6 +261,11 @@ var ThreeControls = function( object, component ) {
   this.onDragMove = function( event ) {
     if(!this.enabled)
       return
+
+    if(event.altKey === true)
+      state = STATE.PAN
+    else
+      state = STATE.ROTATE
 
     switch(state) {
     case STATE.ROTATE:
@@ -286,7 +294,10 @@ var ThreeControls = function( object, component ) {
 
   this.onMouseWheel = function(event) {
 
-    if ( this.enabled === false || this.enableZoom === false || state !== STATE.NONE ) return;
+    if(event.type === 'wheel')
+      state = STATE.DOLLY
+
+    if ( this.enabled === false || this.enableZoom === false || state !== STATE.DOLLY ) return;
 
     handleMouseWheel( event );
   }
@@ -434,7 +445,6 @@ var ThreeControls = function( object, component ) {
       v.multiplyScalar( - distance );
 
       panOffset.add( v );
-
     };
 
   }();
@@ -478,14 +488,18 @@ var ThreeControls = function( object, component ) {
         targetDistance *= Math.tan( ( scope.object.fov / 2 ) * Math.PI / 180.0 );
 
         // we actually don't use screenWidth, since perspective camera is fixed to screen height
-        panLeft( 2 * deltaX * targetDistance / element.clientHeight, scope.object.matrix );
-        panUp( 2 * deltaY * targetDistance / element.clientHeight, scope.object.matrix );
+        panLeft( 2 * deltaX * targetDistance / element.model.height, scope.object.matrix );
+        // panLeft( 2 * deltaX * targetDistance / element.clientHeight, scope.object.matrix );
+        panUp( 2 * deltaY * targetDistance / element.model.height, scope.object.matrix );
+        // panUp( 2 * deltaY * targetDistance / element.clientHeight, scope.object.matrix );
 
       } else if ( scope.object instanceof THREE.OrthographicCamera ) {
 
         // orthographic
-        panLeft( deltaX * ( scope.object.right - scope.object.left ) / element.clientWidth, scope.object.matrix );
-        panUp( deltaY * ( scope.object.top - scope.object.bottom ) / element.clientHeight, scope.object.matrix );
+        panLeft( deltaX * ( scope.object.right - scope.object.left ) / element.model.width, scope.object.matrix );
+        // panLeft( deltaX * ( scope.object.right - scope.object.left ) / element.clientWidth, scope.object.matrix );
+        panUp( deltaY * ( scope.object.top - scope.object.bottom ) / element.model.height, scope.object.matrix );
+        // panUp( deltaY * ( scope.object.top - scope.object.bottom ) / element.clientHeight, scope.object.matrix );
 
       } else {
 
@@ -625,19 +639,21 @@ var ThreeControls = function( object, component ) {
 
     var delta = 0;
 
-    if ( event.wheelDelta !== undefined ) {
+    // if ( event.wheelDelta !== undefined ) {
 
-      // WebKit / Opera / Explorer 9
+    //   // WebKit / Opera / Explorer 9
 
-      delta = event.wheelDelta;
+    //   delta = event.wheelDelta;
 
-    } else if ( event.detail !== undefined ) {
+    // } else if ( event.detail !== undefined ) {
 
-      // Firefox
+    //   // Firefox
 
-      delta = - event.detail;
+    //   delta = - event.detail;
 
-    }
+    // }
+
+    delta = - event.deltaY
 
     if ( delta > 0 ) {
 
@@ -712,10 +728,12 @@ var ThreeControls = function( object, component ) {
     var element = scope.component === document ? scope.component.body : scope.component;
 
     // rotating across whole screen goes 360 degrees around
-    rotateLeft( 2 * Math.PI * rotateDelta.x / element.clientWidth * scope.rotateSpeed );
+    rotateLeft( 2 * Math.PI * rotateDelta.x / element.model.width * scope.rotateSpeed );
+    // rotateLeft( 2 * Math.PI * rotateDelta.x / element.clientWidth * scope.rotateSpeed );
 
     // rotating up and down along whole screen attempts to go 360, but limited to 180
-    rotateUp( 2 * Math.PI * rotateDelta.y / element.clientHeight * scope.rotateSpeed );
+    rotateUp( 2 * Math.PI * rotateDelta.y / element.model.height * scope.rotateSpeed );
+    // rotateUp( 2 * Math.PI * rotateDelta.y / element.clientHeight * scope.rotateSpeed );
 
     rotateStart.copy( rotateEnd );
 

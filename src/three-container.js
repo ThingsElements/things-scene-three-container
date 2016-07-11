@@ -203,7 +203,7 @@ export default class ThreeContainer extends Container {
       this._controls.onMouseMove(e)
   }
 
-  onmousewheel(e) {
+  onwheel(e) {
     if(this._controls)
       this._controls.onMouseWheel(e)
   }
