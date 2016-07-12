@@ -19,6 +19,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <link rel="import" href="../../things-scene-viewer/things-scene-viewer.html">
     <link rel="import" href="../../things-scene-modeler/things-scene-properties.html">
     <link rel="import" href="../../things-scene-indoor-map/things-scene-indoor-map.html">
+    <link rel="import" href="../../things-scene-forklift/things-scene-forklift.html">
+    <link rel="import" href="../../things-scene-person/things-scene-person.html">
 
     <link rel="import" href="./things-scene-three-container.html">
 
@@ -38,13 +40,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
   </head>
   <body unresolved>
-
     <template is="dom-bind" id="app">
       <style is="custom-style">
       :root {
         --things-scene-three-container: {
           width: 100%;
-          height: 100%;
+          height: 100%;;
         }
       }
 
@@ -99,6 +100,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           <label>Zoom</label>
           <input type="number" value-as-number="{{target.zoom::change}}">
+
+          <label>Auto Rotate</label>
+          <input type="checkbox" checked="{{target.autoRotate::change}}">
 
         </fieldset>
       </things-scene-properties>
@@ -214,6 +218,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             zoom: 100,
             threed: true,
             locked: true,
+            // autoRotate : true,
+            autoRotate : false,
             components: racks
           }, {
             type: 'rect',

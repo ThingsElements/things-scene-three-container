@@ -76,6 +76,11 @@ export default class ThreeContainer extends Container {
   }
 
   init_scene3d() {
+    this._mouse = { x: 0, y: 0 }
+
+    if(!this.tooltip)
+      this.createTooltip()
+
     if(this._scene3d)
       this.destroy_scene3d()
 
@@ -132,8 +137,129 @@ export default class ThreeContainer extends Container {
 
     this._load_manager = new THREE.LoadingManager();
     this._load_manager.onProgress = function(item, loaded, total){
-
+    
     }
+    this.animate()
+  }
+
+  animate() {
+
+    requestAnimationFrame( this.animate.bind(this) );
+    this.update();
+
+  }
+
+  update() {
+
+    var tooltip = this.tooltip || {}
+
+    // find intersections
+
+    // create a Ray with origin at the mouse position
+    //   and direction into the scene (camera direction)
+
+    var vector = new THREE.Vector3( this._mouse.x, this._mouse.y, 1 );
+    if(!this._camera)
+      return
+
+    vector.unproject( this._camera );
+    var ray = new THREE.Raycaster( this._camera.position, vector.sub( this._camera.position ).normalize() );
+
+    // create an array containing all objects in the scene with which the ray intersects
+    var intersects = ray.intersectObjects( this._scene3d.children, true );
+
+    // INTERSECTED = the object in the scene currently closest to the camera
+    //    and intersected by the Ray projected from the mouse position
+
+    // if there is one (or more) intersections
+    if ( intersects.length > 0 )
+    {
+      // if the closest object intersected is not the currently stored intersection object
+      if ( intersects[ 0 ].object != this.INTERSECTED )
+      {
+        // restore previous intersection object (if it exists) to its original color
+        // if ( this.INTERSECTED )
+        //   this.INTERSECTED.material.color.setHex( this.INTERSECTED.currentHex );
+        // store reference to closest object as current intersection object
+        this.INTERSECTED = intersects[ 0 ].object;
+        // store color of closest object (for later restoration)
+        // this.INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex();
+        // set a new color for closest object
+        // this.INTERSECTED.material.color.setHex( 0xffff00 );
+
+        if( this.INTERSECTED.type === 'stock' ) {
+          if(!this.INTERSECTED.visible)
+            return;
+
+          if(!this.INTERSECTED.userData)
+            this.INTERSECTED.userData = {};
+
+          var loc = this.INTERSECTED.name;
+          var status = this.INTERSECTED.userData.status;
+          var boxId = this.INTERSECTED.userData.boxId;
+          var inDate = this.INTERSECTED.userData.inDate;
+          var type = this.INTERSECTED.userData.type;
+          var count = this.INTERSECTED.userData.count;
+
+
+          tooltip.textContent = '';
+
+          for (let key in this.INTERSECTED.userData) {
+            if(this.INTERSECTED.userData[key])
+              tooltip.textContent += key + ": " + this.INTERSECTED.userData[key] + "\n"
+          }
+
+          // tooltip.textContent = 'loc : ' + loc
+
+          if(tooltip.textContent.length > 0) {
+            var mouseX = (this._mouse.x + 1) / 2 * (this.model.width)
+            var mouseY = (-this._mouse.y + 1 ) / 2 * (this.model.height)
+
+            tooltip.style.left = this._mouse.originX + 20 + 'px';
+            tooltip.style.top = this._mouse.originY - 20 + 'px';
+            tooltip.style.display = 'block'
+          } else {
+            tooltip.style.display = 'none'
+          }
+          
+        } else {
+          tooltip.style.display = 'none'
+        }
+
+
+      }
+    }
+    else // there are no intersections
+    {
+      // restore previous intersection object (if it exists) to its original color
+      // if ( this.INTERSECTED )
+      //   this.INTERSECTED.material.color.setHex( this.INTERSECTED.currentHex );
+      // remove previous intersection object reference
+      //     by setting current intersection object to "nothing"
+      this.INTERSECTED = null;
+
+      tooltip.style.display = 'none'
+    }
+
+    this._controls.update();
+
+  }
+
+  createTooltip() {
+    var tooltip = this.tooltip = document.createElement('div');
+    tooltip.style.position = 'absolute';
+    tooltip.style.left = '0px';
+    tooltip.style.top = '0px';
+    tooltip.style['background-color'] = '#fff';
+    tooltip.style['max-width'] = '200px';
+    tooltip.style.border = '3px solid #ccc';
+    tooltip.style.padding = '5px 10px';
+    tooltip.style['border-radius'] = '10px';
+    tooltip.style.display = 'none';
+    tooltip.style['z-index'] = 100;
+
+    document.body.appendChild(tooltip);
+
   }
 
   get scene3d() {
@@ -175,6 +301,7 @@ export default class ThreeContainer extends Container {
         this._renderer.domElement, 0, 0, width, height,
         left, top, width, height
       )
+
     } else {
       super._draw(ctx);
     }
@@ -187,8 +314,28 @@ export default class ThreeContainer extends Container {
   onchange(after, before) {
     if(after.hasOwnProperty('width')
       || after.hasOwnProperty('height')
-      || after.hasOwnProperty('threed'))
+      || after.hasOwnProperty('threed')
+      || after.hasOwnProperty('autoRotate'))
       this.destroy_scene3d()
+
+    if(after.hasOwnProperty('fov')
+      || after.hasOwnProperty('near')
+      || after.hasOwnProperty('far')
+      || after.hasOwnProperty('zoom')
+      ) {
+      
+      this._camera.fov = after.fov || this.model.fov
+      this._camera.near = after.near || this.model.near
+      this._camera.far = after.far || this.model.far
+      this._camera.zoom = (after.zoom || this.model.zoom) * 0.01
+      this._camera.updateProjectionMatrix();
+      this.render_threed();
+      return;
+    }
+
+    // if(after.hasOwnProperty('autoRotate')) {
+    //   this.model.autoRotate = after.autoRotate
+    // }
 
     this.invalidate()
   }
@@ -199,6 +346,15 @@ export default class ThreeContainer extends Container {
   }
 
   onmousemove(e) {
+
+    var pointer = this.transcoordC2S(e.offsetX, e.offsetY)
+
+    this._mouse.originX = e.offsetX;
+    this._mouse.originY = e.offsetY;
+
+    this._mouse.x = ( (pointer.x - this.model.left ) / (this.model.width) ) * 2 - 1;
+    this._mouse.y = - ( (pointer.y - this.model.top ) / this.model.height ) * 2 + 1;
+
     if(this._controls)
       this._controls.onMouseMove(e)
   }
