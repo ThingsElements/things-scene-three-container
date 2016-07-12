@@ -760,11 +760,14 @@ var ThreeContainer = function (_Container) {
   }, {
     key: 'onmousedown',
     value: function onmousedown(e) {
-      if (this._controls) this._controls.onMouseDown(e);
+      if (this._controls) {
+        this._controls.onMouseDown(e);
+      }
     }
   }, {
     key: 'onmousemove',
     value: function onmousemove(e) {
+<<<<<<< Updated upstream
 
       var pointer = this.transcoordC2S(e.offsetX, e.offsetY);
 
@@ -775,46 +778,76 @@ var ThreeContainer = function (_Container) {
       this._mouse.y = -((pointer.y - this.model.top) / this.model.height) * 2 + 1;
 
       if (this._controls) this._controls.onMouseMove(e);
+=======
+      if (this._controls) {
+        this._controls.onMouseMove(e);
+        e.stopPropagation();
+      }
+>>>>>>> Stashed changes
     }
   }, {
     key: 'onwheel',
     value: function onwheel(e) {
-      if (this._controls) this._controls.onMouseWheel(e);
+      if (this._controls) {
+        this._controls.onMouseWheel(e);
+        e.stopPropagation();
+      }
     }
   }, {
     key: 'ondragstart',
     value: function ondragstart(e) {
-      if (this._controls) this._controls.onDragStart(e);
+      if (this._controls) {
+        this._controls.onDragStart(e);
+        e.stopPropagation();
+      }
     }
   }, {
     key: 'ondragmove',
     value: function ondragmove(e) {
-      if (this._controls) this._controls.onDragMove(e);
+      if (this._controls) {
+        this._controls.onDragMove(e);
+        e.stopPropagation();
+      }
     }
   }, {
     key: 'ondragend',
     value: function ondragend(e) {
-      if (this._controls) this._controls.onDragEnd(e);
+      if (this._controls) {
+        this._controls.onDragEnd(e);
+        e.stopPropagation();
+      }
     }
   }, {
     key: 'ontouchstart',
     value: function ontouchstart(e) {
-      if (this._controls) this._controls.onTouchStart(e);
+      if (this._controls) {
+        this._controls.onTouchStart(e);
+        e.stopPropagation();
+      }
     }
   }, {
     key: 'ontouchmove',
     value: function ontouchmove(e) {
-      if (this._controls) this._controls.onTouchMove(e);
+      if (this._controls) {
+        this._controls.onTouchMove(e);
+        e.stopPropagation();
+      }
     }
   }, {
     key: 'ontouchend',
     value: function ontouchend(e) {
-      if (this._controls) this._controls.onTouchEnd(e);
+      if (this._controls) {
+        this._controls.onTouchEnd(e);
+        e.stopPropagation();
+      }
     }
   }, {
     key: 'onkeydown',
     value: function onkeydown(e) {
-      if (this._controls) this._controls.onKeyDown(e);
+      if (this._controls) {
+        this._controls.onKeyDown(e);
+        e.stopPropagation();
+      }
     }
   }, {
     key: 'scene3d',

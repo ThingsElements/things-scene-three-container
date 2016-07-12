@@ -137,7 +137,7 @@ export default class ThreeContainer extends Container {
 
     this._load_manager = new THREE.LoadingManager();
     this._load_manager.onProgress = function(item, loaded, total){
-    
+
     }
     this.animate()
   }
@@ -221,7 +221,7 @@ export default class ThreeContainer extends Container {
           } else {
             tooltip.style.display = 'none'
           }
-          
+
         } else {
           tooltip.style.display = 'none'
         }
@@ -323,7 +323,7 @@ export default class ThreeContainer extends Container {
       || after.hasOwnProperty('far')
       || after.hasOwnProperty('zoom')
       ) {
-      
+
       this._camera.fov = after.fov || this.model.fov
       this._camera.near = after.near || this.model.near
       this._camera.far = after.far || this.model.far
@@ -341,62 +341,81 @@ export default class ThreeContainer extends Container {
   }
 
   onmousedown(e) {
-    if(this._controls)
+    if(this._controls) {
       this._controls.onMouseDown(e)
+    }
   }
 
   onmousemove(e) {
 
-    var pointer = this.transcoordC2S(e.offsetX, e.offsetY)
+    if(this._controls) {
+      var pointer = this.transcoordC2S(e.offsetX, e.offsetY)
 
-    this._mouse.originX = e.offsetX;
-    this._mouse.originY = e.offsetY;
+      this._mouse.originX = e.offsetX;
+      this._mouse.originY = e.offsetY;
 
-    this._mouse.x = ( (pointer.x - this.model.left ) / (this.model.width) ) * 2 - 1;
-    this._mouse.y = - ( (pointer.y - this.model.top ) / this.model.height ) * 2 + 1;
+      this._mouse.x = ( (pointer.x - this.model.left ) / (this.model.width) ) * 2 - 1;
+      this._mouse.y = - ( (pointer.y - this.model.top ) / this.model.height ) * 2 + 1;
 
-    if(this._controls)
       this._controls.onMouseMove(e)
+      e.stopPropagation()
+    }
   }
 
   onwheel(e) {
-    if(this._controls)
+    if(this._controls) {
       this._controls.onMouseWheel(e)
+      e.stopPropagation()
+    }
   }
 
   ondragstart(e) {
-    if(this._controls)
+    if(this._controls) {
       this._controls.onDragStart(e)
+      e.stopPropagation()
+    }
   }
 
   ondragmove(e) {
-    if(this._controls)
+    if(this._controls) {
       this._controls.onDragMove(e)
+      e.stopPropagation()
+    }
   }
 
   ondragend(e) {
-    if(this._controls)
+    if(this._controls) {
       this._controls.onDragEnd(e)
+      e.stopPropagation()
+    }
   }
 
   ontouchstart(e) {
-    if(this._controls)
+    if(this._controls) {
       this._controls.onTouchStart(e)
+      e.stopPropagation()
+    }
   }
 
   ontouchmove(e) {
-    if(this._controls)
+    if(this._controls) {
       this._controls.onTouchMove(e)
+      e.stopPropagation()
+    }
   }
 
   ontouchend(e) {
-    if(this._controls)
+    if(this._controls) {
       this._controls.onTouchEnd(e)
+      e.stopPropagation()
+    }
   }
 
   onkeydown(e) {
-    if(this._controls)
+    if(this._controls) {
       this._controls.onKeyDown(e)
+      e.stopPropagation()
+    }
   }
 
 }
