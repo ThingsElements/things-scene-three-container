@@ -429,6 +429,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var STATUS_COLORS = ['black', '#ccaa76', '#ff1100', '#252525', '#6ac428'];
+
 var _scene = scene;
 var Component = _scene.Component;
 var Container = _scene.Container;
@@ -517,7 +519,7 @@ var ThreeContainer = function (_Container) {
   }, {
     key: 'init_scene3d',
     value: function init_scene3d() {
-      this._mouse = { x: 0, y: 0 };
+      this._mouse = { x: 0, y: 0, originX: 0, originY: 0 };
 
       if (!this.tooltip) this.createTooltip();
 
@@ -690,6 +692,7 @@ var ThreeContainer = function (_Container) {
       tooltip.style['border-radius'] = '10px';
       tooltip.style.display = 'none';
       tooltip.style['z-index'] = 100;
+      tooltip.style['white-space'] = 'pre-line';
 
       document.body.appendChild(tooltip);
     }
@@ -738,6 +741,8 @@ var ThreeContainer = function (_Container) {
   }, {
     key: 'onchange',
     value: function onchange(after, before) {
+      var _this2 = this;
+
       if (after.hasOwnProperty('width') || after.hasOwnProperty('height') || after.hasOwnProperty('threed') || after.hasOwnProperty('autoRotate')) this.destroy_scene3d();
 
       if (after.hasOwnProperty('fov') || after.hasOwnProperty('near') || after.hasOwnProperty('far') || after.hasOwnProperty('zoom')) {
@@ -749,6 +754,27 @@ var ThreeContainer = function (_Container) {
         this._camera.updateProjectionMatrix();
         this.render_threed();
         return;
+      }
+
+      if (after.hasOwnProperty("data")) {
+        var data = after.data;
+
+        data.forEach(function (d) {
+          var stock = _this2._scene3d.getObjectByName(d.loc, true);
+          if (stock) {
+            stock.userData = d;
+          }
+
+          if (stock) {
+            stock.material.color.set(STATUS_COLORS[d.status]);
+
+            if (d.status === 0) {
+              stock.visible = false;
+            } else {
+              stock.visible = true;
+            }
+          }
+        });
       }
 
       // if(after.hasOwnProperty('autoRotate')) {
@@ -767,23 +793,19 @@ var ThreeContainer = function (_Container) {
   }, {
     key: 'onmousemove',
     value: function onmousemove(e) {
-<<<<<<< Updated upstream
 
-      var pointer = this.transcoordC2S(e.offsetX, e.offsetY);
-
-      this._mouse.originX = e.offsetX;
-      this._mouse.originY = e.offsetY;
-
-      this._mouse.x = (pointer.x - this.model.left) / this.model.width * 2 - 1;
-      this._mouse.y = -((pointer.y - this.model.top) / this.model.height) * 2 + 1;
-
-      if (this._controls) this._controls.onMouseMove(e);
-=======
       if (this._controls) {
+        var pointer = this.transcoordC2S(e.offsetX, e.offsetY);
+
+        this._mouse.originX = e.offsetX;
+        this._mouse.originY = e.offsetY;
+
+        this._mouse.x = (pointer.x - this.model.left) / this.model.width * 2 - 1;
+        this._mouse.y = -((pointer.y - this.model.top) / this.model.height) * 2 + 1;
+
         this._controls.onMouseMove(e);
         e.stopPropagation();
       }
->>>>>>> Stashed changes
     }
   }, {
     key: 'onwheel',

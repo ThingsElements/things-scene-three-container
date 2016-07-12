@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <!--
 @license
 Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
@@ -21,6 +21,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <link rel="import" href="../../things-scene-indoor-map/things-scene-indoor-map.html">
     <link rel="import" href="../../things-scene-forklift/things-scene-forklift.html">
     <link rel="import" href="../../things-scene-person/things-scene-person.html">
+    
+    <link rel="import" href="./things-subscriber.html">
 
     <link rel="import" href="./things-scene-three-container.html">
 
@@ -68,10 +70,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <p>An example of <code>&lt;things-scene-three-container&gt;</code>:</p>
 
+      <things-subscriber id="subscriber"
+                         message="{{message}}">
+      </things-subscriber>
+
       <things-scene-viewer id='scene'
                            scene='{{scene}}'
                            selected='{{selected}}'
                            model='[[model]]'
+                           values="[[message]]"
                            mode="1">
         <things-scene-layer type="selection-layer"></things-scene-layer>
         <things-scene-layer type="modeling-layer"></things-scene-layer>
@@ -112,6 +119,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <script>
       window.addEventListener('WebComponentsReady', function(e) {
         var app = document.querySelector('#app')
+
+        app.$.subscriber.start()
 
         var zeroToNine = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 

@@ -1,0 +1,107 @@
+<!-- <link rel="import" href="../bower_components/polymer/polymer.html"> -->
+
+<dom-module id="things-subscriber">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+    </style>
+
+  </template>
+
+  <script src="../bower_components/stomp-websocket/lib/stomp.min.js"></script>
+  <script src="../bower_components/sockjs/sockjs.min.js"></script>
+
+  <script>
+    (function() {
+      'use strict';
+
+      Polymer({
+        is: 'things-subscriber',
+
+        properties: {
+          message: {
+            type: Object,
+            notify: true
+          },
+
+          subject: {
+            type: String,
+            notify: true,
+            value: '/elidom/stomp/topic/hatiolab-hq/smart' //+ this.subjectSuffix
+          },
+
+          subjectSuffix : {
+            type: String,
+            value : "0"
+          },
+
+          url: {
+            type: String,
+            notify: true,
+            value: 'http://192.168.35.225:9013/elidom/stomp'
+          },
+
+          login: {
+            type: String,
+            notify: true
+          },
+
+          passcode: {
+            type: String,
+            notify: true
+          }
+        },
+
+        ready: function() {
+        },
+
+        stop: function() {
+          /* implementation for stomp */
+          if(this.client) {
+            this.client.disconnect(function() {
+              console.log('disconnected')
+            });
+
+            this.client = null
+          }
+        },
+
+        start: function() {
+          this.stop()
+
+          var socket = new SockJS(this.url);
+          this.client = Stomp.over(socket);
+
+          var self = this
+          // this allows to display debug logs directly on the web page
+          this.client.debug = function(str) {
+            // console.log(str)
+          };
+
+          // the client is notified when it is connected to the server.
+          // client.connect(login, passcode, function(frame) {
+          this.client.connect({}, function(frame) {
+            console.log('connected')
+
+            self.client.subscribe(self.subject, function(message) {
+              console.log(message.body)
+              self.message = JSON.parse(message.body)
+            });
+          });
+        },
+
+        subscribe: function(subject, subscriber, callback){
+          self.client.subscribe(subject, callback);
+        },
+
+        unsubscribe: function (subject){
+          // do somthing
+        }
+
+      });
+    })();
+  </script>
+</dom-module>

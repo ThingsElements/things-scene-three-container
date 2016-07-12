@@ -5,6 +5,8 @@ import Person from './person'
 import ThreeLayout from './three-layout'
 import ThreeControls from './three-controls'
 
+const STATUS_COLORS = ['black', '#ccaa76', '#ff1100', '#252525', '#6ac428']
+
 var { Component, Container, Layout } = scene
 
 function registerLoaders() {
@@ -76,7 +78,7 @@ export default class ThreeContainer extends Container {
   }
 
   init_scene3d() {
-    this._mouse = { x: 0, y: 0 }
+    this._mouse = { x: 0, y: 0, originX: 0, originY : 0 }
 
     if(!this.tooltip)
       this.createTooltip()
@@ -257,6 +259,7 @@ export default class ThreeContainer extends Container {
     tooltip.style['border-radius'] = '10px';
     tooltip.style.display = 'none';
     tooltip.style['z-index'] = 100;
+    tooltip.style['white-space'] = 'pre-line';
 
     document.body.appendChild(tooltip);
 
@@ -312,6 +315,7 @@ export default class ThreeContainer extends Container {
   }
 
   onchange(after, before) {
+
     if(after.hasOwnProperty('width')
       || after.hasOwnProperty('height')
       || after.hasOwnProperty('threed')
@@ -331,6 +335,29 @@ export default class ThreeContainer extends Container {
       this._camera.updateProjectionMatrix();
       this.render_threed();
       return;
+    }
+
+    if(after.hasOwnProperty("data")){
+      var data = after.data
+
+      data.forEach(d => {
+        let stock = this._scene3d.getObjectByName(d.loc, true)
+        if(stock) {
+          stock.userData = d;
+        }
+
+        if(stock){
+          stock.material.color.set(STATUS_COLORS[d.status])
+
+          if(d.status === 0) {
+            stock.visible = false
+          } else {
+            stock.visible = true
+          }
+
+        }
+
+      })
     }
 
     // if(after.hasOwnProperty('autoRotate')) {

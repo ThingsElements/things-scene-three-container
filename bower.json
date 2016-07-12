@@ -1,6 +1,6 @@
 {
   "name": "things-scene-three-container",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "authors": [
     "Stellan Gil <lotstar87@gmail.com>"
   ],
@@ -31,6 +31,8 @@
     "things-designer-elements": "ThingsElements/things-designer-elements",
     "things-scene-indoor-map": "ThingsElements/things-scene-indoor-map",
     "things-scene-forklift": "ThingsElements/things-scene-forklift",
-    "things-scene-person": "ThingsElements/things-scene-person"
+    "things-scene-person": "ThingsElements/things-scene-person",
+    "stomp-websocket": "^2.3.4",
+    "sockjs": "^0.3.4"
   }
 }
