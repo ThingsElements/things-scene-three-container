@@ -109,7 +109,7 @@ Object.defineProperty(exports, 'ThreeContainer', {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./three-container":6}],3:[function(require,module,exports){
+},{"./three-container":7}],3:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -207,6 +207,70 @@ var Person = function (_THREE$Object3D) {
 exports.default = Person;
 
 },{}],4:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _scene = scene;
+var Component = _scene.Component;
+
+var Plane = function (_THREE$Mesh) {
+  _inherits(Plane, _THREE$Mesh);
+
+  function Plane(model) {
+    _classCallCheck(this, Plane);
+
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Plane).call(this));
+
+    _this._model = model;
+
+    _this.createObject(model);
+
+    return _this;
+  }
+
+  _createClass(Plane, [{
+    key: 'createObject',
+    value: function createObject(model) {
+
+      this.createPlane(model.width, model.height, model.fillStyle);
+    }
+  }, {
+    key: 'createPlane',
+    value: function createPlane(w, h, fillStyle) {
+
+      this.geometry = new THREE.PlaneGeometry(w, h);
+      if (fillStyle && fillStyle.type == 'pattern' && fillStyle.image) {
+        var texture = new THREE.TextureLoader().load(fillStyle.image);
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.repeat.set(1, 1);
+        this.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.FrontSide });
+      } else {
+        this.material = new THREE.MeshBasicMaterial({ color: fillStyle || '#ccaa76', side: THREE.FrontSide });
+      }
+
+      this.rotation.x = -Math.PI / 2;
+      this.type = 'rect';
+    }
+  }]);
+
+  return Plane;
+}(THREE.Mesh);
+
+exports.default = Plane;
+
+},{}],5:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -339,7 +403,7 @@ var Rack = function (_THREE$Object3D) {
 
 exports.default = Rack;
 
-},{"./stock":5}],5:[function(require,module,exports){
+},{"./stock":6}],6:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -390,7 +454,7 @@ var Stock = function (_THREE$Mesh) {
 
 exports.default = Stock;
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -404,6 +468,10 @@ var _get = function get(object, property, receiver) { if (object === null) objec
 var _rack = require('./rack');
 
 var _rack2 = _interopRequireDefault(_rack);
+
+var _plane = require('./plane');
+
+var _plane2 = _interopRequireDefault(_plane);
 
 var _forkLift = require('./forkLift');
 
@@ -461,10 +529,23 @@ var ThreeContainer = function (_Container) {
 
     value: function createFloor(color, width, height) {
 
-      var floorMaterial = new THREE.MeshBasicMaterial({
-        color: color,
-        side: THREE.DoubleSide
-      });
+      var fillStyle = this.model.fillStyle;
+
+      var floorMaterial;
+
+      if (fillStyle.type == 'pattern' && fillStyle.image) {
+        var floorTexture = new THREE.TextureLoader().load(fillStyle.image);
+        floorTexture.wrapS = THREE.RepeatWrapping;
+        floorTexture.wrapT = THREE.RepeatWrapping;
+        floorTexture.repeat.set(1, 1);
+        floorMaterial = new THREE.MeshBasicMaterial({ map: floorTexture, side: THREE.DoubleSide });
+      } else {
+        floorMaterial = new THREE.MeshBasicMaterial({
+          color: color,
+          side: THREE.DoubleSide
+        });
+      }
+
       var floorGeometry = new THREE.BoxGeometry(width, height, 1, 10, 10);
 
       var floor = new THREE.Mesh(floorGeometry, floorMaterial);
@@ -495,6 +576,9 @@ var ThreeContainer = function (_Container) {
           case 'person':
             item = new _person2.default(model, canvasSize);
             break;
+
+          case 'rect':
+            item = new _plane2.default(model, canvasSize);
 
           default:
             break;
@@ -892,7 +976,7 @@ exports.default = ThreeContainer;
 
 Component.register('three-container', ThreeContainer);
 
-},{"./forkLift":1,"./person":3,"./rack":4,"./three-controls":7,"./three-layout":8}],7:[function(require,module,exports){
+},{"./forkLift":1,"./person":3,"./plane":4,"./rack":5,"./three-controls":8,"./three-layout":9}],8:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1621,7 +1705,7 @@ ThreeControls.prototype.constructor = ThreeControls;
 
 exports.default = ThreeControls;
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {

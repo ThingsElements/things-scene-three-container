@@ -1,4 +1,5 @@
 import Rack from './rack'
+import Plane from './plane'
 import ForkLift from './forkLift'
 import Person from './person'
 
@@ -22,10 +23,23 @@ export default class ThreeContainer extends Container {
 
   createFloor(color, width, height) {
 
-    var floorMaterial = new THREE.MeshBasicMaterial({
-      color: color,
-      side: THREE.DoubleSide
-    })
+    let fillStyle = this.model.fillStyle
+
+    var floorMaterial
+
+    if(fillStyle.type == 'pattern' && fillStyle.image) {
+      var floorTexture = new THREE.TextureLoader().load(fillStyle.image)
+      floorTexture.wrapS = THREE.RepeatWrapping
+      floorTexture.wrapT = THREE.RepeatWrapping
+      floorTexture.repeat.set(1,1)
+      floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
+    } else {
+      floorMaterial = new THREE.MeshBasicMaterial({
+        color: color,
+        side: THREE.DoubleSide
+      })
+    }
+
     var floorGeometry = new THREE.BoxGeometry(width, height, 1, 10, 10)
 
     var floor = new THREE.Mesh(floorGeometry, floorMaterial)
@@ -55,6 +69,9 @@ export default class ThreeContainer extends Container {
         case 'person':
           item = new Person(model, canvasSize)
           break;
+
+        case 'rect':
+          item = new Plane(model, canvasSize)
 
         default:
           break;

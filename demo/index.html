@@ -207,6 +207,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           height : 10,
           depth : 10
         })
+        racks.push({
+          type:'rect',
+          left: 600,
+          top : 600,
+          width: 50,
+          height : 50,
+          fillStyle: {
+            type: 'pattern',
+            image: './images/livevideo-play.png'
+          }
+        });
 
         app.model = {
           width: 1600,
@@ -227,6 +238,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             zoom: 100,
             threed: true,
             locked: true,
+            fillStyle: {
+              type: 'pattern',
+              image: './images/warehouse-floor-plan-layout.jpg'
+              // ,
+              // offsetX: parseInt(this.pattern.offsetX) || 0,
+              // offsetY: parseInt(this.pattern.offsetY) || 0,
+              // width: parseInt(this.pattern.width),
+              // height: parseInt(this.pattern.height),
+              // align: this.pattern.align,
+              // fitPattern: this.pattern.fitPattern
+            },
             // autoRotate : true,
             autoRotate : false,
             components: racks
