@@ -80,6 +80,9 @@ var ThreeControls = function( object, component ) {
   this.position0 = this.object.position.clone();
   this.zoom0 = this.object.zoom;
 
+  // flags
+  this.cameraChanged = false
+
   //
   // public methods
   //
@@ -196,13 +199,13 @@ var ThreeControls = function( object, component ) {
       // min(camera displacement, camera rotation in radians)^2 > EPS
       // using small-angle approximation cos(x/2) = 1 - x^2 / 8
 
-      if ( zoomChanged ||
+      if ( scope.cameraChanged ||
         lastPosition.distanceToSquared( scope.object.position ) > EPS ||
         8 * ( 1 - lastQuaternion.dot( scope.object.quaternion ) ) > EPS ) {
 
         lastPosition.copy( scope.object.position );
         lastQuaternion.copy( scope.object.quaternion );
-        zoomChanged = false;
+        scope.cameraChanged = false;
 
         scope.component.render_threed();
         return true;
@@ -290,17 +293,6 @@ var ThreeControls = function( object, component ) {
       return;
 
     state = STATE.NONE;
-  }
-
-  this.onMouseWheel = function(event) {
-
-    if(event.type === 'wheel')
-      state = STATE.DOLLY
-
-    if ( this.enabled === false || this.enableZoom === false || state !== STATE.DOLLY ) return;
-
-    handleMouseWheel( event );
-    state = STATE.NONE
   }
 
   this.onKeyDown = function(event) {
@@ -634,40 +626,6 @@ var ThreeControls = function( object, component ) {
   }
 
   function handleMouseUp( event ) {
-  }
-
-  function handleMouseWheel( event ) {
-
-    var delta = 0;
-
-    // if ( event.wheelDelta !== undefined ) {
-
-    //   // WebKit / Opera / Explorer 9
-
-    //   delta = event.wheelDelta;
-
-    // } else if ( event.detail !== undefined ) {
-
-    //   // Firefox
-
-    //   delta = - event.detail;
-
-    // }
-
-    delta = - event.deltaY
-
-    if ( delta > 0 ) {
-
-      dollyOut( getZoomScale() );
-
-    } else if ( delta < 0 ) {
-
-      dollyIn( getZoomScale() );
-
-    }
-
-    scope.update();
-
   }
 
   function handleKeyDown( event ) {

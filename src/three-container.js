@@ -84,6 +84,8 @@ export default class ThreeContainer extends Container {
   }
 
   destroy_scene3d() {
+    this.stop();
+    this._renderer && this._renderer.clear()
     this._renderer = undefined
     this._camera = undefined
     this._keyboard = undefined
@@ -163,9 +165,13 @@ export default class ThreeContainer extends Container {
 
   animate() {
 
-    requestAnimationFrame( this.animate.bind(this) );
+    this._animationFrame = requestAnimationFrame( this.animate.bind(this) );
     this.update();
 
+  }
+
+  stop() {
+    cancelAnimationFrame(this._animationFrame)
   }
 
   update() {
@@ -335,23 +341,27 @@ export default class ThreeContainer extends Container {
 
     if(after.hasOwnProperty('width')
       || after.hasOwnProperty('height')
-      || after.hasOwnProperty('threed')
-      || after.hasOwnProperty('autoRotate'))
+      || after.hasOwnProperty('threed'))
       this.destroy_scene3d()
+
+    if(after.hasOwnProperty('autoRotate')) {
+      this._controls.autoRotate = after.autoRotate
+    }
 
     if(after.hasOwnProperty('fov')
       || after.hasOwnProperty('near')
       || after.hasOwnProperty('far')
-      || after.hasOwnProperty('zoom')
-      ) {
+      || after.hasOwnProperty('zoom')) {
 
-      this._camera.fov = after.fov || this.model.fov
       this._camera.near = after.near || this.model.near
       this._camera.far = after.far || this.model.far
       this._camera.zoom = (after.zoom || this.model.zoom) * 0.01
+      this._camera.fov = (after.fov || this.model.fov) / this._camera.zoom
       this._camera.updateProjectionMatrix();
-      this.render_threed();
-      return;
+
+      this._controls.cameraChanged = true
+      // this.render_threed();
+      // return;
     }
 
     if(after.hasOwnProperty("data")){
@@ -408,7 +418,7 @@ export default class ThreeContainer extends Container {
 
   onwheel(e) {
     if(this._controls) {
-      this._controls.onMouseWheel(e)
+      this.handleMouseWheel(e)
       e.stopPropagation()
     }
   }
@@ -461,6 +471,22 @@ export default class ThreeContainer extends Container {
       e.stopPropagation()
     }
   }
+
+  handleMouseWheel( event ) {
+
+    var delta = 0;
+    var zoom = this.model.zoom
+
+    delta = - event.deltaY
+    zoom += delta * 0.01
+    if(zoom < 0) 
+      zoom = 0
+
+    this.set('zoom', zoom)
+
+  }
+
+  
 
 }
 

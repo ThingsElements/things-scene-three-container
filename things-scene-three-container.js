@@ -597,6 +597,8 @@ var ThreeContainer = function (_Container) {
   }, {
     key: 'destroy_scene3d',
     value: function destroy_scene3d() {
+      this.stop();
+      this._renderer && this._renderer.clear();
       this._renderer = undefined;
       this._camera = undefined;
       this._keyboard = undefined;
@@ -680,8 +682,13 @@ var ThreeContainer = function (_Container) {
     key: 'animate',
     value: function animate() {
 
-      requestAnimationFrame(this.animate.bind(this));
+      this._animationFrame = requestAnimationFrame(this.animate.bind(this));
       this.update();
+    }
+  }, {
+    key: 'stop',
+    value: function stop() {
+      cancelAnimationFrame(this._animationFrame);
     }
   }, {
     key: 'update',
@@ -833,17 +840,23 @@ var ThreeContainer = function (_Container) {
     value: function onchange(after, before) {
       var _this2 = this;
 
-      if (after.hasOwnProperty('width') || after.hasOwnProperty('height') || after.hasOwnProperty('threed') || after.hasOwnProperty('autoRotate')) this.destroy_scene3d();
+      if (after.hasOwnProperty('width') || after.hasOwnProperty('height') || after.hasOwnProperty('threed')) this.destroy_scene3d();
+
+      if (after.hasOwnProperty('autoRotate')) {
+        this._controls.autoRotate = after.autoRotate;
+      }
 
       if (after.hasOwnProperty('fov') || after.hasOwnProperty('near') || after.hasOwnProperty('far') || after.hasOwnProperty('zoom')) {
 
-        this._camera.fov = after.fov || this.model.fov;
         this._camera.near = after.near || this.model.near;
         this._camera.far = after.far || this.model.far;
         this._camera.zoom = (after.zoom || this.model.zoom) * 0.01;
+        this._camera.fov = (after.fov || this.model.fov) / this._camera.zoom;
         this._camera.updateProjectionMatrix();
-        this.render_threed();
-        return;
+
+        this._controls.cameraChanged = true;
+        // this.render_threed();
+        // return;
       }
 
       if (after.hasOwnProperty("data")) {
@@ -901,7 +914,7 @@ var ThreeContainer = function (_Container) {
     key: 'onwheel',
     value: function onwheel(e) {
       if (this._controls) {
-        this._controls.onMouseWheel(e);
+        this.handleMouseWheel(e);
         e.stopPropagation();
       }
     }
@@ -960,6 +973,19 @@ var ThreeContainer = function (_Container) {
         this._controls.onKeyDown(e);
         e.stopPropagation();
       }
+    }
+  }, {
+    key: 'handleMouseWheel',
+    value: function handleMouseWheel(event) {
+
+      var delta = 0;
+      var zoom = this.model.zoom;
+
+      delta = -event.deltaY;
+      zoom += delta * 0.01;
+      if (zoom < 0) zoom = 0;
+
+      this.set('zoom', zoom);
     }
   }, {
     key: 'scene3d',
@@ -1069,6 +1095,9 @@ var ThreeControls = function ThreeControls(object, component) {
   this.target0 = this.target.clone();
   this.position0 = this.object.position.clone();
   this.zoom0 = this.object.zoom;
+
+  // flags
+  this.cameraChanged = false;
 
   //
   // public methods
@@ -1180,11 +1209,11 @@ var ThreeControls = function ThreeControls(object, component) {
       // min(camera displacement, camera rotation in radians)^2 > EPS
       // using small-angle approximation cos(x/2) = 1 - x^2 / 8
 
-      if (zoomChanged || lastPosition.distanceToSquared(scope.object.position) > EPS || 8 * (1 - lastQuaternion.dot(scope.object.quaternion)) > EPS) {
+      if (scope.cameraChanged || lastPosition.distanceToSquared(scope.object.position) > EPS || 8 * (1 - lastQuaternion.dot(scope.object.quaternion)) > EPS) {
 
         lastPosition.copy(scope.object.position);
         lastQuaternion.copy(scope.object.quaternion);
-        zoomChanged = false;
+        scope.cameraChanged = false;
 
         scope.component.render_threed();
         return true;
@@ -1249,16 +1278,6 @@ var ThreeControls = function ThreeControls(object, component) {
   this.onDragEnd = function (event) {
     if (this.enabled === false || this.enableRotate === false) return;
 
-    state = STATE.NONE;
-  };
-
-  this.onMouseWheel = function (event) {
-
-    if (event.type === 'wheel') state = STATE.DOLLY;
-
-    if (this.enabled === false || this.enableZoom === false || state !== STATE.DOLLY) return;
-
-    handleMouseWheel(event);
     state = STATE.NONE;
   };
 
@@ -1565,37 +1584,6 @@ var ThreeControls = function ThreeControls(object, component) {
   }
 
   function handleMouseUp(event) {}
-
-  function handleMouseWheel(event) {
-
-    var delta = 0;
-
-    // if ( event.wheelDelta !== undefined ) {
-
-    //   // WebKit / Opera / Explorer 9
-
-    //   delta = event.wheelDelta;
-
-    // } else if ( event.detail !== undefined ) {
-
-    //   // Firefox
-
-    //   delta = - event.detail;
-
-    // }
-
-    delta = -event.deltaY;
-
-    if (delta > 0) {
-
-      dollyOut(getZoomScale());
-    } else if (delta < 0) {
-
-      dollyIn(getZoomScale());
-    }
-
-    scope.update();
-  }
 
   function handleKeyDown(event) {
 
