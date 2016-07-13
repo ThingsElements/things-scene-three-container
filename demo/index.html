@@ -21,7 +21,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <link rel="import" href="../../things-scene-indoor-map/things-scene-indoor-map.html">
     <link rel="import" href="../../things-scene-forklift/things-scene-forklift.html">
     <link rel="import" href="../../things-scene-person/things-scene-person.html">
-    
+
     <link rel="import" href="./things-subscriber.html">
 
     <link rel="import" href="./things-scene-three-container.html">
@@ -253,12 +253,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             autoRotate : false,
             components: racks
           }, {
-            type: 'rect',
+            type: 'video-player-360',
             left: 50,
             top: 50,
-            width: 200,
-            height: 200,
-            fillStyle: 'red'
+            width: 500,
+            height: 400,
+            src: 'http://streams.kolor.com/streams/3fcee1a9-9cca-4742-8171-ac6e0de530a2/source.03-1080p_HD.mp4',
+            fillStyle: 'red',
+            autoplay: true,
+            fov: 35,
+            flatProjection: true
           }]
         }
 
