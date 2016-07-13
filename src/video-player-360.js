@@ -204,8 +204,10 @@ export default class VideoPlayer360 extends Rect {
   onchange(after, before) {
 
     if(after.hasOwnProperty('width')
-      || after.hasOwnProperty('height'))
-      this.resize(w, h)
+      || after.hasOwnProperty('height')) {
+      this.resize(this.model.width, this.model.height)
+    }
+      
     if(after.hasOwnProperty('src'))
       this.destroy_scene()
 

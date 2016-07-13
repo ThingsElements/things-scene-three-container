@@ -45,7 +45,7 @@ export default class ThreeContainer extends Container {
     var floor = new THREE.Mesh(floorGeometry, floorMaterial)
 
     floor.position.y = -1
-    floor.rotation.x = Math.PI / 2
+    floor.rotation.x = - Math.PI / 2
 
     this._scene3d.add(floor)
   }
@@ -104,6 +104,9 @@ export default class ThreeContainer extends Container {
 
     if(this._scene3d)
       this.destroy_scene3d()
+
+    window.addEventListener('focus', this.onWindowFocus.bind(this));
+    window.addEventListener('blur', this.onWindowBlur.bind(this));
 
     registerLoaders()
 
@@ -164,7 +167,6 @@ export default class ThreeContainer extends Container {
   }
 
   animate() {
-
     this._animationFrame = requestAnimationFrame( this.animate.bind(this) );
     this.update();
 
@@ -486,7 +488,14 @@ export default class ThreeContainer extends Container {
 
   }
 
-  
+  onWindowFocus(e) {
+    console.log("focus!!")
+    // this.render_threed();
+  }
+
+  onWindowBlur(e) {
+    // this.stop()
+  }
 
 }
 
