@@ -227,23 +227,29 @@ var Component = _scene.Component;
 var Plane = function (_THREE$Mesh) {
   _inherits(Plane, _THREE$Mesh);
 
-  function Plane(model) {
+  function Plane(model, canvasSize) {
     _classCallCheck(this, Plane);
 
     var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Plane).call(this));
 
     _this._model = model;
 
-    _this.createObject(model);
+    _this.createObject(model, canvasSize);
 
     return _this;
   }
 
   _createClass(Plane, [{
     key: 'createObject',
-    value: function createObject(model) {
+    value: function createObject(model, canvasSize) {
 
       this.createPlane(model.width, model.height, model.fillStyle);
+
+      var cx = model.left + model.width / 2 - canvasSize.width / 2;
+      var cy = model.top + model.height / 2 - canvasSize.height / 2;
+
+      this.position.x = cx;
+      this.position.z = cy;
     }
   }, {
     key: 'createPlane',

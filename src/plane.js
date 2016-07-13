@@ -2,19 +2,25 @@ var { Component } = scene
 
 export default class Plane extends THREE.Mesh {
 
-  constructor(model) {
+  constructor(model, canvasSize) {
 
     super();
 
     this._model = model;
 
-    this.createObject(model);
+    this.createObject(model, canvasSize);
 
   }
 
-  createObject(model) {
+  createObject(model, canvasSize) {
 
     this.createPlane(model.width, model.height, model.fillStyle)
+
+    let cx = (model.left + (model.width/2)) - canvasSize.width/2
+    let cy = (model.top + (model.height/2)) - canvasSize.height/2
+
+    this.position.x = cx;
+    this.position.z = cy;
 
   }
 
