@@ -27,20 +27,27 @@ export default class ThreeContainer extends Container {
 
     var floorMaterial
 
+    var self = this;
+
     if(fillStyle.type == 'pattern' && fillStyle.image) {
-      var floorTexture = new THREE.TextureLoader().load(fillStyle.image)
-      floorTexture.wrapS = THREE.RepeatWrapping
-      floorTexture.wrapT = THREE.RepeatWrapping
-      floorTexture.repeat.set(1,1)
+      var floorTexture = new THREE.TextureLoader().load(fillStyle.image, function() {
+        self.render_threed()
+      })
+      floorTexture.premultiplyAlpha = true
+      floorTexture.wrapS = THREE.MirroredRepeatWrapping
+      floorTexture.wrapT = THREE.MirroredRepeatWrapping
+      // floorTexture.repeat.set(1,1)
+      // floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.FrontSide } );
       floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
     } else {
       floorMaterial = new THREE.MeshBasicMaterial({
         color: color,
-        side: THREE.DoubleSide
+        side: THREE.FrontSide
       })
     }
 
-    var floorGeometry = new THREE.BoxGeometry(width, height, 1, 10, 10)
+    var floorGeometry = new THREE.PlaneGeometry(width, height)
+    // var floorGeometry = new THREE.BoxGeometry(width, height, 10, 10, 10)
 
     var floor = new THREE.Mesh(floorGeometry, floorMaterial)
 
@@ -355,15 +362,13 @@ export default class ThreeContainer extends Container {
       || after.hasOwnProperty('far')
       || after.hasOwnProperty('zoom')) {
 
-      this._camera.near = after.near || this.model.near
-      this._camera.far = after.far || this.model.far
-      this._camera.zoom = (after.zoom || this.model.zoom) * 0.01
-      this._camera.fov = (after.fov || this.model.fov) / this._camera.zoom
+      this._camera.near = this.model.near
+      this._camera.far = this.model.far
+      this._camera.zoom = this.model.zoom * 0.01
+      this._camera.fov = this.model.fov
       this._camera.updateProjectionMatrix();
 
       this._controls.cameraChanged = true
-      // this.render_threed();
-      // return;
     }
 
     if(after.hasOwnProperty("data")){

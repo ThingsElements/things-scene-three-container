@@ -548,20 +548,27 @@ var ThreeContainer = function (_Container) {
 
       var floorMaterial;
 
+      var self = this;
+
       if (fillStyle.type == 'pattern' && fillStyle.image) {
-        var floorTexture = new THREE.TextureLoader().load(fillStyle.image);
-        floorTexture.wrapS = THREE.RepeatWrapping;
-        floorTexture.wrapT = THREE.RepeatWrapping;
-        floorTexture.repeat.set(1, 1);
+        var floorTexture = new THREE.TextureLoader().load(fillStyle.image, function () {
+          self.render_threed();
+        });
+        floorTexture.premultiplyAlpha = true;
+        floorTexture.wrapS = THREE.MirroredRepeatWrapping;
+        floorTexture.wrapT = THREE.MirroredRepeatWrapping;
+        // floorTexture.repeat.set(1,1)
+        // floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.FrontSide } );
         floorMaterial = new THREE.MeshBasicMaterial({ map: floorTexture, side: THREE.DoubleSide });
       } else {
         floorMaterial = new THREE.MeshBasicMaterial({
           color: color,
-          side: THREE.DoubleSide
+          side: THREE.FrontSide
         });
       }
 
-      var floorGeometry = new THREE.BoxGeometry(width, height, 1, 10, 10);
+      var floorGeometry = new THREE.PlaneGeometry(width, height);
+      // var floorGeometry = new THREE.BoxGeometry(width, height, 10, 10, 10)
 
       var floor = new THREE.Mesh(floorGeometry, floorMaterial);
 
@@ -859,15 +866,13 @@ var ThreeContainer = function (_Container) {
 
       if (after.hasOwnProperty('fov') || after.hasOwnProperty('near') || after.hasOwnProperty('far') || after.hasOwnProperty('zoom')) {
 
-        this._camera.near = after.near || this.model.near;
-        this._camera.far = after.far || this.model.far;
-        this._camera.zoom = (after.zoom || this.model.zoom) * 0.01;
-        this._camera.fov = (after.fov || this.model.fov) / this._camera.zoom;
+        this._camera.near = this.model.near;
+        this._camera.far = this.model.far;
+        this._camera.zoom = this.model.zoom * 0.01;
+        this._camera.fov = this.model.fov;
         this._camera.updateProjectionMatrix();
 
         this._controls.cameraChanged = true;
-        // this.render_threed();
-        // return;
       }
 
       if (after.hasOwnProperty("data")) {
@@ -1791,7 +1796,20 @@ var VideoPlayer360 = function (_Rect) {
       var autoplay = _model.autoplay;
       var src = _model.src;
       var fov = _model.fov;
+      var clickAndDrag = _model.clickAndDrag;
+      var wheelEnabled = _model.wheelEnabled;
 
+
+      this._dragStart = {};
+      this._lon = 0;
+      this._lat = 0;
+      this._clickAndDrag = clickAndDrag;
+      this._isPlaying = false;
+      this._wheelEnabled = wheelEnabled;
+
+      this._fov = fov || 35;
+      this._fovMin = 3;
+      this._fovMax = 100;
 
       this._time = new Date().getTime();
 
@@ -1800,7 +1818,7 @@ var VideoPlayer360 = function (_Rect) {
 
       // create ThreeJS camera
       this._camera = new THREE.PerspectiveCamera(fov, width / height, 0.1, 1000);
-      this._camera.setLens(fov);
+      this._camera.setFocalLength(fov);
 
       // create ThreeJS renderer and append it to our object
       this._renderer = new THREE.WebGLRenderer();
@@ -1819,7 +1837,9 @@ var VideoPlayer360 = function (_Rect) {
       var self = this;
 
       // attach video player event listeners
-      this._video.addEventListener("ended", function () {});
+      this._video.addEventListener("ended", function () {
+        this._isPlaying = false;
+      });
 
       // Progress Meter
       this._video.addEventListener("progress", function () {
@@ -1850,7 +1870,7 @@ var VideoPlayer360 = function (_Rect) {
       this._video.addEventListener("canplay", function () {
 
         if (autoplay === true) {
-          self._video.play();
+          self.play();
           self._videoReady = true;
         }
       });
@@ -1867,6 +1887,8 @@ var VideoPlayer360 = function (_Rect) {
       this._mesh = new THREE.Mesh(new THREE.SphereGeometry(500, 80, 50), new THREE.MeshBasicMaterial({ map: this._texture }));
       this._mesh.scale.x = -1; // mirror the texture, since we're looking from the inside out
       this._scene.add(this._mesh);
+
+      // this.createControls()
 
       this.animate();
     }
@@ -1905,11 +1927,13 @@ var VideoPlayer360 = function (_Rect) {
   }, {
     key: 'play',
     value: function play() {
+      this._isPlaying = true;
       this._video.play();
     }
   }, {
     key: 'pause',
     value: function pause() {
+      this._isPlaying = false;
       this._video.pause();
     }
   }, {
@@ -1966,6 +1990,105 @@ var VideoPlayer360 = function (_Rect) {
       this._renderer.render(this._scene, this._camera);
     }
 
+    // creates div and buttons for onscreen video controls
+
+  }, {
+    key: 'createControls',
+    value: function createControls() {
+
+      var muteControl = this.options.muted ? 'fa-volume-off' : 'fa-volume-up';
+      var playPauseControl = this.options.autoplay ? 'fa-pause' : 'fa-play';
+
+      var controlsHTML = ' \
+          <div class="controls"> \
+              <a href="#" class="playButton button fa ' + playPauseControl + '"></a> \
+              <a href="#" class="muteButton button fa ' + muteControl + '"></a> \
+              <a href="#" class="fullscreenButton button fa fa-expand"></a> \
+          </div> \
+      ';
+
+      $(this.element).append(controlsHTML, true);
+
+      // hide controls if option is set
+      if (this.options.hideControls) {
+        $(this.element).find('.controls').hide();
+      }
+
+      // wire up controller events to dom elements
+      // this.attachControlEvents();
+    }
+  }, {
+    key: 'attachControlEvents',
+    value: function attachControlEvents() {
+
+      // create a self var to pass to our controller functions
+      var self = this;
+
+      this.element.addEventListener('mousemove', this.onMouseMove.bind(this), false);
+      this.element.addEventListener('touchmove', this.onMouseMove.bind(this), false);
+      this.element.addEventListener('mousewheel', this.onMouseWheel.bind(this), false);
+      this.element.addEventListener('DOMMouseScroll', this.onMouseWheel.bind(this), false);
+      this.element.addEventListener('mousedown', this.onMouseDown.bind(this), false);
+      this.element.addEventListener('touchstart', this.onMouseDown.bind(this), false);
+      this.element.addEventListener('mouseup', this.onMouseUp.bind(this), false);
+      this.element.addEventListener('touchend', this.onMouseUp.bind(this), false);
+
+      $(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange', this.fullscreen.bind(this));
+
+      $(window).resize(function () {
+        self.resizeGL($(self.element).width(), $(self.element).height());
+      });
+
+      // Player Controls
+      $(this.element).find('.playButton').click(function (e) {
+        e.preventDefault();
+        if ($(this).hasClass('fa-pause')) {
+          $(this).removeClass('fa-pause').addClass('fa-play');
+          self.pause();
+        } else {
+          $(this).removeClass('fa-play').addClass('fa-pause');
+          self.play();
+        }
+      });
+
+      $(this.element).find(".fullscreenButton").click(function (e) {
+        e.preventDefault();
+        var elem = $(self.element)[0];
+        if ($(this).hasClass('fa-expand')) {
+          if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+          } else if (elem.msRequestFullscreen) {
+            elem.msRequestFullscreen();
+          } else if (elem.mozRequestFullScreen) {
+            elem.mozRequestFullScreen();
+          } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen();
+          }
+        } else {
+          if (elem.requestFullscreen) {
+            document.exitFullscreen();
+          } else if (elem.msRequestFullscreen) {
+            document.msExitFullscreen();
+          } else if (elem.mozRequestFullScreen) {
+            document.mozCancelFullScreen();
+          } else if (elem.webkitRequestFullscreen) {
+            document.webkitExitFullscreen();
+          }
+        }
+      });
+
+      $(this.element).find(".muteButton").click(function (e) {
+        e.preventDefault();
+        if ($(this).hasClass('fa-volume-off')) {
+          $(this).removeClass('fa-volume-off').addClass('fa-volume-up');
+          self._video.muted = false;
+        } else {
+          $(this).removeClass('fa-volume-up').addClass('fa-volume-off');
+          self._video.muted = true;
+        }
+      });
+    }
+
     /* Component Overides .. */
 
   }, {
@@ -2004,20 +2127,91 @@ var VideoPlayer360 = function (_Rect) {
       this.invalidate();
     }
   }, {
+    key: 'ondblclick',
+    value: function ondblclick(e) {
+      if (this._isPlaying) this.pause();else this.play();
+
+      e.stopPropagation();
+    }
+  }, {
     key: 'onmousedown',
     value: function onmousedown(e) {}
   }, {
     key: 'onmousemove',
-    value: function onmousemove(e) {}
+    value: function onmousemove(e) {
+
+      if (this._clickAndDrag === false) {
+
+        var x, y;
+
+        this._onPointerDownPointerX = e.offsetX;
+        this._onPointerDownPointerY = -e.offsetY;
+
+        this._onPointerDownLon = this._lon;
+        this._onPointerDownLat = this._lat;
+
+        x = e.offsetX - this._renderer.getContext().canvas.offsetLeft;
+        y = e.offsetY - this._renderer.getContext().canvas.offsetTop;
+        this._lon = x / this._renderer.getContext().canvas.width * 430 - 225;
+        this._lat = y / this._renderer.getContext().canvas.height * -180 + 90;
+      }
+    }
   }, {
     key: 'onwheel',
-    value: function onwheel(e) {}
+    value: function onwheel(e) {
+      if (this._wheelEnabled === false) return;
+
+      var wheelSpeed = 0.01;
+
+      this._fov -= e.deltaY * wheelSpeed;
+
+      if (this._fov < this._fovMin) {
+        this._fov = this._fovMin;
+      } else if (this._fov > this._fovMax) {
+        this._fov = this._fovMax;
+      }
+
+      this._camera.setFocalLength(this._fov);
+      this._camera.updateProjectionMatrix();
+      e.stopPropagation();
+    }
   }, {
     key: 'ondragstart',
-    value: function ondragstart(e) {}
+    value: function ondragstart(e) {
+      // this._dragStart.x = e.pageX;
+      // this._dragStart.y = e.pageY;
+      this._dragStart.x = e.offsetX;
+      this._dragStart.y = e.offsetY;
+    }
   }, {
     key: 'ondragmove',
-    value: function ondragmove(e) {}
+    value: function ondragmove(e) {
+
+      if (this._isPlaying === false) {
+        return;
+      }
+
+      if (this._clickAndDrag !== false) {
+        // this._onPointerDownPointerX = e.clientX;
+        // this._onPointerDownPointerY = -e.clientY;
+        this._onPointerDownPointerX = e.offsetX;
+        this._onPointerDownPointerY = -e.offsetY;
+
+        this._onPointerDownLon = this._lon;
+        this._onPointerDownLat = this._lat;
+
+        var x, y;
+
+        x = e.offsetX - this._dragStart.x;
+        y = e.offsetY - this._dragStart.y;
+        this._dragStart.x = e.offsetX;
+        this._dragStart.y = e.offsetY;
+        this._lon += x;
+        this._lat -= y;
+      }
+
+      e.stopPropagation();
+    }
   }, {
     key: 'ondragend',
     value: function ondragend(e) {}
