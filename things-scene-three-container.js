@@ -1939,6 +1939,7 @@ var VideoPlayer360 = function (_Rect) {
   }, {
     key: 'resize',
     value: function resize(w, h) {
+      if (!this._renderer) return;
       this._renderer.setSize(w, h);
       this._camera.aspect = w / h;
       this._camera.updateProjectionMatrix();
@@ -2122,7 +2123,10 @@ var VideoPlayer360 = function (_Rect) {
         this.resize(this.model.width, this.model.height);
       }
 
-      if (after.hasOwnProperty('src')) this.destroy_scene();
+      if (after.hasOwnProperty('src') || after.hasOwnProperty('autoplay')) {
+
+        this.destroy_scene();
+      }
 
       this.invalidate();
     }
