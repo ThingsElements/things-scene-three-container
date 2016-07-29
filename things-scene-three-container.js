@@ -98,6 +98,179 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var STATUS_COLORS = ['#6666ff', '#ccccff', '#ffcccc', '#cc3300'];
+
+var HumiditySensor = function (_THREE$Object3D) {
+  _inherits(HumiditySensor, _THREE$Object3D);
+
+  function HumiditySensor(model, canvasSize) {
+    _classCallCheck(this, HumiditySensor);
+
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(HumiditySensor).call(this));
+
+    _this._model = model;
+
+    _this.userData.temperature = model.humidity ? model.humidity[0] : 0;
+    _this.userData.humidity = model.humidity ? model.humidity[1] : 0;
+
+    _this.createObject(model, canvasSize);
+
+    return _this;
+  }
+
+  _createClass(HumiditySensor, [{
+    key: 'createObject',
+    value: function createObject(model, canvasSize) {
+
+      var cx = model.cx - canvasSize.width / 2;
+      var cy = model.cy - canvasSize.height / 2;
+      var cz = (model.zPos || 0) + model.depth / 2;
+
+      var rotation = model.rotation;
+
+      this.type = 'humidity-sensor';
+
+      if (model.location) this.name = model.location;
+
+      for (var i = 0; i < 3; i++) {
+        var mesh = this.createSensor(model.rx * (1 + 0.5 * i), model.ry * (1 + 0.5 * i), model.depth * (1 + 0.5 * i), i);
+        mesh.material.opacity = 0.5 - i * 0.15;
+      }
+
+      this.position.set(cx, cz, cy);
+      this.rotation.y = model.rotation || 0;
+    }
+  }, {
+    key: 'createSensor',
+    value: function createSensor(w, h, d, i) {
+
+      var isFirst = i === 0;
+
+      var geometry = new THREE.SphereGeometry(w, 32, 32);
+      // let geometry = new THREE.SphereGeometry(w, d, h);
+      var material;
+      if (isFirst) {
+        // var texture = new THREE.TextureLoader().load('./images/drop-34055_1280.png')
+        // texture.repeat.set(1,1)
+        // // texture.premultiplyAlpha = true
+        material = new THREE.MeshLambertMaterial({ color: '#6ccdff', side: THREE.FrontSide });
+        // material = new THREE.MeshLambertMaterial( { color : '#74e98a', side: THREE.FrontSide} );
+      } else {
+        material = new THREE.MeshBasicMaterial({ color: '#6ccdff', side: THREE.FrontSide, wireframe: true, wireframeLinewidth: 1 });
+        // material = new THREE.MeshBasicMaterial( { color : '#74e98a', side: THREE.FrontSide, wireframe: true, wireframeLinewidth : 1} );
+      }
+
+      // let material = new THREE.MeshBasicMaterial( { color : '#ff3300', side: THREE.DoubleSide, wireframe: true, wireframeLinewidth : 1} );
+
+      var mesh = new THREE.Mesh(geometry, material);
+      mesh.material.transparent = true;
+
+      this.add(mesh);
+
+      return mesh;
+    }
+  }, {
+    key: 'onUserDataChanged',
+    value: function onUserDataChanged() {
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+
+        for (var _iterator = this.children[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var sphere = _step.value;
+
+          var colorIndex = 0;
+          if (this.userData.temperature < 0) {
+            colorIndex = 0;
+          } else if (this.userData.temperature < 10) {
+            colorIndex = 1;
+          } else if (this.userData.temperature < 20) {
+            colorIndex = 2;
+          } else {
+            colorIndex = 3;
+          }
+
+          sphere.material.color.set(STATUS_COLORS[colorIndex]);
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+    }
+  }]);
+
+  return HumiditySensor;
+}(THREE.Object3D);
+
+exports.default = HumiditySensor;
+var _scene = scene;
+var Component = _scene.Component;
+var Ellipse = _scene.Ellipse;
+
+var Sensor = exports.Sensor = function (_Ellipse) {
+  _inherits(Sensor, _Ellipse);
+
+  function Sensor() {
+    _classCallCheck(this, Sensor);
+
+    return _possibleConstructorReturn(this, Object.getPrototypeOf(Sensor).apply(this, arguments));
+  }
+
+  _createClass(Sensor, [{
+    key: '_draw',
+    value: function _draw(context) {
+      var _bounds = this.bounds;
+      var left = _bounds.left;
+      var top = _bounds.top;
+      var width = _bounds.width;
+      var height = _bounds.height;
+
+
+      context.beginPath();
+      context.rect(left, top, width, height);
+
+      this.model.fillStyle = {
+        type: 'pattern',
+        fitPattern: true,
+        image: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAABBCAYAAACTiffeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyppVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTMyIDc5LjE1OTI4NCwgMjAxNi8wNC8xOS0xMzoxMzo0MCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTUuNSAoTWFjaW50b3NoKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpDQ0E1QkUzRTRDMDcxMUU2QkMyRDk3MzlGN0EzMTI2NSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpDQ0E1QkUzRjRDMDcxMUU2QkMyRDk3MzlGN0EzMTI2NSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjJFQ0Q4QzE5NEI1MjExRTZCQzJEOTczOUY3QTMxMjY1IiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjJFQ0Q4QzFBNEI1MjExRTZCQzJEOTczOUY3QTMxMjY1Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+tgU1kQAAB4pJREFU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"
+        // image: '../images/' + imageNumber + '.png'
+      };
+      this.drawFill(context);
+    }
+  }]);
+
+  return Sensor;
+}(Ellipse);
+
+Component.register('humidity-sensor', Sensor);
+
+},{}],3:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
 var _threeContainer = require('./three-container');
 
 Object.defineProperty(exports, 'ThreeContainer', {
@@ -118,7 +291,7 @@ Object.defineProperty(exports, 'VideoPlayer360', {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./three-container":7,"./video-player-360":10}],3:[function(require,module,exports){
+},{"./three-container":8,"./video-player-360":11}],4:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -215,7 +388,7 @@ var Person = function (_THREE$Object3D) {
 
 exports.default = Person;
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -285,7 +458,7 @@ var Plane = function (_THREE$Mesh) {
 
 exports.default = Plane;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -317,6 +490,7 @@ var Rack = function (_THREE$Object3D) {
     _this._model = model;
 
     _this.createObject(model, canvasSize);
+    _this.castShadow = true;
     return _this;
   }
 
@@ -418,7 +592,7 @@ var Rack = function (_THREE$Object3D) {
 
 exports.default = Rack;
 
-},{"./stock":6}],6:[function(require,module,exports){
+},{"./stock":7}],7:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -432,6 +606,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var STATUS_COLORS = ['black', '#ccaa76', '#ff1100', '#252525', '#6ac428'];
 
 var Stock = function (_THREE$Mesh) {
   _inherits(Stock, _THREE$Mesh);
@@ -461,6 +637,19 @@ var Stock = function (_THREE$Mesh) {
       this.geometry = new THREE.BoxGeometry(w, d, h);
       this.material = new THREE.MeshLambertMaterial({ color: '#ccaa76', side: THREE.FrontSide });
       this.type = 'stock';
+
+      this.castShadow = true;
+    }
+  }, {
+    key: 'onUserDataChanged',
+    value: function onUserDataChanged() {
+      this.material.color.set(STATUS_COLORS[this.userData.status]);
+
+      if (d.status === 0) {
+        this.visible = false;
+      } else {
+        this.visible = true;
+      }
     }
   }]);
 
@@ -469,7 +658,7 @@ var Stock = function (_THREE$Mesh) {
 
 exports.default = Stock;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -496,6 +685,10 @@ var _person = require('./person');
 
 var _person2 = _interopRequireDefault(_person);
 
+var _humiditySensor = require('./humidity-sensor');
+
+var _humiditySensor2 = _interopRequireDefault(_humiditySensor);
+
 var _threeLayout = require('./three-layout');
 
 var _threeLayout2 = _interopRequireDefault(_threeLayout);
@@ -511,8 +704,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var STATUS_COLORS = ['black', '#ccaa76', '#ff1100', '#252525', '#6ac428'];
 
 var _scene = scene;
 var Component = _scene.Component;
@@ -554,12 +745,12 @@ var ThreeContainer = function (_Container) {
         var floorTexture = new THREE.TextureLoader().load(fillStyle.image, function () {
           self.render_threed();
         });
-        floorTexture.premultiplyAlpha = true;
-        floorTexture.wrapS = THREE.MirroredRepeatWrapping;
-        floorTexture.wrapT = THREE.MirroredRepeatWrapping;
+        // floorTexture.premultiplyAlpha = true
+        // floorTexture.wrapS = THREE.MirroredRepeatWrapping
+        // floorTexture.wrapT = THREE.MirroredRepeatWrapping
         // floorTexture.repeat.set(1,1)
         // floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.FrontSide } );
-        floorMaterial = new THREE.MeshBasicMaterial({ map: floorTexture, side: THREE.DoubleSide });
+        floorMaterial = new THREE.MeshBasicMaterial({ map: floorTexture, side: THREE.DoubleSide, specular: 0x050505 });
       } else {
         floorMaterial = new THREE.MeshBasicMaterial({
           color: color,
@@ -572,8 +763,10 @@ var ThreeContainer = function (_Container) {
 
       var floor = new THREE.Mesh(floorGeometry, floorMaterial);
 
-      floor.position.y = -1;
+      floor.receiveShadow = true;
+
       floor.rotation.x = -Math.PI / 2;
+      floor.position.y = -2;
 
       this._scene3d.add(floor);
     }
@@ -601,6 +794,11 @@ var ThreeContainer = function (_Container) {
 
           case 'rect':
             item = new _plane2.default(model, canvasSize);
+            break;
+
+          case 'humidity-sensor':
+            item = new _humiditySensor2.default(model, canvasSize);
+            break;
 
           default:
             break;
@@ -633,8 +831,8 @@ var ThreeContainer = function (_Container) {
 
       if (this._scene3d) this.destroy_scene3d();
 
-      window.addEventListener('focus', this.onWindowFocus.bind(this));
-      window.addEventListener('blur', this.onWindowBlur.bind(this));
+      // window.addEventListener('focus', this.onWindowFocus.bind(this));
+      // window.addEventListener('blur', this.onWindowBlur.bind(this));
 
       registerLoaders();
 
@@ -668,24 +866,35 @@ var ThreeContainer = function (_Container) {
 
       // RENDERER
       this._renderer = new THREE.WebGLRenderer({
-        precision: 'mediump',
+        // precision: 'mediump',
         alpha: true
       });
 
-      this._renderer.setClearColor(0x000000, 0); // transparent
+      this._renderer.setClearColor(0xffffff, 0); // transparent
+      // this._renderer.setClearColor(0x000000, 0) // transparent
       this._renderer.setSize(width, height);
-
-      // KEYBOARD
-      // this._keyboard = new THREEx.KeyboardState()
+      this._renderer.shadowMap.enabled = true;
 
       // CONTROLS
-      // this._controls = new THREE.OrbitControls(this._camera, this._renderer.domElement)
       this._controls = new _threeControls2.default(this._camera, this);
 
       // LIGHT
-      var _light = new THREE.PointLight(light);
-      _light.position.set(10, 10, 0);
+      var _light = new THREE.PointLight(light, 1);
+      // _light.position.set(1,1,1)
+      // _light.castShadow = true
+      // _light.shadow.mapSize.width = 2048;
+      // _light.shadow.mapSize.height = 2048;
+      //
+      // _light.shadow.camera.left = -50;
+      // _light.shadow.camera.right = 50;
+      // _light.shadow.camera.top = 50;
+      // _light.shadow.camera.bottom = -50;
+      // _light.shadow.camera.far = 3500;
       this._camera.add(_light);
+      this._camera.castShadow = true;
+
+      this._tick = 0;
+      this._clock = new THREE.Clock(true);
 
       this.createFloor(fillStyle, width, height);
       this.createObjects(components, { width: width, height: height });
@@ -701,6 +910,9 @@ var ThreeContainer = function (_Container) {
     key: 'animate',
     value: function animate() {
       this._animationFrame = requestAnimationFrame(this.animate.bind(this));
+
+      var delta = this._clock.getDelta();
+
       this.update();
     }
   }, {
@@ -750,17 +962,44 @@ var ThreeContainer = function (_Container) {
 
             if (!this.INTERSECTED.userData) this.INTERSECTED.userData = {};
 
-            var loc = this.INTERSECTED.name;
-            var status = this.INTERSECTED.userData.status;
-            var boxId = this.INTERSECTED.userData.boxId;
-            var inDate = this.INTERSECTED.userData.inDate;
-            var type = this.INTERSECTED.userData.type;
-            var count = this.INTERSECTED.userData.count;
+            // if(this.INTERSECTED.type === 'stock') {
+            //
+            // }
+            //
+            // var loc = this.INTERSECTED.name;
+            // var status = this.INTERSECTED.userData.status;
+            // var boxId = this.INTERSECTED.userData.boxId;
+            // var inDate = this.INTERSECTED.userData.inDate;
+            // var type = this.INTERSECTED.userData.type;
+            // var count = this.INTERSECTED.userData.count;
 
             tooltip.textContent = '';
 
             for (var key in this.INTERSECTED.userData) {
               if (this.INTERSECTED.userData[key]) tooltip.textContent += key + ": " + this.INTERSECTED.userData[key] + "\n";
+            }
+
+            // tooltip.textContent = 'loc : ' + loc
+
+            if (tooltip.textContent.length > 0) {
+              var mouseX = (this._mouse.x + 1) / 2 * this.model.width;
+              var mouseY = (-this._mouse.y + 1) / 2 * this.model.height;
+
+              tooltip.style.left = this._mouse.originX + 20 + 'px';
+              tooltip.style.top = this._mouse.originY - 20 + 'px';
+              tooltip.style.display = 'block';
+            } else {
+              tooltip.style.display = 'none';
+            }
+          } else if (this.INTERSECTED.parent.type === 'humidity-sensor') {
+            if (!this.INTERSECTED.parent.visible) return;
+
+            if (!this.INTERSECTED.parent.userData) this.INTERSECTED.parent.userData = {};
+
+            tooltip.textContent = '';
+
+            for (var _key in this.INTERSECTED.parent.userData) {
+              if (this.INTERSECTED.parent.userData[_key]) tooltip.textContent += _key + ": " + this.INTERSECTED.parent.userData[_key] + "\n";
             }
 
             // tooltip.textContent = 'loc : ' + loc
@@ -814,7 +1053,7 @@ var ThreeContainer = function (_Container) {
   }, {
     key: 'render_threed',
     value: function render_threed() {
-      this._renderer && this._renderer.render(this.scene3d, this._camera);
+      this._renderer && this._renderer.render(this._scene3d, this._camera);
       this.invalidate();
     }
 
@@ -879,19 +1118,21 @@ var ThreeContainer = function (_Container) {
         var data = after.data;
 
         data.forEach(function (d) {
-          var stock = _this2._scene3d.getObjectByName(d.loc, true);
-          if (stock) {
-            stock.userData = d;
+          var object = _this2._scene3d.getObjectByName(d.loc, true);
+          if (object) {
+            object.userData = d;
           }
 
-          if (stock) {
-            stock.material.color.set(STATUS_COLORS[d.status]);
+          if (object) {
+            // object.material.color.set(STATUS_COLORS[d.status])
+            //
+            // if(d.status === 0) {
+            //   object.visible = false
+            // } else {
+            //   object.visible = true
+            // }
 
-            if (d.status === 0) {
-              stock.visible = false;
-            } else {
-              stock.visible = true;
-            }
+            object.onUserDataChanged();
           }
         });
       }
@@ -916,8 +1157,8 @@ var ThreeContainer = function (_Container) {
       if (this._controls) {
         var pointer = this.transcoordC2S(e.offsetX, e.offsetY);
 
-        this._mouse.originX = e.offsetX;
-        this._mouse.originY = e.offsetY;
+        this._mouse.originX = this.getContext().canvas.offsetLeft + e.offsetX;
+        this._mouse.originY = this.getContext().canvas.offsetTop + e.offsetY;
 
         this._mouse.x = (pointer.x - this.model.left) / this.model.width * 2 - 1;
         this._mouse.y = -((pointer.y - this.model.top) / this.model.height) * 2 + 1;
@@ -1035,7 +1276,7 @@ exports.default = ThreeContainer;
 
 Component.register('three-container', ThreeContainer);
 
-},{"./forkLift":1,"./person":3,"./plane":4,"./rack":5,"./three-controls":8,"./three-layout":9}],8:[function(require,module,exports){
+},{"./forkLift":1,"./humidity-sensor":2,"./person":4,"./plane":5,"./rack":6,"./three-controls":9,"./three-layout":10}],9:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1726,7 +1967,7 @@ ThreeControls.prototype.constructor = ThreeControls;
 
 exports.default = ThreeControls;
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1757,7 +1998,7 @@ Layout.register('three', ThreeLayout);
 
 exports.default = ThreeLayout;
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2241,4 +2482,4 @@ exports.default = VideoPlayer360;
 
 Component.register('video-player-360', VideoPlayer360);
 
-},{}]},{},[2]);
+},{}]},{},[3]);

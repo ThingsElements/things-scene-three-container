@@ -2,11 +2,10 @@ import Rack from './rack'
 import Plane from './plane'
 import ForkLift from './forkLift'
 import Person from './person'
+import HumiditySensor from './humidity-sensor'
 
 import ThreeLayout from './three-layout'
 import ThreeControls from './three-controls'
-
-const STATUS_COLORS = ['black', '#ccaa76', '#ff1100', '#252525', '#6ac428']
 
 var { Component, Container, Layout } = scene
 
@@ -33,12 +32,12 @@ export default class ThreeContainer extends Container {
       var floorTexture = new THREE.TextureLoader().load(fillStyle.image, function() {
         self.render_threed()
       })
-      floorTexture.premultiplyAlpha = true
-      floorTexture.wrapS = THREE.MirroredRepeatWrapping
-      floorTexture.wrapT = THREE.MirroredRepeatWrapping
+      // floorTexture.premultiplyAlpha = true
+      // floorTexture.wrapS = THREE.MirroredRepeatWrapping
+      // floorTexture.wrapT = THREE.MirroredRepeatWrapping
       // floorTexture.repeat.set(1,1)
       // floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.FrontSide } );
-      floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
+      floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide, specular: 0x050505 } );
     } else {
       floorMaterial = new THREE.MeshBasicMaterial({
         color: color,
@@ -46,13 +45,16 @@ export default class ThreeContainer extends Container {
       })
     }
 
+
     var floorGeometry = new THREE.PlaneGeometry(width, height)
     // var floorGeometry = new THREE.BoxGeometry(width, height, 10, 10, 10)
 
     var floor = new THREE.Mesh(floorGeometry, floorMaterial)
 
-    floor.position.y = -1
+    floor.receiveShadow = true
+
     floor.rotation.x = - Math.PI / 2
+    floor.position.y = -2
 
     this._scene3d.add(floor)
   }
@@ -79,6 +81,11 @@ export default class ThreeContainer extends Container {
 
         case 'rect':
           item = new Plane(model, canvasSize)
+          break;
+
+        case 'humidity-sensor':
+          item = new HumiditySensor(model, canvasSize)
+          break;
 
         default:
           break;
@@ -89,6 +96,8 @@ export default class ThreeContainer extends Container {
 
     this._scene3d.add(obj);
   }
+
+
 
   destroy_scene3d() {
     this.stop();
@@ -112,8 +121,8 @@ export default class ThreeContainer extends Container {
     if(this._scene3d)
       this.destroy_scene3d()
 
-    window.addEventListener('focus', this.onWindowFocus.bind(this));
-    window.addEventListener('blur', this.onWindowBlur.bind(this));
+    // window.addEventListener('focus', this.onWindowFocus.bind(this));
+    // window.addEventListener('blur', this.onWindowBlur.bind(this));
 
     registerLoaders()
 
@@ -141,27 +150,40 @@ export default class ThreeContainer extends Container {
 
     // RENDERER
     this._renderer = new THREE.WebGLRenderer({
-      precision: 'mediump',
+      // precision: 'mediump',
       alpha: true
     });
 
-    this._renderer.setClearColor(0x000000, 0) // transparent
+    this._renderer.setClearColor(0xffffff, 0) // transparent
+    // this._renderer.setClearColor(0x000000, 0) // transparent
     this._renderer.setSize(width, height)
-
-    // KEYBOARD
-    // this._keyboard = new THREEx.KeyboardState()
+    this._renderer.shadowMap.enabled = true
 
     // CONTROLS
-    // this._controls = new THREE.OrbitControls(this._camera, this._renderer.domElement)
     this._controls = new ThreeControls(this._camera, this)
 
     // LIGHT
-    var _light = new THREE.PointLight(light)
-    _light.position.set(10,10,0)
+    var _light = new THREE.PointLight(light, 1)
+    // _light.position.set(1,1,1)
+    // _light.castShadow = true
+    // _light.shadow.mapSize.width = 2048;
+    // _light.shadow.mapSize.height = 2048;
+    //
+    // _light.shadow.camera.left = -50;
+    // _light.shadow.camera.right = 50;
+    // _light.shadow.camera.top = 50;
+    // _light.shadow.camera.bottom = -50;
+    // _light.shadow.camera.far = 3500;
     this._camera.add(_light)
+    this._camera.castShadow = true
+
+
+    this._tick = 0
+    this._clock = new THREE.Clock(true)
 
     this.createFloor(fillStyle, width, height)
     this.createObjects(components, { width, height })
+
 
     // initialize object to perform world/screen calculations
     this._projector = new THREE.Projector();
@@ -175,6 +197,9 @@ export default class ThreeContainer extends Container {
 
   animate() {
     this._animationFrame = requestAnimationFrame( this.animate.bind(this) );
+
+    var delta = this._clock.getDelta()
+
     this.update();
 
   }
@@ -228,12 +253,16 @@ export default class ThreeContainer extends Container {
           if(!this.INTERSECTED.userData)
             this.INTERSECTED.userData = {};
 
-          var loc = this.INTERSECTED.name;
-          var status = this.INTERSECTED.userData.status;
-          var boxId = this.INTERSECTED.userData.boxId;
-          var inDate = this.INTERSECTED.userData.inDate;
-          var type = this.INTERSECTED.userData.type;
-          var count = this.INTERSECTED.userData.count;
+          // if(this.INTERSECTED.type === 'stock') {
+          //
+          // }
+          //
+          // var loc = this.INTERSECTED.name;
+          // var status = this.INTERSECTED.userData.status;
+          // var boxId = this.INTERSECTED.userData.boxId;
+          // var inDate = this.INTERSECTED.userData.inDate;
+          // var type = this.INTERSECTED.userData.type;
+          // var count = this.INTERSECTED.userData.count;
 
 
           tooltip.textContent = '';
@@ -256,7 +285,38 @@ export default class ThreeContainer extends Container {
             tooltip.style.display = 'none'
           }
 
-        } else {
+        }
+        else if(this.INTERSECTED.parent.type === 'humidity-sensor') {
+          if(!this.INTERSECTED.parent.visible)
+            return;
+
+          if(!this.INTERSECTED.parent.userData)
+            this.INTERSECTED.parent.userData = {};
+
+
+          tooltip.textContent = '';
+
+          for (let key in this.INTERSECTED.parent.userData) {
+            if(this.INTERSECTED.parent.userData[key])
+              tooltip.textContent += key + ": " + this.INTERSECTED.parent.userData[key] + "\n"
+          }
+
+          // tooltip.textContent = 'loc : ' + loc
+
+          if(tooltip.textContent.length > 0) {
+            var mouseX = (this._mouse.x + 1) / 2 * (this.model.width)
+            var mouseY = (-this._mouse.y + 1 ) / 2 * (this.model.height)
+
+            tooltip.style.left = this._mouse.originX + 20 + 'px';
+            tooltip.style.top = this._mouse.originY - 20 + 'px';
+            tooltip.style.display = 'block'
+          } else {
+            tooltip.style.display = 'none'
+          }
+
+        }
+
+        else {
           tooltip.style.display = 'none'
         }
 
@@ -304,7 +364,7 @@ export default class ThreeContainer extends Container {
   }
 
   render_threed() {
-    this._renderer && this._renderer.render(this.scene3d, this._camera)
+    this._renderer && this._renderer.render(this._scene3d, this._camera)
     this.invalidate()
   }
 
@@ -375,19 +435,21 @@ export default class ThreeContainer extends Container {
       var data = after.data
 
       data.forEach(d => {
-        let stock = this._scene3d.getObjectByName(d.loc, true)
-        if(stock) {
-          stock.userData = d;
+        let object = this._scene3d.getObjectByName(d.loc, true)
+        if(object) {
+          object.userData = d;
         }
 
-        if(stock){
-          stock.material.color.set(STATUS_COLORS[d.status])
+        if(object){
+          // object.material.color.set(STATUS_COLORS[d.status])
+          //
+          // if(d.status === 0) {
+          //   object.visible = false
+          // } else {
+          //   object.visible = true
+          // }
 
-          if(d.status === 0) {
-            stock.visible = false
-          } else {
-            stock.visible = true
-          }
+          object.onUserDataChanged()
 
         }
 
@@ -412,8 +474,8 @@ export default class ThreeContainer extends Container {
     if(this._controls) {
       var pointer = this.transcoordC2S(e.offsetX, e.offsetY)
 
-      this._mouse.originX = e.offsetX;
-      this._mouse.originY = e.offsetY;
+      this._mouse.originX = this.getContext().canvas.offsetLeft +e.offsetX;
+      this._mouse.originY = this.getContext().canvas.offsetTop + e.offsetY;
 
       this._mouse.x = ( (pointer.x - this.model.left ) / (this.model.width) ) * 2 - 1;
       this._mouse.y = - ( (pointer.y - this.model.top ) / this.model.height ) * 2 + 1;
@@ -486,7 +548,7 @@ export default class ThreeContainer extends Container {
 
     delta = - event.deltaY
     zoom += delta * 0.01
-    if(zoom < 0) 
+    if(zoom < 0)
       zoom = 0
 
     this.set('zoom', zoom)

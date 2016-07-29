@@ -9,6 +9,7 @@ export default class Rack extends THREE.Object3D {
     this._model = model;
 
     this.createObject(model, canvasSize);
+    this.castShadow = true
   }
 
   createObject(model, canvasSize) {

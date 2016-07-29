@@ -78,6 +78,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                            scene='{{scene}}'
                            selected='{{selected}}'
                            model='[[model]]'
+                           variables="{{variables}}"
                            values="[[message]]"
                            mode="1">
         <things-scene-layer type="selection-layer"></things-scene-layer>
@@ -153,6 +154,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }))
         }
 
+        var humidity = [26, 40]
+
         var racks = [1, 2, 3, 4, 5, 6].map(function(top) {
           return buildRow(top, 50, 1).concat((buildRow(top, 650, 2)))
         }).reduce(function(racks, row) {
@@ -217,6 +220,46 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: 'pattern',
             image: './images/livevideo-play.png'
           }
+        }, {
+          type : 'humidity-sensor',
+          id: 'sensor',
+          cx : 80,
+          cy : 80,
+          zPos: 100,
+          rx: 50,
+          ry: 50,
+          depth : 50,
+          humidity: humidity
+        }, {
+          type : 'humidity-sensor',
+          id: 'sensor',
+          cx : 1000,
+          cy : 80,
+          zPos: 100,
+          rx: 50,
+          ry: 50,
+          depth : 50,
+          humidity: humidity
+        }, {
+          type : 'humidity-sensor',
+          id: 'sensor',
+          cx : 80,
+          cy : 800,
+          zPos: 100,
+          rx: 50,
+          ry: 50,
+          depth : 50,
+          humidity: humidity
+        }, {
+          type : 'humidity-sensor',
+          id: 'sensor',
+          cx : 1000,
+          cy : 800,
+          zPos: 100,
+          rx: 50,
+          ry: 50,
+          depth : 50,
+          humidity: humidity
         });
 
         app.model = {
@@ -252,35 +295,64 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             // autoRotate : true,
             autoRotate : false,
             components: racks
-          }, {
-            type: 'video-player-360',
-            left: 50,
-            top: 50,
-            width: 1000,
-            height: 400,
-            src: 'http://streams.kolor.com/streams/856cf3af-bf09-4e78-acb8-3f829e18fdd6/source.03-1080p_HD.mp4',
-            // src: 'http://streams.kolor.com/streams/3fcee1a9-9cca-4742-8171-ac6e0de530a2/source.03-1080p_HD.mp4',
-            fillStyle: 'red',
-            // autoplay: true,
-            loop: true,
-            mute: true,
-            fov: 35,
-            flatProjection: false
-          },{
-            type: 'video-player-360',
-            left: 50,
-            top: 500,
-            width: 1000,
-            height: 400,
-            src: 'http://streams.kolor.com/streams/3fcee1a9-9cca-4742-8171-ac6e0de530a2/source.03-1080p_HD.mp4',
-            fillStyle: 'red',
-            // autoplay: true,
-            loop: true,
-            // clickAndDrag: false,
-            fov: 35,
-            flatProjection: false
-          }]
+          }
+          // , {
+          //   type: 'video-player-360',
+          //   left: 50,
+          //   top: 50,
+          //   width: 1000,
+          //   height: 400,
+          //   src: 'http://streams.kolor.com/streams/856cf3af-bf09-4e78-acb8-3f829e18fdd6/source.03-1080p_HD.mp4',
+          //   // src: 'http://streams.kolor.com/streams/3fcee1a9-9cca-4742-8171-ac6e0de530a2/source.03-1080p_HD.mp4',
+          //   fillStyle: 'red',
+          //   // autoplay: true,
+          //   loop: true,
+          //   mute: true,
+          //   fov: 35,
+          //   flatProjection: false
+          // },{
+          //   type: 'video-player-360',
+          //   left: 50,
+          //   top: 500,
+          //   width: 1000,
+          //   height: 400,
+          //   src: 'http://streams.kolor.com/streams/3fcee1a9-9cca-4742-8171-ac6e0de530a2/source.03-1080p_HD.mp4',
+          //   fillStyle: 'red',
+          //   // autoplay: true,
+          //   loop: true,
+          //   // clickAndDrag: false,
+          //   fov: 35,
+          //   flatProjection: false
+          // }
+        ]
         }
+
+        app.variables = {
+          key : "humidity",
+          mappings:[{
+            param: null,
+            property:"data",
+            rule:"value",
+            target:"#sensor"
+          }],
+          name: "STOCK LEVEL",
+          type: "object",
+          value: [1,2]
+        }
+
+        setInterval(function(){
+          app.message = {
+            data: {
+
+                humidity: [
+                  Math.floor(Math.random() * 40) - 10,
+                  Math.floor(Math.random() * 70)
+                ]
+              }
+
+            }
+          }, 1000)
+
 
       });
     </script>
