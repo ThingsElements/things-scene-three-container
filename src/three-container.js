@@ -353,7 +353,7 @@ export default class ThreeContainer extends Container {
     tooltip.style['z-index'] = 100;
     tooltip.style['white-space'] = 'pre-line';
 
-    document.body.appendChild(tooltip);
+    this.root.target_element.appendChild(tooltip);
 
   }
 
