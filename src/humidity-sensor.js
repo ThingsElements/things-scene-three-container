@@ -40,10 +40,12 @@ export default class HumiditySensor extends THREE.Object3D {
     this.rotation.y = model.rotation || 0
 
     this._container._heatmap.addData({
-      x: model.cx,
-      y: model.cy,
+      x: Math.floor(model.cx),
+      y: Math.floor(model.cy),
       value: this.userData.temperature
     })
+
+    this._container.updateHeatmapTexture()
 
     // var self = this
     //
@@ -101,6 +103,8 @@ export default class HumiditySensor extends THREE.Object3D {
   onUserDataChanged() {
 
     var {cx, cy} = this._model
+    cx = Math.floor(cx)
+    cy = Math.floor(cy)
 
     var temperature = this.userData.temperature
 
@@ -124,7 +128,7 @@ export default class HumiditySensor extends THREE.Object3D {
     // var value = self._container._heatmap.getValueAt({x:model.cx, y: model.cy})
     var value = data[cx][cy]
 
-    self._container._heatmap.addData({
+    this._container._heatmap.addData({
       x: cx,
       y: cy,
       // min: -100,
@@ -133,7 +137,7 @@ export default class HumiditySensor extends THREE.Object3D {
     })
     this._container._heatmap.repaint()
 
-    this._container.render_threed()
+    this._container.updateHeatmapTexture()
 
 
   }

@@ -100,6 +100,10 @@ export default class ThreeContainer extends Container {
   }
 
   createHeatmap(width, height) {
+
+    if(this._model.useHeatmap === false)
+      return
+
     var div = document.createElement('div');
 
     this._heatmap = h337.create({
@@ -109,12 +113,32 @@ export default class ThreeContainer extends Container {
       radius: width
     })
 
-    // this._heatmap.setData({
-    //   max: 100,
-    //   min: -100,
-    //   data: []
-    // })
+    var heatmapMaterial = new THREE.MeshBasicMaterial({
+      side: THREE.FrontSide
+    })
 
+    var heatmapGeometry = new THREE.PlaneGeometry(width, height)
+
+    var heatmap = new THREE.Mesh(heatmapGeometry, heatmapMaterial)
+
+    heatmap.material.transparent = true
+
+    heatmap.rotation.x = - Math.PI / 2
+    heatmap.position.y = -1
+
+    heatmap.name = 'heatmap'
+
+    this._scene3d.add(heatmap)
+
+  }
+
+  updateHeatmapTexture() {
+    var heatmap = this._scene3d.getObjectByName('heatmap', true)
+
+    var texture = new THREE.Texture(this._heatmap._renderer.canvas)
+    texture.needsUpdate = true;
+
+    heatmap.material.map = texture
   }
 
 
@@ -411,14 +435,6 @@ export default class ThreeContainer extends Container {
         this.init_scene3d()
         this.render_threed()
       }
-
-      var texture = new THREE.Texture(this._heatmap._renderer.canvas)
-      texture.needsUpdate = true;
-
-      var floor = this._scene3d.getObjectByName('floor', true)
-
-      floor.material.map = texture
-      // floor.update()
 
       ctx.drawImage(
         this._renderer.domElement, 0, 0, width, height,

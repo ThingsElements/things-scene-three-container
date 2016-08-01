@@ -150,10 +150,12 @@ var HumiditySensor = function (_THREE$Object3D) {
       this.rotation.y = model.rotation || 0;
 
       this._container._heatmap.addData({
-        x: model.cx,
-        y: model.cy,
+        x: Math.floor(model.cx),
+        y: Math.floor(model.cy),
         value: this.userData.temperature
       });
+
+      this._container.updateHeatmapTexture();
 
       // var self = this
       //
@@ -212,6 +214,8 @@ var HumiditySensor = function (_THREE$Object3D) {
       var cx = _model.cx;
       var cy = _model.cy;
 
+      cx = Math.floor(cx);
+      cy = Math.floor(cy);
 
       var temperature = this.userData.temperature;
 
@@ -256,7 +260,7 @@ var HumiditySensor = function (_THREE$Object3D) {
       // var value = self._container._heatmap.getValueAt({x:model.cx, y: model.cy})
       var value = data[cx][cy];
 
-      self._container._heatmap.addData({
+      this._container._heatmap.addData({
         x: cx,
         y: cy,
         // min: -100,
@@ -265,7 +269,7 @@ var HumiditySensor = function (_THREE$Object3D) {
       });
       this._container._heatmap.repaint();
 
-      this._container.render_threed();
+      this._container.updateHeatmapTexture();
     }
   }]);
 
@@ -863,6 +867,9 @@ var ThreeContainer = function (_Container) {
   }, {
     key: 'createHeatmap',
     value: function createHeatmap(width, height) {
+
+      if (this._model.useHeatmap === false) return;
+
       var div = document.createElement('div');
 
       this._heatmap = h337.create({
@@ -872,11 +879,32 @@ var ThreeContainer = function (_Container) {
         radius: width
       });
 
-      // this._heatmap.setData({
-      //   max: 100,
-      //   min: -100,
-      //   data: []
-      // })
+      var heatmapMaterial = new THREE.MeshBasicMaterial({
+        side: THREE.FrontSide
+      });
+
+      var heatmapGeometry = new THREE.PlaneGeometry(width, height);
+
+      var heatmap = new THREE.Mesh(heatmapGeometry, heatmapMaterial);
+
+      heatmap.material.transparent = true;
+
+      heatmap.rotation.x = -Math.PI / 2;
+      heatmap.position.y = -1;
+
+      heatmap.name = 'heatmap';
+
+      this._scene3d.add(heatmap);
+    }
+  }, {
+    key: 'updateHeatmapTexture',
+    value: function updateHeatmapTexture() {
+      var heatmap = this._scene3d.getObjectByName('heatmap', true);
+
+      var texture = new THREE.Texture(this._heatmap._renderer.canvas);
+      texture.needsUpdate = true;
+
+      heatmap.material.map = texture;
     }
   }, {
     key: 'destroy_scene3d',
@@ -1157,14 +1185,6 @@ var ThreeContainer = function (_Container) {
           this.init_scene3d();
           this.render_threed();
         }
-
-        var texture = new THREE.Texture(this._heatmap._renderer.canvas);
-        texture.needsUpdate = true;
-
-        var floor = this._scene3d.getObjectByName('floor', true);
-
-        floor.material.map = texture;
-        // floor.update()
 
         ctx.drawImage(this._renderer.domElement, 0, 0, width, height, left, top, width, height);
       } else {
