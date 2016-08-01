@@ -111,12 +111,13 @@ var STATUS_COLORS = ['#6666ff', '#ccccff', '#ffcccc', '#cc3300'];
 var HumiditySensor = function (_THREE$Object3D) {
   _inherits(HumiditySensor, _THREE$Object3D);
 
-  function HumiditySensor(model, canvasSize) {
+  function HumiditySensor(model, canvasSize, container) {
     _classCallCheck(this, HumiditySensor);
 
     var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(HumiditySensor).call(this));
 
     _this._model = model;
+    _this._container = container;
 
     _this.userData.temperature = model.humidity ? model.humidity[0] : 0;
     _this.userData.humidity = model.humidity ? model.humidity[1] : 0;
@@ -147,6 +148,33 @@ var HumiditySensor = function (_THREE$Object3D) {
 
       this.position.set(cx, cz, cy);
       this.rotation.y = model.rotation || 0;
+
+      this._container._heatmap.addData({
+        x: model.cx,
+        y: model.cy,
+        value: this.userData.temperature
+      });
+
+      // var self = this
+      //
+      // setInterval(function(){
+      //
+      //   var data = self._container._heatmap._store._data
+      //
+      //   // var value = self._container._heatmap.getValueAt({x:model.cx, y: model.cy})
+      //   var value = data[model.cx][model.cy]
+      //
+      //   self._container._heatmap.addData({
+      //     x: model.cx,
+      //     y: model.cy,
+      //     // min: -100,
+      //     // value: -1
+      //     value: (Math.random() * 40 - 10) - value
+      //   })
+      //   self._container._heatmap.repaint()
+      //
+      //   self._container.render_threed()
+      // }, 1000)
     }
   }, {
     key: 'createSensor',
@@ -161,10 +189,10 @@ var HumiditySensor = function (_THREE$Object3D) {
         // var texture = new THREE.TextureLoader().load('./images/drop-34055_1280.png')
         // texture.repeat.set(1,1)
         // // texture.premultiplyAlpha = true
-        material = new THREE.MeshLambertMaterial({ color: '#6ccdff', side: THREE.FrontSide });
+        material = new THREE.MeshLambertMaterial({ color: '#cc3300', side: THREE.FrontSide });
         // material = new THREE.MeshLambertMaterial( { color : '#74e98a', side: THREE.FrontSide} );
       } else {
-        material = new THREE.MeshBasicMaterial({ color: '#6ccdff', side: THREE.FrontSide, wireframe: true, wireframeLinewidth: 1 });
+        material = new THREE.MeshBasicMaterial({ color: '#cc3300', side: THREE.FrontSide, wireframe: true, wireframeLinewidth: 1 });
         // material = new THREE.MeshBasicMaterial( { color : '#74e98a', side: THREE.FrontSide, wireframe: true, wireframeLinewidth : 1} );
       }
 
@@ -180,21 +208,27 @@ var HumiditySensor = function (_THREE$Object3D) {
   }, {
     key: 'onUserDataChanged',
     value: function onUserDataChanged() {
+      var _model = this._model;
+      var cx = _model.cx;
+      var cy = _model.cy;
+
+
+      var temperature = this.userData.temperature;
+
       var _iteratorNormalCompletion = true;
       var _didIteratorError = false;
       var _iteratorError = undefined;
 
       try {
-
         for (var _iterator = this.children[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
           var sphere = _step.value;
 
           var colorIndex = 0;
-          if (this.userData.temperature < 0) {
+          if (temperature < 0) {
             colorIndex = 0;
-          } else if (this.userData.temperature < 10) {
+          } else if (temperature < 10) {
             colorIndex = 1;
-          } else if (this.userData.temperature < 20) {
+          } else if (temperature < 20) {
             colorIndex = 2;
           } else {
             colorIndex = 3;
@@ -216,6 +250,22 @@ var HumiditySensor = function (_THREE$Object3D) {
           }
         }
       }
+
+      var data = this._container._heatmap._store._data;
+
+      // var value = self._container._heatmap.getValueAt({x:model.cx, y: model.cy})
+      var value = data[cx][cy];
+
+      self._container._heatmap.addData({
+        x: cx,
+        y: cy,
+        // min: -100,
+        // value: -1
+        value: temperature - value
+      });
+      this._container._heatmap.repaint();
+
+      this._container.render_threed();
     }
   }]);
 
@@ -767,11 +817,14 @@ var ThreeContainer = function (_Container) {
       floor.rotation.x = -Math.PI / 2;
       floor.position.y = -2;
 
+      floor.name = 'floor';
+
       this._scene3d.add(floor);
     }
   }, {
     key: 'createObjects',
     value: function createObjects(components, canvasSize) {
+      var _this2 = this;
 
       var obj = new THREE.Object3D();
 
@@ -796,7 +849,7 @@ var ThreeContainer = function (_Container) {
             break;
 
           case 'humidity-sensor':
-            item = new _humiditySensor2.default(model, canvasSize);
+            item = new _humiditySensor2.default(model, canvasSize, _this2);
             break;
 
           default:
@@ -806,6 +859,24 @@ var ThreeContainer = function (_Container) {
       });
 
       this._scene3d.add(obj);
+    }
+  }, {
+    key: 'createHeatmap',
+    value: function createHeatmap(width, height) {
+      var div = document.createElement('div');
+
+      this._heatmap = h337.create({
+        container: div,
+        width: width,
+        height: height,
+        radius: width
+      });
+
+      // this._heatmap.setData({
+      //   max: 100,
+      //   min: -100,
+      //   data: []
+      // })
     }
   }, {
     key: 'destroy_scene3d',
@@ -895,6 +966,7 @@ var ThreeContainer = function (_Container) {
       this._tick = 0;
       this._clock = new THREE.Clock(true);
 
+      this.createHeatmap(width, height);
       this.createFloor(fillStyle, width, height);
       this.createObjects(components, { width: width, height: height });
 
@@ -1086,6 +1158,14 @@ var ThreeContainer = function (_Container) {
           this.render_threed();
         }
 
+        var texture = new THREE.Texture(this._heatmap._renderer.canvas);
+        texture.needsUpdate = true;
+
+        var floor = this._scene3d.getObjectByName('floor', true);
+
+        floor.material.map = texture;
+        // floor.update()
+
         ctx.drawImage(this._renderer.domElement, 0, 0, width, height, left, top, width, height);
       } else {
         _get(Object.getPrototypeOf(ThreeContainer.prototype), '_draw', this).call(this, ctx);
@@ -1094,7 +1174,7 @@ var ThreeContainer = function (_Container) {
   }, {
     key: 'onchange',
     value: function onchange(after, before) {
-      var _this2 = this;
+      var _this3 = this;
 
       if (after.hasOwnProperty('width') || after.hasOwnProperty('height') || after.hasOwnProperty('threed')) this.destroy_scene3d();
 
@@ -1117,7 +1197,7 @@ var ThreeContainer = function (_Container) {
         var data = after.data;
 
         data.forEach(function (d) {
-          var object = _this2._scene3d.getObjectByName(d.loc, true);
+          var object = _this3._scene3d.getObjectByName(d.loc, true);
           if (object) {
             object.userData = d;
           }

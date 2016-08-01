@@ -1,6 +1,6 @@
 {
   "name": "things-scene-three-container",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "authors": [
     "Stellan Gil <lotstar87@gmail.com>"
   ],
@@ -21,7 +21,8 @@
     "polymer": "Polymer/polymer#^1.2.0",
     "iron-elements": "PolymerElements/iron-elements#^1.0.0",
     "paper-elements": "PolymerElements/paper-elements#^1.0.1",
-    "threejs":"r79"
+    "threejs": "r79",
+    "heatmap.js-amd": "pa7/heatmap.js"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

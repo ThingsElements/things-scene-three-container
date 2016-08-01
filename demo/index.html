@@ -154,8 +154,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }))
         }
 
-        var humidity = [26, 40]
-
         var racks = [1, 2, 3, 4, 5, 6].map(function(top) {
           return buildRow(top, 50, 1).concat((buildRow(top, 650, 2)))
         }).reduce(function(racks, row) {
@@ -229,7 +227,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           rx: 50,
           ry: 50,
           depth : 50,
-          humidity: humidity
+          humidity: [
+            Math.floor(Math.random() * 40) - 10,
+            Math.floor(Math.random() * 80)
+          ]
         }, {
           type : 'humidity-sensor',
           id: 'sensor',
@@ -239,7 +240,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           rx: 50,
           ry: 50,
           depth : 50,
-          humidity: humidity
+          humidity: [
+            Math.floor(Math.random() * 40) - 10,
+            Math.floor(Math.random() * 80)
+          ]
         }, {
           type : 'humidity-sensor',
           id: 'sensor',
@@ -249,7 +253,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           rx: 50,
           ry: 50,
           depth : 50,
-          humidity: humidity
+          humidity: [
+            Math.floor(Math.random() * 40) - 10,
+            Math.floor(Math.random() * 80)
+          ]
         }, {
           type : 'humidity-sensor',
           id: 'sensor',
@@ -259,7 +266,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           rx: 50,
           ry: 50,
           depth : 50,
-          humidity: humidity
+          humidity: [
+            Math.floor(Math.random() * 40) - 10,
+            Math.floor(Math.random() * 80)
+          ]
         });
 
         app.model = {

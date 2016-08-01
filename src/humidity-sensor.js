@@ -2,11 +2,12 @@ const STATUS_COLORS = ['#6666ff', '#ccccff', '#ffcccc', '#cc3300']
 
 export default class HumiditySensor extends THREE.Object3D {
 
-  constructor(model, canvasSize) {
+  constructor(model, canvasSize, container) {
 
     super();
 
     this._model = model;
+    this._container = container
 
     this.userData.temperature = model.humidity ? model.humidity[0] : 0
     this.userData.humidity = model.humidity? model.humidity[1] : 0
@@ -38,6 +39,33 @@ export default class HumiditySensor extends THREE.Object3D {
     this.position.set(cx, cz, cy)
     this.rotation.y = model.rotation || 0
 
+    this._container._heatmap.addData({
+      x: model.cx,
+      y: model.cy,
+      value: this.userData.temperature
+    })
+
+    // var self = this
+    //
+    // setInterval(function(){
+    //
+    //   var data = self._container._heatmap._store._data
+    //
+    //   // var value = self._container._heatmap.getValueAt({x:model.cx, y: model.cy})
+    //   var value = data[model.cx][model.cy]
+    //
+    //   self._container._heatmap.addData({
+    //     x: model.cx,
+    //     y: model.cy,
+    //     // min: -100,
+    //     // value: -1
+    //     value: (Math.random() * 40 - 10) - value
+    //   })
+    //   self._container._heatmap.repaint()
+    //
+    //   self._container.render_threed()
+    // }, 1000)
+
   }
 
   createSensor(w, h, d, i) {
@@ -51,10 +79,10 @@ export default class HumiditySensor extends THREE.Object3D {
       // var texture = new THREE.TextureLoader().load('./images/drop-34055_1280.png')
       // texture.repeat.set(1,1)
       // // texture.premultiplyAlpha = true
-      material = new THREE.MeshLambertMaterial( { color : '#6ccdff', side: THREE.FrontSide} );
+      material = new THREE.MeshLambertMaterial( { color : '#cc3300', side: THREE.FrontSide} );
       // material = new THREE.MeshLambertMaterial( { color : '#74e98a', side: THREE.FrontSide} );
     } else {
-      material = new THREE.MeshBasicMaterial( { color : '#6ccdff', side: THREE.FrontSide, wireframe: true, wireframeLinewidth : 1} );
+      material = new THREE.MeshBasicMaterial( { color : '#cc3300', side: THREE.FrontSide, wireframe: true, wireframeLinewidth : 1} );
       // material = new THREE.MeshBasicMaterial( { color : '#74e98a', side: THREE.FrontSide, wireframe: true, wireframeLinewidth : 1} );
     }
 
@@ -72,13 +100,17 @@ export default class HumiditySensor extends THREE.Object3D {
 
   onUserDataChanged() {
 
+    var {cx, cy} = this._model
+
+    var temperature = this.userData.temperature
+
     for (let sphere of this.children) {
       var colorIndex = 0;
-      if(this.userData.temperature < 0) {
+      if(temperature < 0) {
         colorIndex = 0;
-      } else if (this.userData.temperature < 10) {
+      } else if (temperature < 10) {
         colorIndex = 1;
-      } else if (this.userData.temperature < 20) {
+      } else if (temperature < 20) {
         colorIndex = 2;
       } else {
         colorIndex = 3;
@@ -86,6 +118,23 @@ export default class HumiditySensor extends THREE.Object3D {
 
       sphere.material.color.set(STATUS_COLORS[colorIndex])
     }
+
+    var data = this._container._heatmap._store._data
+
+    // var value = self._container._heatmap.getValueAt({x:model.cx, y: model.cy})
+    var value = data[cx][cy]
+
+    self._container._heatmap.addData({
+      x: cx,
+      y: cy,
+      // min: -100,
+      // value: -1
+      value: temperature - value
+    })
+    this._container._heatmap.repaint()
+
+    this._container.render_threed()
+
 
   }
 }

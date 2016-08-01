@@ -56,6 +56,8 @@ export default class ThreeContainer extends Container {
     floor.rotation.x = - Math.PI / 2
     floor.position.y = -2
 
+    floor.name = 'floor'
+
     this._scene3d.add(floor)
   }
 
@@ -84,7 +86,7 @@ export default class ThreeContainer extends Container {
           break;
 
         case 'humidity-sensor':
-          item = new HumiditySensor(model, canvasSize)
+          item = new HumiditySensor(model, canvasSize, this)
           break;
 
         default:
@@ -97,6 +99,23 @@ export default class ThreeContainer extends Container {
     this._scene3d.add(obj);
   }
 
+  createHeatmap(width, height) {
+    var div = document.createElement('div');
+
+    this._heatmap = h337.create({
+      container: div,
+      width: width,
+      height: height,
+      radius: width
+    })
+
+    // this._heatmap.setData({
+    //   max: 100,
+    //   min: -100,
+    //   data: []
+    // })
+
+  }
 
 
   destroy_scene3d() {
@@ -181,6 +200,7 @@ export default class ThreeContainer extends Container {
     this._tick = 0
     this._clock = new THREE.Clock(true)
 
+    this.createHeatmap(width, height)
     this.createFloor(fillStyle, width, height)
     this.createObjects(components, { width, height })
 
@@ -391,6 +411,14 @@ export default class ThreeContainer extends Container {
         this.init_scene3d()
         this.render_threed()
       }
+
+      var texture = new THREE.Texture(this._heatmap._renderer.canvas)
+      texture.needsUpdate = true;
+
+      var floor = this._scene3d.getObjectByName('floor', true)
+
+      floor.material.map = texture
+      // floor.update()
 
       ctx.drawImage(
         this._renderer.domElement, 0, 0, width, height,
