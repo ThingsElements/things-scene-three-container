@@ -876,7 +876,7 @@ var ThreeContainer = function (_Container) {
         container: div,
         width: width,
         height: height,
-        radius: width
+        radius: Math.sqrt(width * width + height * height) / 4
       });
 
       var heatmapMaterial = new THREE.MeshBasicMaterial({
@@ -1161,6 +1161,8 @@ var ThreeContainer = function (_Container) {
   }, {
     key: '_draw',
     value: function _draw(ctx) {
+      var _this3 = this;
+
       var _model2 = this.model;
       var left = _model2.left;
       var top = _model2.top;
@@ -1186,6 +1188,22 @@ var ThreeContainer = function (_Container) {
           this.render_threed();
         }
 
+        if (this._dataChanged) {
+
+          this._data && this._data.forEach(function (d) {
+            var object = _this3._scene3d.getObjectByName(d.loc, true);
+            if (object) {
+              object.userData = d;
+            }
+
+            if (object) {
+              object.onUserDataChanged();
+            }
+          });
+
+          this._dataChanged = false;
+        }
+
         ctx.drawImage(this._renderer.domElement, 0, 0, width, height, left, top, width, height);
       } else {
         _get(Object.getPrototypeOf(ThreeContainer.prototype), '_draw', this).call(this, ctx);
@@ -1194,7 +1212,6 @@ var ThreeContainer = function (_Container) {
   }, {
     key: 'onchange',
     value: function onchange(after, before) {
-      var _this3 = this;
 
       if (after.hasOwnProperty('width') || after.hasOwnProperty('height') || after.hasOwnProperty('threed')) this.destroy_scene3d();
 
@@ -1214,26 +1231,10 @@ var ThreeContainer = function (_Container) {
       }
 
       if (after.hasOwnProperty("data")) {
-        var data = after.data;
-
-        data.forEach(function (d) {
-          var object = _this3._scene3d.getObjectByName(d.loc, true);
-          if (object) {
-            object.userData = d;
-          }
-
-          if (object) {
-            // object.material.color.set(STATUS_COLORS[d.status])
-            //
-            // if(d.status === 0) {
-            //   object.visible = false
-            // } else {
-            //   object.visible = true
-            // }
-
-            object.onUserDataChanged();
-          }
-        });
+        if (this._data !== after.data) {
+          this._data = after.data;
+          this._dataChanged = true;
+        }
       }
 
       // if(after.hasOwnProperty('autoRotate')) {

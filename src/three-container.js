@@ -110,7 +110,7 @@ export default class ThreeContainer extends Container {
       container: div,
       width: width,
       height: height,
-      radius: width
+      radius: Math.sqrt(width * width + height * height) / 4
     })
 
     var heatmapMaterial = new THREE.MeshBasicMaterial({
@@ -436,6 +436,22 @@ export default class ThreeContainer extends Container {
         this.render_threed()
       }
 
+      if(this._dataChanged) {
+
+        this._data && this._data.forEach(d => {
+          let object = this._scene3d.getObjectByName(d.loc, true)
+          if(object) {
+            object.userData = d;
+          }
+
+          if(object){
+            object.onUserDataChanged()
+          }
+        })
+
+        this._dataChanged = false
+      }
+
       ctx.drawImage(
         this._renderer.domElement, 0, 0, width, height,
         left, top, width, height
@@ -476,28 +492,10 @@ export default class ThreeContainer extends Container {
     }
 
     if(after.hasOwnProperty("data")){
-      var data = after.data
-
-      data.forEach(d => {
-        let object = this._scene3d.getObjectByName(d.loc, true)
-        if(object) {
-          object.userData = d;
-        }
-
-        if(object){
-          // object.material.color.set(STATUS_COLORS[d.status])
-          //
-          // if(d.status === 0) {
-          //   object.visible = false
-          // } else {
-          //   object.visible = true
-          // }
-
-          object.onUserDataChanged()
-
-        }
-
-      })
+      if(this._data !== after.data) {
+        this._data = after.data
+        this._dataChanged = true
+      }
     }
 
     // if(after.hasOwnProperty('autoRotate')) {
