@@ -269,6 +269,7 @@ var HumiditySensor = function (_THREE$Object3D) {
       });
       this._container._heatmap.repaint();
 
+      // this._container.render_threed()
       this._container.updateHeatmapTexture();
     }
   }]);
@@ -774,18 +775,19 @@ function registerLoaders() {
 var ThreeContainer = function (_Container) {
   _inherits(ThreeContainer, _Container);
 
-  function ThreeContainer() {
+  function ThreeContainer(model, context) {
     _classCallCheck(this, ThreeContainer);
 
-    return _possibleConstructorReturn(this, Object.getPrototypeOf(ThreeContainer).apply(this, arguments));
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ThreeContainer).call(this, model, context));
+
+    _this.set("data", {});
+    return _this;
   }
+
+  /* THREE Object related .. */
 
   _createClass(ThreeContainer, [{
     key: 'createFloor',
-
-
-    /* THREE Object related .. */
-
     value: function createFloor(color, width, height) {
 
       var fillStyle = this.model.fillStyle;
@@ -947,8 +949,8 @@ var ThreeContainer = function (_Container) {
       var fillStyle = _model$fillStyle === undefined ? '#424b57' : _model$fillStyle;
       var _model$light = _model.light;
       var light = _model$light === undefined ? 0xffffff : _model$light;
-      var _model$components = _model.components;
-      var components = _model$components === undefined ? [] : _model$components;
+      var _hierarchy$components = this.hierarchy.components;
+      var components = _hierarchy$components === undefined ? [] : _hierarchy$components;
 
       // SCENE
 

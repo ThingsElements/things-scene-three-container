@@ -18,6 +18,12 @@ function registerLoaders() {
 
 export default class ThreeContainer extends Container {
 
+  constructor(model, context) {
+    super(model,context)
+
+    this.set("data", {});
+  }
+
   /* THREE Object related .. */
 
   createFloor(color, width, height) {
@@ -176,9 +182,11 @@ export default class ThreeContainer extends Container {
       near = 0.1,
       far = 20000,
       fillStyle = '#424b57',
-      light = 0xffffff,
-      components = []
+      light = 0xffffff
     } = this.model
+    var {
+      components = []
+    } = this.hierarchy
 
     // SCENE
     this._scene3d = new THREE.Scene()

@@ -137,8 +137,8 @@ export default class HumiditySensor extends THREE.Object3D {
     })
     this._container._heatmap.repaint()
 
+    // this._container.render_threed()
     this._container.updateHeatmapTexture()
-
 
   }
 }
