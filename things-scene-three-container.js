@@ -775,19 +775,18 @@ function registerLoaders() {
 var ThreeContainer = function (_Container) {
   _inherits(ThreeContainer, _Container);
 
-  function ThreeContainer(model, context) {
+  function ThreeContainer() {
     _classCallCheck(this, ThreeContainer);
 
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ThreeContainer).call(this, model, context));
-
-    _this.set("data", {});
-    return _this;
+    return _possibleConstructorReturn(this, Object.getPrototypeOf(ThreeContainer).apply(this, arguments));
   }
-
-  /* THREE Object related .. */
 
   _createClass(ThreeContainer, [{
     key: 'createFloor',
+
+
+    /* THREE Object related .. */
+
     value: function createFloor(color, width, height) {
 
       var fillStyle = this.model.fillStyle;

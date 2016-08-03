@@ -18,12 +18,6 @@ function registerLoaders() {
 
 export default class ThreeContainer extends Container {
 
-  constructor(model, context) {
-    super(model,context)
-
-    this.set("data", {});
-  }
-
   /* THREE Object related .. */
 
   createFloor(color, width, height) {
