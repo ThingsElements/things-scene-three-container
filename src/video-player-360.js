@@ -82,7 +82,7 @@ export default class VideoPlayer360 extends Rect {
     });
 
     // set the video src and begin loading
-    this._video.src = src;
+    this._video.src = this.app.url(src);
 
     this._texture.generateMipmaps = false;
     this._texture.minFilter = THREE.LinearFilter;
@@ -321,7 +321,7 @@ export default class VideoPlayer360 extends Rect {
       || after.hasOwnProperty('height')) {
       this.resize(this.model.width, this.model.height)
     }
-      
+
     if(after.hasOwnProperty('src')
       || after.hasOwnProperty('autoplay')) {
 
@@ -332,9 +332,9 @@ export default class VideoPlayer360 extends Rect {
   }
 
   ondblclick(e){
-    if(this._isPlaying) 
+    if(this._isPlaying)
       this.pause()
-    else 
+    else
       this.play()
 
     e.stopPropagation()
