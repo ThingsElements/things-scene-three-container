@@ -9,8 +9,8 @@ function init() {
   let objLoader = new THREE.OBJLoader();
   let mtlLoader = new THREE.MTLLoader();
 
-  objLoader.setPath('./obj/Fork_lift/')
-  mtlLoader.setPath('./obj/Fork_lift/')
+  objLoader.setPath('../resources/obj/Fork_lift/')
+  mtlLoader.setPath('../resources/obj/Fork_lift/')
 
   mtlLoader.load('ForkLift.mtl', function(materials){
     materials.preload();

@@ -29,7 +29,8 @@ export default class ThreeContainer extends Container {
     var self = this;
 
     if(fillStyle.type == 'pattern' && fillStyle.image) {
-      var floorTexture = new THREE.TextureLoader().load(fillStyle.image, function() {
+
+      var floorTexture = new THREE.TextureLoader().load(this.app.url(fillStyle.image), function() {
         self.render_threed()
       })
       // floorTexture.premultiplyAlpha = true
