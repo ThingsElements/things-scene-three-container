@@ -30,15 +30,33 @@ export default class ThreeContainer extends Container {
 
     if(fillStyle.type == 'pattern' && fillStyle.image) {
 
-      var floorTexture = new THREE.TextureLoader().load(this.app.url(fillStyle.image), function() {
+      var textureLoader = new THREE.TextureLoader()
+
+      // TODO: three.js withCredentials 관련 버그 수정되면 override 로직 제거.
+
+      var oldLoad = THREE.XHRLoader.prototype.load;
+      var newLoad = function() {
+        this.withCredentials = true;
+        oldLoad.apply(this, arguments);
+      };
+      THREE.XHRLoader.prototype.load = newLoad;
+
+      textureLoader.setCrossOrigin('use-credentials')
+      var texture = textureLoader.load(this.app.url(fillStyle.image), function(texture) {
+        // floorMaterial.map = texture
+
         self.render_threed()
+
+        THREE.XHRLoader.prototype.load = oldLoad;
       })
+
+      floorMaterial = new THREE.MeshBasicMaterial( { map: texture, side: THREE.DoubleSide, specular: 0x050505 } );
+
       // floorTexture.premultiplyAlpha = true
       // floorTexture.wrapS = THREE.MirroredRepeatWrapping
       // floorTexture.wrapT = THREE.MirroredRepeatWrapping
       // floorTexture.repeat.set(1,1)
       // floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.FrontSide } );
-      floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide, specular: 0x050505 } );
     } else {
       floorMaterial = new THREE.MeshBasicMaterial({
         color: color,
