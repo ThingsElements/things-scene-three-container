@@ -374,8 +374,8 @@ function init() {
   var objLoader = new THREE.OBJLoader();
   var mtlLoader = new THREE.MTLLoader();
 
-  objLoader.setPath('../resources/obj/Casual_Man_02/');
-  mtlLoader.setPath('../resources/obj/Casual_Man_02/');
+  objLoader.setPath('.obj/Casual_Man_02/');
+  mtlLoader.setPath('.obj/Casual_Man_02/');
 
   mtlLoader.load('Casual_Man.mtl', function (materials) {
     materials.preload();
@@ -798,6 +798,8 @@ var ThreeContainer = function (_Container) {
       if (fillStyle.type == 'pattern' && fillStyle.image) {
 
         var textureLoader = new THREE.TextureLoader();
+
+        // TODO: three.js withCredentials 관련 버그 수정되면 override 로직 제거.
 
         var oldLoad = THREE.XHRLoader.prototype.load;
         var newLoad = function newLoad() {
