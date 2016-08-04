@@ -13,8 +13,8 @@ function init() {
   let objLoader = new THREE.OBJLoader();
   let mtlLoader = new THREE.MTLLoader();
 
-  objLoader.setPath('../resources/obj/Casual_Man_02/')
-  mtlLoader.setPath('../resources/obj/Casual_Man_02/')
+  objLoader.setPath('.obj/Casual_Man_02/')
+  mtlLoader.setPath('.obj/Casual_Man_02/')
 
   mtlLoader.load('Casual_Man.mtl', function(materials){
     materials.preload();
