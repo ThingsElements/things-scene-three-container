@@ -115,14 +115,14 @@ export default class ThreeContainer extends Container {
     })
 
     var heatmapMaterial = new THREE.MeshBasicMaterial({
-      side: THREE.FrontSide
+      side: THREE.FrontSide,
+      transparent : true,
+      visible : false
     })
 
     var heatmapGeometry = new THREE.PlaneGeometry(width, height)
 
     var heatmap = new THREE.Mesh(heatmapGeometry, heatmapMaterial)
-
-    heatmap.material.transparent = true
 
     heatmap.rotation.x = - Math.PI / 2
     heatmap.position.y = -1
@@ -140,6 +140,8 @@ export default class ThreeContainer extends Container {
     texture.needsUpdate = true;
 
     heatmap.material.map = texture
+
+    heatmap.material.visible = true
   }
 
 
