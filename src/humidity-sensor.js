@@ -12,6 +12,8 @@ export default class HumiditySensor extends THREE.Object3D {
     this.userData.temperature = model.humidity ? model.humidity[0] : 0
     this.userData.humidity = model.humidity? model.humidity[1] : 0
 
+    // this.raycast = THREE.Mesh.prototype.raycast
+
     this.createObject(model, canvasSize);
 
   }
@@ -35,6 +37,7 @@ export default class HumiditySensor extends THREE.Object3D {
       let mesh = this.createSensor(model.rx * (1 + 0.5*i), model.ry * (1 + 0.5*i), model.depth * (1 + 0.5*i), i)
       mesh.material.opacity = 0.5 - (i * 0.15)
     }
+
 
     this.position.set(cx, cz, cy)
     this.rotation.y = model.rotation || 0
@@ -81,6 +84,7 @@ export default class HumiditySensor extends THREE.Object3D {
       // var texture = new THREE.TextureLoader().load('./images/drop-34055_1280.png')
       // texture.repeat.set(1,1)
       // // texture.premultiplyAlpha = true
+      //  material = new THREE.MeshBasicMaterial( { color : '#cc3300', side: THREE.FrontSide, wireframe: true, wireframeLinewidth : 1} );
       material = new THREE.MeshLambertMaterial( { color : '#cc3300', side: THREE.FrontSide} );
       // material = new THREE.MeshLambertMaterial( { color : '#74e98a', side: THREE.FrontSide} );
     } else {
@@ -93,6 +97,11 @@ export default class HumiditySensor extends THREE.Object3D {
 
     var mesh = new THREE.Mesh(geometry, material)
     mesh.material.transparent = true;
+
+    if(isFirst)
+      mesh.onmousemove = this.onmousemove
+    else
+      mesh.raycast = function(){}
 
     this.add(mesh);
 
@@ -139,6 +148,72 @@ export default class HumiditySensor extends THREE.Object3D {
 
     // this._container.render_threed()
     this._container.updateHeatmapTexture()
+
+  }
+
+  onmousemove(e, threeContainer) {
+
+    var tooltip = threeContainer.tooltip || threeContainer._scene2d.getObjectByName("tooltip")
+
+    if(tooltip){
+      threeContainer._scene2d.remove(tooltip)
+      threeContainer.tooltip = null
+      threeContainer.render_threed()
+    }
+
+    if(!this.parent.visible)
+      return;
+
+    if(!this.parent.userData)
+      this.parent.userData = {};
+
+
+    var tooltipText = '';
+
+    for (let key in this.parent.userData) {
+      if(this.parent.userData[key])
+        tooltipText += key + ": " + this.parent.userData[key] + "\n"
+    }
+
+    // tooltipText = 'loc : ' + loc
+
+    // currentLabel.lookAt( camera.position );
+
+    if(tooltipText.length > 0) {
+      tooltip = threeContainer.tooltip = threeContainer.makeTextSprite(tooltipText)
+
+      var vector = new THREE.Vector3()
+
+      // var vector2 = new THREE.Vector3()
+
+      // vector.setFromMatrixPosition(this.matrixWorld)
+      // vector2.copy(threeContainer._camera.position)
+
+      // vector.project(threeContainer._camera)
+      // vector2.project(threeContainer._camera)
+      // vector2.normalize()
+
+      // vector.z = (vector.z - vector2.z) / 2 + vector.z
+      // vector.unproject( threeContainer._camera)
+
+
+      vector.set(threeContainer._mouse.x, threeContainer._mouse.y, 0.5)
+
+      vector.unproject(threeContainer._2dCamera)
+
+      tooltip.position.set(vector.x, vector.y, vector.z)
+
+      tooltip.name = "tooltip"
+
+      // tooltip.position.set(this.getWorldPosition().x, this.getWorldPosition().y, this.getWorldPosition().z)
+      // threeContainer._scene3d.add(tooltip)
+
+
+      threeContainer._scene2d.add(tooltip)
+      threeContainer._renderer && threeContainer._renderer.render(threeContainer._scene2d, threeContainer._2dCamera)
+      threeContainer.invalidate()
+
+    }
 
   }
 }

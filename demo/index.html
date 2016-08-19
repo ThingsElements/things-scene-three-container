@@ -154,13 +154,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }))
         }
 
-        var racks = [1, 2, 3, 4, 5, 6].map(function(top) {
+        var components = [1, 2, 3, 4, 5, 6].map(function(top) {
           return buildRow(top, 50, 1).concat((buildRow(top, 650, 2)))
-        }).reduce(function(racks, row) {
-          return racks.concat(row)
+        }).reduce(function(components, row) {
+          return components.concat(row)
         }, [])
 
-        racks.push({
+        components.push({
           type : 'forklift',
           left : 600,
           top : 600,
@@ -168,7 +168,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           height : 10,
           depth : 10
         })
-        racks.push({
+        components.push({
           type : 'forklift',
           left : 100,
           top : 100,
@@ -176,7 +176,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           height : 10,
           depth : 10
         })
-        racks.push({
+        components.push({
           type : 'forklift',
           left : 200,
           top : 500,
@@ -184,7 +184,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           height : 10,
           depth : 10
         })
-        racks.push({
+        components.push({
           type : 'person',
           left : 600,
           top : 200,
@@ -192,7 +192,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           height : 10,
           depth : 10
         })
-        racks.push({
+        components.push({
           type : 'person',
           left : 300,
           top : 100,
@@ -200,7 +200,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           height : 10,
           depth : 10
         })
-        racks.push({
+        components.push({
           type : 'person',
           left : 200,
           top : 600,
@@ -208,7 +208,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           height : 10,
           depth : 10
         })
-        racks.push({
+        components.push({
           type:'rect',
           left: 600,
           top : 600,
@@ -218,59 +218,69 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: 'pattern',
             image: './images/livevideo-play.png'
           }
-        }, {
-          type : 'humidity-sensor',
-          id: 'sensor',
-          cx : 80,
-          cy : 80,
-          zPos: 100,
-          rx: 50,
-          ry: 50,
-          depth : 50,
-          humidity: [
-            Math.floor(Math.random() * 40) - 10,
-            Math.floor(Math.random() * 80)
-          ]
-        }, {
-          type : 'humidity-sensor',
-          id: 'sensor',
-          cx : 1000,
-          cy : 80,
-          zPos: 100,
-          rx: 50,
-          ry: 50,
-          depth : 50,
-          humidity: [
-            Math.floor(Math.random() * 40) - 10,
-            Math.floor(Math.random() * 80)
-          ]
-        }, {
-          type : 'humidity-sensor',
-          id: 'sensor',
-          cx : 80,
-          cy : 800,
-          zPos: 100,
-          rx: 50,
-          ry: 50,
-          depth : 50,
-          humidity: [
-            Math.floor(Math.random() * 40) - 10,
-            Math.floor(Math.random() * 80)
-          ]
-        }, {
-          type : 'humidity-sensor',
-          id: 'sensor',
-          cx : 1000,
-          cy : 800,
-          zPos: 100,
-          rx: 50,
-          ry: 50,
-          depth : 50,
-          humidity: [
-            Math.floor(Math.random() * 40) - 10,
-            Math.floor(Math.random() * 80)
-          ]
-        });
+        }
+        // , {
+        //   type : 'humidity-sensor',
+        //   id: 'sensor',
+        //   cx : 80,
+        //   cy : 80,
+        //   zPos: 100,
+        //   rx: 50,
+        //   ry: 50,
+        //   depth : 50,
+        //   humidity: [
+        //     Math.floor(Math.random() * 40) - 10,
+        //     Math.floor(Math.random() * 80)
+        //   ]
+        // }, {
+        //   type : 'humidity-sensor',
+        //   id: 'sensor',
+        //   cx : 1000,
+        //   cy : 80,
+        //   zPos: 100,
+        //   rx: 50,
+        //   ry: 50,
+        //   depth : 50,
+        //   humidity: [
+        //     Math.floor(Math.random() * 40) - 10,
+        //     Math.floor(Math.random() * 80)
+        //   ]
+        // }, {
+        //   type : 'humidity-sensor',
+        //   id: 'sensor',
+        //   cx : 80,
+        //   cy : 800,
+        //   zPos: 100,
+        //   rx: 50,
+        //   ry: 50,
+        //   depth : 50,
+        //   humidity: [
+        //     Math.floor(Math.random() * 40) - 10,
+        //     Math.floor(Math.random() * 80)
+        //   ]
+        // }, {
+        //   type : 'humidity-sensor',
+        //   id: 'sensor',
+        //   cx : 1000,
+        //   cy : 800,
+        //   zPos: 100,
+        //   rx: 50,
+        //   ry: 50,
+        //   depth : 50,
+        //   humidity: [
+        //     Math.floor(Math.random() * 40) - 10,
+        //     Math.floor(Math.random() * 80)
+        //   ]
+        // }
+        );
+
+        // components.push({
+        //   type:'path',
+        //   x1: 0,
+        //   y1 : 0,
+        //   x2: 1200,
+        //   y2 : 800
+        // })
 
         app.model = {
           width: 1600,
@@ -304,7 +314,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             },
             // autoRotate : true,
             autoRotate : false,
-            components: racks
+            components: components
           }
           // , {
           //   type: 'video-player-360',

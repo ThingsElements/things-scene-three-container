@@ -3,6 +3,7 @@ import Plane from './plane'
 import ForkLift from './forkLift'
 import Person from './person'
 import HumiditySensor from './humidity-sensor'
+import Path from './path'
 
 import ThreeLayout from './three-layout'
 import ThreeControls from './three-controls'
@@ -82,7 +83,7 @@ export default class ThreeContainer extends Container {
 
   createObjects(components, canvasSize) {
 
-    var obj = new THREE.Object3D();
+    // var obj = new THREE.Object3D();
 
     components.forEach(model => {
 
@@ -108,14 +109,24 @@ export default class ThreeContainer extends Container {
           item = new HumiditySensor(model, canvasSize, this)
           break;
 
+
+        case 'path':
+          item = new Path(model, canvasSize, this)
+          break;
+
+
+
         default:
           break;
       }
-      obj.add(item)
+
+      if(item)
+        this._scene3d.add(item)
+        // obj.add(item)
 
     })
 
-    this._scene3d.add(obj);
+    // this._scene3d.add(obj);
   }
 
   createHeatmap(width, height) {
@@ -151,6 +162,151 @@ export default class ThreeContainer extends Container {
 
   }
 
+  navigatePath(targetNames) {
+
+    var currentPosition = {
+      x: 0,
+      y: 0,
+      z: 0
+    }
+
+    for (let i in targetNames) {
+      let targetName = targetNames[i]
+      let targetObject = this.findTarget(targetName)
+
+      this.emphasizeTarget(targetObject)
+
+      let targetRack = targetObject.parent
+      targetRack.geometry.computeBoundingBox()
+      let targetRackBoundBox = targetRack.geometry.boundingBox
+
+      // let targetPath = this.findPath(targetName)
+      let sprite = this.makeTextSprite(Number(i)+1, {
+        backgroundColor: 'rgba(0,0,0,0)',
+        borderColor: 'rgba(0,0,0,0)'
+      })
+      sprite.position.set(0, 100, 0)
+
+      let cone = this.createNotifyCone()
+
+      sprite.position.set(0, targetRackBoundBox.max.y + 40, 0)
+      cone.position.set(0, targetRackBoundBox.max.y + 10, 0)
+
+      targetRack.add(sprite)
+      // this._scene3d.add(sprite)
+      targetRack.add(cone)
+
+      //
+      // this._scene3d.add(sprite)
+
+      // if(targetPath)
+      //   currentPosition = this.drawPath(currentPosition, targetPath)
+    }
+
+  }
+
+  findTarget(name) {
+    var targetObject = this._scene3d.getObjectByName(name, true)
+    if(!targetObject)
+      return
+
+    return targetObject
+  }
+
+
+
+  emphasizeTarget(object) {
+
+    this._scene3d.updateMatrixWorld()
+
+    var box = new THREE.BoxHelper(object, 0xff3333)
+    box.material.linewidth = this.model.zoom * 0.1
+
+    this._scene3d.add(box)
+
+  }
+
+  createNotifyCone() {
+
+    var geometry = new THREE.ConeGeometry( 10, 10, 32, true );
+    var material = new THREE.MeshBasicMaterial( {color: 0xff3300} );
+    var cone = new THREE.Mesh( geometry, material );
+
+    cone.rotation.z = Math.PI
+
+    return cone
+
+  }
+
+  findPath(target) {
+    var targetObject = this._scene3d.getObjectByName(target, true)
+    if(!targetObject)
+      return
+
+    targetObject = targetObject.parent  // 찾은 stock에 강조표시를 하면 눈이 띄지 않는다.
+                                        // 부모(Rack)에 강조표시.
+
+    // targetObject.updateMatrix()
+    this._scene3d.updateMatrixWorld()
+
+    var position = targetObject.getWorldPosition()
+
+    var scale = targetObject.getWorldScale()
+
+    var box = new THREE.BoxHelper(targetObject, 0xff3333)
+
+    box.material.linewidth = this.model.zoom * 0.1
+
+    this._scene3d.add(box)
+
+    // this.makeTextSprite()
+
+    // var box = new THREE.BoxHelper(targetObject, 0xff3333)
+    // box.material.linewidth = 10
+    //
+    // this._scene3d.add(box)
+
+
+    // position =
+
+    return {
+      x: position.x,
+      y: position.y,
+      z: position.z
+    }
+
+  }
+
+  drawPath(current, target) {
+
+    let tX = target.x;
+    let tY = target.y;
+    let tZ = target.z;
+
+    let cX = current.x;
+    let cY = current.y;
+    let cZ = current.z;
+
+    let lineWidth = 5
+
+    let material = new THREE.LineBasicMaterial({
+      color : 0xff3333,
+      linewidth: lineWidth
+    })
+
+    let geometry = new THREE.Geometry();
+
+    geometry.vertices.push(new THREE.Vector3(cX, 0, cZ))
+    geometry.vertices.push(new THREE.Vector3(tX, 0, tZ))
+
+    let line = new THREE.Line(geometry, material)
+
+    this._scene3d.add(line)
+
+    return target
+
+  }
+
   updateHeatmapTexture() {
     var heatmap = this._scene3d.getObjectByName('heatmap', true)
 
@@ -162,25 +318,131 @@ export default class ThreeContainer extends Container {
     heatmap.material.visible = true
   }
 
+  makeTextSprite( message, parameters ) {
+
+    if(!message)
+      return
+
+  	if ( parameters === undefined ) parameters = {};
+
+  	var fontFace = parameters.hasOwnProperty("fontFace") ?
+  		parameters["fontFace"] : "Arial";
+
+  	var fontSize = parameters.hasOwnProperty("fontSize") ?
+  		parameters["fontSize"] : 90;
+
+  	var textColor = parameters.hasOwnProperty("textColor") ?
+  		parameters["textColor"] : 'rgba(255,30,30,1)';
+
+  	var textBorderColor = parameters.hasOwnProperty("textBorderColor") ?
+  		parameters["textBorderColor"] : 'rgba(0,0,0,1)';
+
+    var borderWidth = parameters.hasOwnProperty("borderWidth") ?
+		  parameters["borderWidth"] : 4;
+
+  	var borderColor = parameters.hasOwnProperty("borderColor") ?
+		  parameters["borderColor"] : 'rgba(0, 0, 0, 1.0)';
+
+	  var backgroundColor = parameters.hasOwnProperty("backgroundColor") ?
+		  // parameters["backgroundColor"] : 'rgba(51, 51, 51, 1.0)';
+		  parameters["backgroundColor"] : 'rgba(255, 255, 255, 1.0)';
+
+    var radius = parameters.hasOwnProperty("radius") ?
+		  parameters["radius"] : 30;
+
+    var vAlign = parameters.hasOwnProperty("vAlign") ?
+		  parameters["vAlign"] : 'middle';
+
+    var hAlign = parameters.hasOwnProperty("hAlign") ?
+		  parameters["hAlign"] : 'center';
+
+
+  	var canvas = document.createElement('canvas');
+    var context = canvas.getContext('2d');
+
+    // document.body.appendChild(canvas)
+
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+
+    context.font = fontSize + "px " + fontFace;
+    context.textBaseline = "alphabetic";
+    context.textAlign = "left";
+
+    var textWidth = 0
+
+    var msgArr = String(message).split('\n')
+
+    var cx = canvas.width / 2;
+    var cy = canvas.height / 2;
+
+    for(let i in msgArr) {
+      // get size data (height depends only on font size)
+      var metrics = context.measureText( msgArr[i] );
+
+      if(textWidth < metrics.width)
+        textWidth = metrics.width;
+
+    }
+
+    var tx = textWidth/ 2.0;
+    var ty = fontSize / 2.0;
+
+    // then adjust for the justification
+    if ( vAlign == "bottom")
+      ty = 0;
+    else if (vAlign == "top")
+      ty = fontSize;
+
+    if (hAlign == "left")
+      tx = textWidth;
+    else if (hAlign == "right")
+      tx = 0;
+
+
+  	this.roundRect(context, cx - tx, cy - ty * msgArr.length + 0.28 * fontSize,  textWidth, fontSize * 1.28 * msgArr.length, radius, borderWidth, borderColor, backgroundColor);
+
+  	// text color
+  	context.fillStyle = textColor;
+    context.strokeStyle = textBorderColor;
+    context.lineWidth = 3
+
+    for(let i in msgArr) {
+      context.fillText( msgArr[i], cx - tx, cy + ty / msgArr.length * (i+1) );
+      context.strokeText( msgArr[i], cx - tx, cy + ty / msgArr.length * (i+1) );
+    }
+
+  	// canvas contents will be used for a texture
+  	var texture = new THREE.Texture(canvas)
+  	texture.needsUpdate = true;
+
+  	var spriteMaterial = new THREE.SpriteMaterial({ map: texture } );
+  	var sprite = new THREE.Sprite( spriteMaterial );
+  	sprite.scale.set(window.innerWidth /2 , window.innerWidth / 4, 1);
+  	// sprite.scale.set(canvas.width, canvas.height,1.0);
+
+    sprite.raycast = function(){}
+
+  	return sprite;
+  }
+
 
   destroy_scene3d() {
     this.stop();
     this._renderer && this._renderer.clear()
     this._renderer = undefined
     this._camera = undefined
+    this._2dCamera = undefined
     this._keyboard = undefined
     this._controls = undefined
     this._projector = undefined
     this._load_manager = undefined
 
     this._scene3d = undefined
+    this._scene2d = undefined
   }
 
   init_scene3d() {
-    this._mouse = { x: 0, y: 0, originX: 0, originY : 0 }
-
-    if(!this.tooltip)
-      this.createTooltip()
 
     if(this._scene3d)
       this.destroy_scene3d()
@@ -205,20 +467,28 @@ export default class ThreeContainer extends Container {
 
     // SCENE
     this._scene3d = new THREE.Scene()
+    this._scene2d = new THREE.Scene()
 
     // CAMERA
     var aspect = width / height
 
     this._camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
+    this._2dCamera = new THREE.OrthographicCamera(-width/2, width/2, height/2, -height/2, 1, 1000)
+
     this._scene3d.add(this._camera)
+    this._scene2d.add(this._2dCamera)
     this._camera.position.set(800,800,800)
+    this._2dCamera.position.set(800,800,800)
     this._camera.lookAt(this._scene3d.position)
+    this._2dCamera.lookAt(this._scene2d.position)
 
     // RENDERER
     this._renderer = new THREE.WebGLRenderer({
       // precision: 'mediump',
       alpha: true
     });
+
+    this._renderer.autoClear = false
 
     this._renderer.setClearColor(0xffffff, 0) // transparent
     // this._renderer.setClearColor(0x000000, 0) // transparent
@@ -243,6 +513,10 @@ export default class ThreeContainer extends Container {
     this._camera.add(_light)
     this._camera.castShadow = true
 
+    this._raycaster = new THREE.Raycaster()
+    // this._mouse = { x: 0, y: 0, originX: 0, originY : 0 }
+    this._mouse = new THREE.Vector2()
+
 
     this._tick = 0
     this._clock = new THREE.Clock(true)
@@ -251,14 +525,17 @@ export default class ThreeContainer extends Container {
     this.createFloor(fillStyle, width, height)
     this.createObjects(components, { width, height })
 
+    this.navigatePath(['LOC-1-1-1-A-1', 'LOC-2-1-1-A-1'])
+
 
     // initialize object to perform world/screen calculations
-    this._projector = new THREE.Projector();
+    // this._projector = new THREE.Projector();
 
     this._load_manager = new THREE.LoadingManager();
     this._load_manager.onProgress = function(item, loaded, total){
 
     }
+
     this.animate()
   }
 
@@ -276,152 +553,7 @@ export default class ThreeContainer extends Container {
   }
 
   update() {
-
-    var tooltip = this.tooltip || {}
-
-    // find intersections
-
-    // create a Ray with origin at the mouse position
-    //   and direction into the scene (camera direction)
-
-    var vector = new THREE.Vector3( this._mouse.x, this._mouse.y, 1 );
-    if(!this._camera)
-      return
-
-    vector.unproject( this._camera );
-    var ray = new THREE.Raycaster( this._camera.position, vector.sub( this._camera.position ).normalize() );
-
-    // create an array containing all objects in the scene with which the ray intersects
-    var intersects = ray.intersectObjects( this._scene3d.children, true );
-
-    // INTERSECTED = the object in the scene currently closest to the camera
-    //    and intersected by the Ray projected from the mouse position
-
-    // if there is one (or more) intersections
-    if ( intersects.length > 0 )
-    {
-      // if the closest object intersected is not the currently stored intersection object
-      if ( intersects[ 0 ].object != this.INTERSECTED )
-      {
-        // restore previous intersection object (if it exists) to its original color
-        // if ( this.INTERSECTED )
-        //   this.INTERSECTED.material.color.setHex( this.INTERSECTED.currentHex );
-        // store reference to closest object as current intersection object
-        this.INTERSECTED = intersects[ 0 ].object;
-        // store color of closest object (for later restoration)
-        // this.INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex();
-        // set a new color for closest object
-        // this.INTERSECTED.material.color.setHex( 0xffff00 );
-
-        if( this.INTERSECTED.type === 'stock' ) {
-          if(!this.INTERSECTED.visible)
-            return;
-
-          if(!this.INTERSECTED.userData)
-            this.INTERSECTED.userData = {};
-
-          // if(this.INTERSECTED.type === 'stock') {
-          //
-          // }
-          //
-          // var loc = this.INTERSECTED.name;
-          // var status = this.INTERSECTED.userData.status;
-          // var boxId = this.INTERSECTED.userData.boxId;
-          // var inDate = this.INTERSECTED.userData.inDate;
-          // var type = this.INTERSECTED.userData.type;
-          // var count = this.INTERSECTED.userData.count;
-
-
-          tooltip.textContent = '';
-
-          for (let key in this.INTERSECTED.userData) {
-            if(this.INTERSECTED.userData[key])
-              tooltip.textContent += key + ": " + this.INTERSECTED.userData[key] + "\n"
-          }
-
-          // tooltip.textContent = 'loc : ' + loc
-
-          if(tooltip.textContent.length > 0) {
-            var mouseX = (this._mouse.x + 1) / 2 * (this.model.width)
-            var mouseY = (-this._mouse.y + 1 ) / 2 * (this.model.height)
-
-            tooltip.style.left = this._mouse.originX + 20 + 'px';
-            tooltip.style.top = this._mouse.originY - 20 + 'px';
-            tooltip.style.display = 'block'
-          } else {
-            tooltip.style.display = 'none'
-          }
-
-        }
-        else if(this.INTERSECTED.parent.type === 'humidity-sensor') {
-          if(!this.INTERSECTED.parent.visible)
-            return;
-
-          if(!this.INTERSECTED.parent.userData)
-            this.INTERSECTED.parent.userData = {};
-
-
-          tooltip.textContent = '';
-
-          for (let key in this.INTERSECTED.parent.userData) {
-            if(this.INTERSECTED.parent.userData[key])
-              tooltip.textContent += key + ": " + this.INTERSECTED.parent.userData[key] + "\n"
-          }
-
-          // tooltip.textContent = 'loc : ' + loc
-
-          if(tooltip.textContent.length > 0) {
-            var mouseX = (this._mouse.x + 1) / 2 * (this.model.width)
-            var mouseY = (-this._mouse.y + 1 ) / 2 * (this.model.height)
-
-            tooltip.style.left = this._mouse.originX + 20 + 'px';
-            tooltip.style.top = this._mouse.originY - 20 + 'px';
-            tooltip.style.display = 'block'
-          } else {
-            tooltip.style.display = 'none'
-          }
-
-        }
-
-        else {
-          tooltip.style.display = 'none'
-        }
-
-
-      }
-    }
-    else // there are no intersections
-    {
-      // restore previous intersection object (if it exists) to its original color
-      // if ( this.INTERSECTED )
-      //   this.INTERSECTED.material.color.setHex( this.INTERSECTED.currentHex );
-      // remove previous intersection object reference
-      //     by setting current intersection object to "nothing"
-      this.INTERSECTED = null;
-
-      tooltip.style.display = 'none'
-    }
-
     this._controls.update();
-
-  }
-
-  createTooltip() {
-    var tooltip = this.tooltip = document.createElement('div');
-    tooltip.style.position = 'absolute';
-    tooltip.style.left = '0px';
-    tooltip.style.top = '0px';
-    tooltip.style['background-color'] = '#fff';
-    tooltip.style['max-width'] = '200px';
-    tooltip.style.border = '3px solid #ccc';
-    tooltip.style.padding = '5px 10px';
-    tooltip.style['border-radius'] = '10px';
-    tooltip.style.display = 'none';
-    tooltip.style['z-index'] = 100;
-    tooltip.style['white-space'] = 'pre-line';
-
-    this.root.target_element.appendChild(tooltip);
-
   }
 
   get scene3d() {
@@ -431,6 +563,7 @@ export default class ThreeContainer extends Container {
   }
 
   render_threed() {
+    this._renderer.clear()
     this._renderer && this._renderer.render(this._scene3d, this._camera)
     this.invalidate()
   }
@@ -489,6 +622,84 @@ export default class ThreeContainer extends Container {
     return Layout.get('three')
   }
 
+  roundRect(ctx, x, y, w, h, r, borderWidth, borderColor, fillColor) {
+    // no point in drawing it if it isn't going to be rendered
+    if (fillColor == undefined && borderColor == undefined)
+      return;
+
+    let left = x - borderWidth - r;
+    let right = left + w + borderWidth * 2 + r * 2
+    let top = y - borderWidth - r
+    let bottom = top + h + borderWidth * 2 + r * 2
+
+    // x -= borderWidth + r;
+    // y += borderWidth + r;
+    // w += borderWidth * 2 + r * 2;
+    // h += borderWidth * 2 + r * 2;
+
+    ctx.beginPath();
+    ctx.moveTo(left+r, top);
+    ctx.lineTo(right-r, top);
+    ctx.quadraticCurveTo(right, top, right, top+r);
+    ctx.lineTo(right, bottom-r);
+    ctx.quadraticCurveTo(right, bottom, right-r, bottom);
+    ctx.lineTo(left+r, bottom);
+    ctx.quadraticCurveTo(left, bottom, left, bottom-r);
+    ctx.lineTo(left, top+r);
+    ctx.quadraticCurveTo(left, top, left+r, top);
+    ctx.closePath();
+
+    ctx.lineWidth = borderWidth;
+
+    // background color
+    // border color
+
+    // if the fill color is defined, then fill it
+    if (fillColor != undefined) {
+      ctx.fillStyle = fillColor;
+      ctx.fill();
+    }
+
+    if (borderWidth > 0 && borderColor != undefined) {
+      ctx.strokeStyle = borderColor;
+      ctx.stroke();
+    }
+  }
+
+  getObjectByRaycast() {
+
+    var intersects = this.getObjectsByRaycast()
+    var intersected
+
+    if(intersects.length > 0) {
+      intersected = intersects[0].object
+    }
+
+    return intersected
+  }
+
+  getObjectsByRaycast() {
+    var intersected = null
+    // find intersections
+
+    // create a Ray with origin at the mouse position
+    //   and direction into the scene (camera direction)
+
+    // var vector = new THREE.Vector3( this._mouse.x, this._mouse.y, 1 );
+    var vector = this._mouse
+    if(!this._camera)
+      return
+
+    this._raycaster.setFromCamera(vector, this._camera)
+
+    // create an array containing all objects in the scene with which the ray intersects
+    var intersects = this._raycaster.intersectObjects( this._scene3d.children, true );
+
+    return intersects
+  }
+
+  /* Event Handlers */
+
   onchange(after, before) {
 
     if(after.hasOwnProperty('width')
@@ -539,13 +750,19 @@ export default class ThreeContainer extends Container {
     if(this._controls) {
       var pointer = this.transcoordC2S(e.offsetX, e.offsetY)
 
-      this._mouse.originX = this.getContext().canvas.offsetLeft +e.offsetX;
-      this._mouse.originY = this.getContext().canvas.offsetTop + e.offsetY;
+      // this._mouse.originX = this.getContext().canvas.offsetLeft +e.offsetX;
+      // this._mouse.originY = this.getContext().canvas.offsetTop + e.offsetY;
 
       this._mouse.x = ( (pointer.x - this.model.left ) / (this.model.width) ) * 2 - 1;
       this._mouse.y = - ( (pointer.y - this.model.top ) / this.model.height ) * 2 + 1;
 
+      var object = this.getObjectByRaycast()
+
+      if(object && object.onmousemove)
+        object.onmousemove(e, this)
+
       this._controls.onMouseMove(e)
+
       e.stopPropagation()
     }
   }

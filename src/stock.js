@@ -38,4 +38,37 @@ export default class Stock extends THREE.Mesh {
     }
   }
 
+  onmousemove(e, threeContainer) {
+
+    var tooltip = threeContainer.tooltip
+
+    if(tooltip) {
+      threeContainer._scene3d.remove(tooltip)
+      threeContainer.tooltip = null
+    }
+
+    if(!this.visible)
+      return;
+
+    if(!this.userData)
+      this.userData = {};
+
+    var tooltipText = '';
+
+    for (let key in this.userData) {
+      if(this.userData[key])
+        tooltipText += key + ": " + this.userData[key] + "\n"
+    }
+
+    // tooltipText = 'loc : ' + loc
+
+    if(tooltipText.length > 0) {
+      tooltip = threeContainer.tooltip = threeContainer.makeTextSprite(tooltipText)
+
+      tooltip.position.set(this.position.x, this.position.y, this.position.z)
+      threeContainer._scene3d.add(tooltip)
+      threeContainer.render_threed()
+    }
+
+  }
 }
