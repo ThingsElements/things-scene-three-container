@@ -614,7 +614,7 @@ export default class ThreeContainer extends Container {
       )
 
     } else {
-      super._draw(ctx);
+      super._post_draw(ctx);
     }
   }
 
