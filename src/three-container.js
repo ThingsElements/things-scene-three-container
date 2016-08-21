@@ -570,7 +570,7 @@ export default class ThreeContainer extends Container {
 
   /* Container Overides .. */
 
-  _draw(ctx) {
+  _post_draw(ctx) {
 
     var {
       left,
