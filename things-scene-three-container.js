@@ -307,26 +307,26 @@ var HumiditySensor = function (_THREE$Object3D) {
         tooltip = threeContainer.tooltip = threeContainer.makeTextSprite(tooltipText);
 
         var vector = new THREE.Vector3();
+        var vector2 = tooltip.getWorldScale().clone();
 
-        // var vector2 = new THREE.Vector3()
-
-        // vector.setFromMatrixPosition(this.matrixWorld)
-        // vector2.copy(threeContainer._camera.position)
-
-        // vector.project(threeContainer._camera)
-        // vector2.project(threeContainer._camera)
-        // vector2.normalize()
-
-        // vector.z = (vector.z - vector2.z) / 2 + vector.z
-        // vector.unproject( threeContainer._camera)
+        var widthMultiplier = vector2.x / threeContainer.model.width;
+        var heightMultiplier = vector2.y / threeContainer.model.height;
 
         vector.set(threeContainer._mouse.x, threeContainer._mouse.y, 0.5);
+        vector2.normalize();
+
+        vector2.x = vector2.x / 2 * widthMultiplier;
+        vector2.y = -vector2.y / 2 * heightMultiplier;
+        vector2.z = 0;
+
+        vector.add(vector2);
 
         vector.unproject(threeContainer._2dCamera);
-
         tooltip.position.set(vector.x, vector.y, vector.z);
-
         tooltip.name = "tooltip";
+
+        tooltip.scale.x = tooltip.scale.x * widthMultiplier;
+        tooltip.scale.y = tooltip.scale.y * heightMultiplier;
 
         // tooltip.position.set(this.getWorldPosition().x, this.getWorldPosition().y, this.getWorldPosition().z)
         // threeContainer._scene3d.add(tooltip)
@@ -991,11 +991,12 @@ var Stock = function (_THREE$Mesh) {
     key: 'onmousemove',
     value: function onmousemove(e, threeContainer) {
 
-      var tooltip = threeContainer.tooltip;
+      var tooltip = threeContainer.tooltip || threeContainer._scene2d.getObjectByName("tooltip");
 
       if (tooltip) {
-        threeContainer._scene3d.remove(tooltip);
+        threeContainer._scene2d.remove(tooltip);
         threeContainer.tooltip = null;
+        threeContainer.render_threed();
       }
 
       if (!this.visible) return;
@@ -1013,9 +1014,31 @@ var Stock = function (_THREE$Mesh) {
       if (tooltipText.length > 0) {
         tooltip = threeContainer.tooltip = threeContainer.makeTextSprite(tooltipText);
 
-        tooltip.position.set(this.position.x, this.position.y, this.position.z);
-        threeContainer._scene3d.add(tooltip);
-        threeContainer.render_threed();
+        var vector = new THREE.Vector3();
+        var vector2 = tooltip.getWorldScale().clone();
+
+        var widthMultiplier = vector2.x / threeContainer.model.width;
+        var heightMultiplier = vector2.y / threeContainer.model.height;
+
+        vector.set(threeContainer._mouse.x, threeContainer._mouse.y, 0.5);
+        vector2.normalize();
+
+        vector2.x = vector2.x / 2 * widthMultiplier;
+        vector2.y = -vector2.y / 2 * heightMultiplier;
+        vector2.z = 0;
+
+        vector.add(vector2);
+
+        vector.unproject(threeContainer._2dCamera);
+        tooltip.position.set(vector.x, vector.y, vector.z);
+        tooltip.name = "tooltip";
+
+        tooltip.scale.x = tooltip.scale.x * widthMultiplier;
+        tooltip.scale.y = tooltip.scale.y * heightMultiplier;
+
+        threeContainer._scene2d.add(tooltip);
+        threeContainer._renderer && threeContainer._renderer.render(threeContainer._scene2d, threeContainer._2dCamera);
+        threeContainer.invalidate();
       }
     }
   }]);
@@ -1031,6 +1054,8 @@ exports.default = Stock;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -1628,6 +1653,11 @@ var ThreeContainer = function (_Container) {
     value: function render_threed() {
       this._renderer.clear();
       this._renderer && this._renderer.render(this._scene3d, this._camera);
+
+      if (this._renderer && this._scene2d && this._scene2d.children.length > 0) {
+        this._renderer.render(this._scene2d, this._2dCamera);
+      }
+
       this.invalidate();
     }
 
@@ -1674,9 +1704,15 @@ var ThreeContainer = function (_Container) {
         }
 
         if (this._dataChanged) {
+          console.log("dataChanged", this._data);
           if (this._pickingLocations) {
             for (var i in this._pickingLocations) {
               var loc = this._pickingLocations[i];
+
+              var obj = this._scene3d.getObjectByName(loc, true);
+              if (obj) {
+                obj.userData = {};
+              }
 
               var empObj = this._scene3d.getObjectByName(loc + '-emp', true);
               if (empObj) {
@@ -1693,7 +1729,15 @@ var ThreeContainer = function (_Container) {
             }
           }
 
+          if (this._selectedPickingLocation) {
+            var _obj = this._scene3d.getObjectByName(this._selectedPickingLocation, true);
+            if (_obj && _obj.userData) {
+              delete _obj.userData.selected;
+            }
+          }
+
           this._pickingLocations = [];
+          this._selectedPickingLocation = null;
 
           this._data && this._data.forEach(function (d) {
             var object = _this3._scene3d.getObjectByName(d.loc, true);
@@ -1704,6 +1748,9 @@ var ThreeContainer = function (_Container) {
               if (d.navigationData) {
                 _this3._pickingLocations.push(d.loc);
               }
+              if (d.selected) {
+                _this3._selectedPickingLocation = d.loc;
+              }
             }
           });
 
@@ -1711,6 +1758,8 @@ var ThreeContainer = function (_Container) {
 
           this.navigatePath(this._pickingLocations);
         }
+
+        this.showTooltip(this._selectedPickingLocation);
 
         ctx.drawImage(this._renderer.domElement, 0, 0, width, height, left, top, width, height);
       } else {
@@ -1793,6 +1842,53 @@ var ThreeContainer = function (_Container) {
       var intersects = this._raycaster.intersectObjects(this._scene3d.children, true);
 
       return intersects;
+    }
+  }, {
+    key: 'showTooltip',
+    value: function showTooltip(targetName) {
+      if (!targetName) return;
+
+      var tooltip = this._scene2d.getObjectByName('navigator-tooltip');
+      if (tooltip) this._scene2d.remove(tooltip);
+
+      var object = this._scene3d.getObjectByName(targetName, true);
+      var cone = this._scene3d.getObjectByName(targetName + '-cone', true);
+
+      if (object && cone) {
+        var vector = cone.getWorldPosition().clone();
+        vector.project(this._camera);
+        vector.z = 0.5;
+
+        var tooltipText = '';
+        for (var key in object.userData) {
+          if (object.userData[key] && _typeof(object.userData[key]) != 'object' && key != 'loc') tooltipText += key + ": " + object.userData[key] + "\n";
+        }
+
+        tooltip = this.makeTextSprite(tooltipText);
+
+        var vector2 = tooltip.getWorldScale().clone();
+
+        var widthMultiplier = vector2.x / this.model.width;
+        var heightMultiplier = vector2.y / this.model.height;
+
+        vector2.normalize();
+
+        vector2.x = vector2.x / 2 * widthMultiplier;
+        vector2.y = -vector2.y / 2 * heightMultiplier;
+        vector2.z = 0;
+
+        vector.add(vector2);
+
+        vector.unproject(this._2dCamera);
+        tooltip.position.set(vector.x, vector.y, vector.z);
+        tooltip.name = 'navigator-tooltip';
+
+        tooltip.scale.x = tooltip.scale.x * widthMultiplier;
+        tooltip.scale.y = tooltip.scale.y * heightMultiplier;
+
+        this._scene2d.add(tooltip);
+        this.render_threed();
+      }
     }
 
     /* Event Handlers */

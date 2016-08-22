@@ -183,27 +183,28 @@ export default class HumiditySensor extends THREE.Object3D {
       tooltip = threeContainer.tooltip = threeContainer.makeTextSprite(tooltipText)
 
       var vector = new THREE.Vector3()
+      var vector2 = tooltip.getWorldScale().clone()
 
-      // var vector2 = new THREE.Vector3()
-
-      // vector.setFromMatrixPosition(this.matrixWorld)
-      // vector2.copy(threeContainer._camera.position)
-
-      // vector.project(threeContainer._camera)
-      // vector2.project(threeContainer._camera)
-      // vector2.normalize()
-
-      // vector.z = (vector.z - vector2.z) / 2 + vector.z
-      // vector.unproject( threeContainer._camera)
-
+      var widthMultiplier = vector2.x / threeContainer.model.width
+      var heightMultiplier = vector2.y / threeContainer.model.height
 
       vector.set(threeContainer._mouse.x, threeContainer._mouse.y, 0.5)
+      vector2.normalize()
+
+      vector2.x = vector2.x /2 * widthMultiplier
+      vector2.y = -vector2.y /2 * heightMultiplier
+      vector2.z = 0;
+
+      vector.add(vector2)
 
       vector.unproject(threeContainer._2dCamera)
-
       tooltip.position.set(vector.x, vector.y, vector.z)
-
       tooltip.name = "tooltip"
+
+      tooltip.scale.x = tooltip.scale.x * widthMultiplier
+      tooltip.scale.y = tooltip.scale.y * heightMultiplier
+
+
 
       // tooltip.position.set(this.getWorldPosition().x, this.getWorldPosition().y, this.getWorldPosition().z)
       // threeContainer._scene3d.add(tooltip)

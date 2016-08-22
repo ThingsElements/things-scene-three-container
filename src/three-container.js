@@ -574,6 +574,11 @@ export default class ThreeContainer extends Container {
   render_threed() {
     this._renderer.clear()
     this._renderer && this._renderer.render(this._scene3d, this._camera)
+
+    if(this._renderer && this._scene2d && this._scene2d.children.length > 0){
+      this._renderer.render(this._scene2d, this._2dCamera)
+    }
+
     this.invalidate()
   }
 
@@ -611,9 +616,15 @@ export default class ThreeContainer extends Container {
       }
 
       if(this._dataChanged) {
+        console.log("dataChanged", this._data)
         if(this._pickingLocations) {
           for(let i in this._pickingLocations) {
             let loc = this._pickingLocations[i]
+
+            let obj = this._scene3d.getObjectByName(loc, true)
+            if(obj) {
+              obj.userData = {}
+            }
 
             let empObj = this._scene3d.getObjectByName(loc + '-emp', true)
             if(empObj) {
@@ -631,7 +642,15 @@ export default class ThreeContainer extends Container {
           }
         }
 
+        if(this._selectedPickingLocation) {
+          let obj = this._scene3d.getObjectByName(this._selectedPickingLocation, true)
+          if(obj &&  obj.userData) {
+             delete obj.userData.selected
+          }
+        }
+
         this._pickingLocations = []
+        this._selectedPickingLocation = null
 
         this._data && this._data.forEach(d => {
           let object = this._scene3d.getObjectByName(d.loc, true)
@@ -642,6 +661,9 @@ export default class ThreeContainer extends Container {
             if(d.navigationData) {
               this._pickingLocations.push(d.loc)
             }
+            if(d.selected) {
+              this._selectedPickingLocation = d.loc
+            }
           }
 
         })
@@ -650,6 +672,8 @@ export default class ThreeContainer extends Container {
 
         this.navigatePath(this._pickingLocations)
       }
+
+      this.showTooltip(this._selectedPickingLocation)
 
       ctx.drawImage(
         this._renderer.domElement, 0, 0, width, height,
@@ -739,6 +763,56 @@ export default class ThreeContainer extends Container {
     var intersects = this._raycaster.intersectObjects( this._scene3d.children, true );
 
     return intersects
+  }
+
+  showTooltip(targetName) {
+    if(!targetName)
+      return
+
+    var tooltip = this._scene2d.getObjectByName('navigator-tooltip')
+    if(tooltip)
+      this._scene2d.remove(tooltip)
+
+    var object = this._scene3d.getObjectByName(targetName, true)
+    var cone = this._scene3d.getObjectByName(targetName + '-cone', true)
+
+    if(object && cone) {
+      let vector = cone.getWorldPosition().clone()
+      vector.project(this._camera)
+      vector.z = 0.5
+
+      var tooltipText = '';
+      for (let key in object.userData) {
+        if(object.userData[key] && typeof object.userData[key] != 'object' && key != 'loc')
+          tooltipText += key + ": " + object.userData[key] + "\n"
+      }
+
+      tooltip = this.makeTextSprite(tooltipText)
+
+      var vector2 = tooltip.getWorldScale().clone()
+
+      var widthMultiplier = vector2.x / this.model.width
+      var heightMultiplier = vector2.y / this.model.height
+
+      vector2.normalize()
+
+      vector2.x = vector2.x /2 * widthMultiplier
+      vector2.y = -vector2.y /2 * heightMultiplier
+      vector2.z = 0;
+
+      vector.add(vector2)
+
+      vector.unproject(this._2dCamera)
+      tooltip.position.set(vector.x, vector.y, vector.z)
+      tooltip.name = 'navigator-tooltip'
+
+      tooltip.scale.x = tooltip.scale.x * widthMultiplier
+      tooltip.scale.y = tooltip.scale.y * heightMultiplier
+
+      this._scene2d.add(tooltip)
+      this.render_threed()
+    }
+
   }
 
   /* Event Handlers */
