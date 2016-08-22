@@ -639,6 +639,10 @@ export default class ThreeContainer extends Container {
               navObj.parent.remove(navObj)
             }
 
+            let navTooltipObj = this._scene2d.getObjectByName('navigator-tooltip', true)
+            if(navTooltipObj) {
+              this._scene2d.remove(navTooltipObj)
+            }
           }
         }
 
