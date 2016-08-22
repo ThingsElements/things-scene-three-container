@@ -114,7 +114,9 @@ export default class ThreeContainer extends Container {
           item = new Path(model, canvasSize, this)
           break;
 
-
+        // case 'marker':
+        //   item = new Marker(model, canvasSize, this)
+        //   break;
 
         default:
           break;
@@ -192,6 +194,9 @@ export default class ThreeContainer extends Container {
       sprite.position.set(0, targetRackBoundBox.max.y + 40, 0)
       cone.position.set(0, targetRackBoundBox.max.y + 10, 0)
 
+      sprite.name = targetName + "-nav"
+      cone.name = targetName + "-cone"
+
       targetRack.add(sprite)
       // this._scene3d.add(sprite)
       targetRack.add(cone)
@@ -202,6 +207,8 @@ export default class ThreeContainer extends Container {
       // if(targetPath)
       //   currentPosition = this.drawPath(currentPosition, targetPath)
     }
+
+    this.render_threed()
 
   }
 
@@ -220,7 +227,8 @@ export default class ThreeContainer extends Container {
     this._scene3d.updateMatrixWorld()
 
     var box = new THREE.BoxHelper(object, 0xff3333)
-    box.material.linewidth = this.model.zoom * 0.1
+    box.material.linewidth = 10
+    box.name = object.name + '-emp'
 
     this._scene3d.add(box)
 
@@ -525,7 +533,8 @@ export default class ThreeContainer extends Container {
     this.createFloor(fillStyle, width, height)
     this.createObjects(components, { width, height })
 
-    this.navigatePath(['LOC-1-1-1-A-1', 'LOC-2-1-1-A-1'])
+    // this.navigatePath(['LOC-1-1-1-A-1', 'LOC-2-1-1-A-1'])
+
 
 
     // initialize object to perform world/screen calculations
@@ -570,6 +579,15 @@ export default class ThreeContainer extends Container {
 
   /* Container Overides .. */
 
+  _draw(ctx) {
+
+    if(this.model.threed) {
+      return
+    }
+
+    super._draw()
+  }
+
   _post_draw(ctx) {
 
     var {
@@ -593,19 +611,44 @@ export default class ThreeContainer extends Container {
       }
 
       if(this._dataChanged) {
+        if(this._pickingLocations) {
+          for(let i in this._pickingLocations) {
+            let loc = this._pickingLocations[i]
+
+            let empObj = this._scene3d.getObjectByName(loc + '-emp', true)
+            if(empObj) {
+              this._scene3d.remove(empObj)
+            }
+            let coneObj = this._scene3d.getObjectByName(loc + '-cone', true)
+            if(coneObj) {
+              coneObj.parent.remove(coneObj)
+            }
+            let navObj = this._scene3d.getObjectByName(loc + '-nav', true)
+            if(navObj) {
+              navObj.parent.remove(navObj)
+            }
+
+          }
+        }
+
+        this._pickingLocations = []
 
         this._data && this._data.forEach(d => {
           let object = this._scene3d.getObjectByName(d.loc, true)
           if(object) {
             object.userData = d;
+            object.onUserDataChanged()
+
+            if(d.navigationData) {
+              this._pickingLocations.push(d.loc)
+            }
           }
 
-          if(object){
-            object.onUserDataChanged()
-          }
         })
 
         this._dataChanged = false
+
+        this.navigatePath(this._pickingLocations)
       }
 
       ctx.drawImage(

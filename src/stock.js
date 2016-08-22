@@ -31,7 +31,7 @@ export default class Stock extends THREE.Mesh {
   onUserDataChanged() {
     this.material.color.set(STATUS_COLORS[this.userData.status])
 
-    if(d.status === 0) {
+    if(this.userData.status === 0) {
       this.visible = false
     } else {
       this.visible = true
