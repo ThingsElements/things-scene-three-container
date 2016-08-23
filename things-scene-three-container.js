@@ -1057,8 +1057,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
@@ -1609,6 +1607,12 @@ var ThreeContainer = function (_Container) {
       this.createObjects(components, { width: width, height: height });
 
       // this.navigatePath(['LOC-1-1-1-A-1', 'LOC-2-1-1-A-1'])
+      //   let obj = this._scene3d.getObjectByName('LOC-2-1-1-A-1', true)
+      //   obj.userData = {
+      //     location: '2-1-1-A-1',
+      //     material : 'aa',
+      //     qty: 35
+      //   }
 
       // initialize object to perform world/screen calculations
       // this._projector = new THREE.Projector();
@@ -1616,12 +1620,12 @@ var ThreeContainer = function (_Container) {
       this._load_manager = new THREE.LoadingManager();
       this._load_manager.onProgress = function (item, loaded, total) {};
 
-      this.animate();
+      this.threed_animate();
     }
   }, {
-    key: 'animate',
-    value: function animate() {
-      this._animationFrame = requestAnimationFrame(this.animate.bind(this));
+    key: 'threed_animate',
+    value: function threed_animate() {
+      this._animationFrame = requestAnimationFrame(this.threed_animate.bind(this));
 
       var delta = this._clock.getDelta();
 
@@ -1752,6 +1756,8 @@ var ThreeContainer = function (_Container) {
         this.showTooltip(this._selectedPickingLocation);
 
         ctx.drawImage(this._renderer.domElement, 0, 0, width, height, left, top, width, height);
+
+        // this.showTooltip('LOC-2-1-1-A-1')
       } else {
         _get(Object.getPrototypeOf(ThreeContainer.prototype), '_post_draw', this).call(this, ctx);
       }
@@ -1854,10 +1860,155 @@ var ThreeContainer = function (_Container) {
       if (!object) return;
 
       var self = this;
-      this._controls.rotateLeft(5);
-      setTimeout(function () {
-        self.moveCameraTo(5);
-      }, 100);
+      // this._controls.rotateLeft(5)
+      // setTimeout(function() {
+      //   self.moveCameraTo(5)
+      // }, 100)
+
+      var objectPositionVector = object.getWorldPosition();
+      objectPositionVector.y = 0;
+      var distance = objectPositionVector.distanceTo(new THREE.Vector3(0, 0, 0));
+
+      objectPositionVector.multiplyScalar(1000 / (distance || 1));
+
+      var self = this;
+      var diffX = this._camera.position.x - objectPositionVector.x;
+      var diffY = this._camera.position.y - 300;
+      var diffZ = this._camera.position.z - objectPositionVector.z;
+
+      this.animate({
+        step: function step(delta) {
+          var vector = new THREE.Vector3();
+
+          vector.x = objectPositionVector.x - diffX * (delta - 1);
+          vector.y = 0;
+          vector.z = objectPositionVector.z - diffZ * (delta - 1);
+
+          var distance = vector.distanceTo(new THREE.Vector3(0, 0, 0));
+
+          vector.multiplyScalar(1000 / (distance || 1));
+
+          self._camera.position.x = vector.x;
+          self._camera.position.y = 300 - diffY * (delta - 1);
+          self._camera.position.z = vector.z;
+        },
+        duration: 2000,
+        delta: 'linear',
+        // options: {
+        //   x: 5
+        // },
+        ease: 'inout'
+      }).start();
+
+      // this._camera.position.x = objectPositionVector.x
+      // this._camera.position.y = 300
+      // this._camera.position.z = objectPositionVector.z
+    }
+  }, {
+    key: 'createTooltipForNavigator',
+    value: function createTooltipForNavigator(messageObject) {
+
+      if (!messageObject) return;
+
+      var isMarker = true;
+      var fontFace = "Arial";
+      var fontSize = 40;
+      var textColor = 'rgba(255,255,255,1)';
+      var borderWidth = 4;
+      var borderColor = 'rgba(0, 0, 0, 1.0)';
+      var backgroundColor = 'rgba(0, 0, 0, 0.7)';
+      var radius = 30;
+      var vAlign = 'middle';
+      var hAlign = 'center';
+
+      var canvas = document.createElement('canvas');
+      var context = canvas.getContext('2d');
+
+      // document.body.appendChild(canvas)
+
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      context.font = fontSize + "px " + fontFace;
+      context.textBaseline = "alphabetic";
+      context.textAlign = "left";
+
+      var textWidth = 0;
+
+      var cx = canvas.width / 2;
+      var cy = canvas.height / 2;
+
+      // for location label
+      context.font = Math.floor(fontSize) + "px " + fontFace;
+      var metrics = context.measureText("Location");
+      if (textWidth < metrics.width) textWidth = metrics.width;
+
+      // for location value
+      context.font = "bold " + fontSize * 2 + "px " + fontFace;
+      metrics = context.measureText(messageObject.location);
+      if (textWidth < metrics.width) textWidth = metrics.width;
+
+      // for values (material, qty)
+      context.font = fontSize + "px " + fontFace;
+      metrics = context.measureText("- Material : " + messageObject.material);
+      if (textWidth < metrics.width) textWidth = metrics.width;
+
+      metrics = context.measureText("- QTY : " + messageObject.qty);
+      if (textWidth < metrics.width) textWidth = metrics.width;
+
+      var tx = textWidth / 2.0;
+      var ty = fontSize / 2.0;
+
+      // then adjust for the justification
+      if (vAlign == "bottom") ty = fontSize;else if (vAlign == "top") ty = 0;
+
+      if (hAlign == "left") tx = textWidth;else if (hAlign == "right") tx = 0;
+
+      var offsetY = cy;
+
+      this.roundRect(context, cx - tx, cy - fontSize * 6 * 0.5,
+      // cy - fontSize * 6 * 0.5 + ty - 0.28 * fontSize,
+      textWidth,
+      // fontSize * 6 * 1.28,
+      fontSize * 8, radius, borderWidth, borderColor, backgroundColor, 0);
+
+      // text color
+      context.fillStyle = textColor;
+      context.lineWidth = 3;
+
+      // for location label
+      offsetY += -fontSize * 6 * 0.5 + Math.floor(fontSize);
+      context.font = Math.floor(fontSize) + "px " + fontFace;
+      context.fillStyle = 'rgba(134,199,252,1)';
+      context.fillText("Location", cx - tx, offsetY);
+
+      // for location value
+      offsetY += fontSize * 2.5;
+      context.font = "bold " + fontSize * 2 + "px " + fontFace;
+      context.fillStyle = textColor;
+      context.fillText(messageObject.location, cx - tx, offsetY);
+
+      // for values (material, qty)
+      offsetY += fontSize * 2;
+      context.font = fontSize + "px " + fontFace;
+      context.fillStyle = 'rgba(204,204,204,1)';
+      context.fillText("- Material : " + messageObject.material, cx - tx, offsetY);
+
+      offsetY += fontSize + ty;
+      context.fillText("- QTY : " + messageObject.qty, cx - tx, offsetY);
+
+      // canvas contents will be used for a texture
+      var texture = new THREE.Texture(canvas);
+      texture.needsUpdate = true;
+
+      var spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+      var sprite = new THREE.Sprite(spriteMaterial);
+      sprite.scale.set(window.innerWidth / 4 * 3, window.innerWidth / 8 * 3, 1);
+      // sprite.scale.set(canvas.width, canvas.height,1.0);
+
+      sprite.raycast = function () {};
+
+      return sprite;
     }
   }, {
     key: 'showTooltip',
@@ -1875,12 +2026,13 @@ var ThreeContainer = function (_Container) {
         vector.project(this._camera);
         vector.z = 0.5;
 
-        var tooltipText = '';
-        for (var key in object.userData) {
-          if (object.userData[key] && _typeof(object.userData[key]) != 'object' && key != 'loc') tooltipText += key + ": " + object.userData[key] + "\n";
-        }
+        var tooltipTextObject = {
+          location: object.userData.location,
+          material: object.userData.material,
+          qty: object.userData.qty
+        };
 
-        tooltip = this.makeTextSprite(tooltipText);
+        tooltip = this.createTooltipForNavigator(tooltipTextObject);
 
         var vector2 = tooltip.getWorldScale().clone();
 

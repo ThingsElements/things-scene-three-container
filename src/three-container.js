@@ -538,8 +538,12 @@ export default class ThreeContainer extends Container {
     this.createObjects(components, { width, height })
 
     // this.navigatePath(['LOC-1-1-1-A-1', 'LOC-2-1-1-A-1'])
-
-
+    //   let obj = this._scene3d.getObjectByName('LOC-2-1-1-A-1', true)
+    //   obj.userData = {
+    //     location: '2-1-1-A-1',
+    //     material : 'aa',
+    //     qty: 35
+    //   }
 
     // initialize object to perform world/screen calculations
     // this._projector = new THREE.Projector();
@@ -549,11 +553,11 @@ export default class ThreeContainer extends Container {
 
     }
 
-    this.animate()
+    this.threed_animate()
   }
 
-  animate() {
-    this._animationFrame = requestAnimationFrame( this.animate.bind(this) );
+  threed_animate() {
+    this._animationFrame = requestAnimationFrame( this.threed_animate.bind(this) );
 
     var delta = this._clock.getDelta()
 
@@ -684,6 +688,8 @@ export default class ThreeContainer extends Container {
         left, top, width, height
       )
 
+      // this.showTooltip('LOC-2-1-1-A-1')
+
     } else {
       super._post_draw(ctx);
     }
@@ -800,10 +806,197 @@ export default class ThreeContainer extends Container {
 
 
     var self = this
-    this._controls.rotateLeft(5)
-    setTimeout(function() {
-      self.moveCameraTo(5)
-    }, 100)
+    // this._controls.rotateLeft(5)
+    // setTimeout(function() {
+    //   self.moveCameraTo(5)
+    // }, 100)
+
+    let objectPositionVector = object.getWorldPosition()
+    objectPositionVector.y = 0
+    let distance = objectPositionVector.distanceTo(new THREE.Vector3(0,0,0))
+
+    objectPositionVector.multiplyScalar(1000/(distance||1))
+
+    var self = this
+    var diffX = this._camera.position.x - objectPositionVector.x
+    var diffY = this._camera.position.y - 300
+    var diffZ = this._camera.position.z - objectPositionVector.z
+
+
+    this.animate({
+      step: function(delta) {
+        let vector = new THREE.Vector3()
+
+        vector.x = objectPositionVector.x - diffX * (delta - 1)
+        vector.y = 0
+        vector.z = objectPositionVector.z - diffZ * (delta - 1)
+
+        let distance = vector.distanceTo(new THREE.Vector3(0,0,0))
+
+        vector.multiplyScalar(1000/(distance||1))
+
+        self._camera.position.x = vector.x
+        self._camera.position.y = 300 - diffY * (delta - 1)
+        self._camera.position.z = vector.z
+
+      },
+      duration: 2000,
+      delta: 'linear',
+      // options: {
+      //   x: 5
+      // },
+      ease: 'inout'
+    }).start()
+
+    // this._camera.position.x = objectPositionVector.x
+    // this._camera.position.y = 300
+    // this._camera.position.z = objectPositionVector.z
+
+
+
+  }
+
+  createTooltipForNavigator(messageObject) {
+
+    if(!messageObject)
+      return
+
+    let isMarker = true;
+  	let fontFace = "Arial";
+  	let fontSize = 40;
+  	let textColor = 'rgba(255,255,255,1)';
+    let borderWidth = 4;
+  	let borderColor = 'rgba(0, 0, 0, 1.0)';
+	  let backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    let radius = 30;
+    let vAlign = 'middle';
+    let hAlign = 'center';
+
+  	let canvas = document.createElement('canvas');
+    let context = canvas.getContext('2d');
+
+    // document.body.appendChild(canvas)
+
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+
+    context.font = fontSize + "px " + fontFace;
+    context.textBaseline = "alphabetic";
+    context.textAlign = "left";
+
+    var textWidth = 0
+
+    let cx = canvas.width / 2;
+    let cy = canvas.height / 2;
+
+    // for location label
+    context.font = Math.floor(fontSize) + "px " + fontFace;
+    var metrics = context.measureText( "Location" );
+    if(textWidth < metrics.width)
+      textWidth = metrics.width;
+
+    // for location value
+    context.font = "bold " + fontSize * 2 + "px " + fontFace;
+    metrics = context.measureText( messageObject.location );
+    if(textWidth < metrics.width)
+      textWidth = metrics.width;
+
+    // for values (material, qty)
+    context.font = fontSize + "px " + fontFace;
+    metrics = context.measureText( "- Material : " + messageObject.material );
+    if(textWidth < metrics.width)
+      textWidth = metrics.width;
+
+    metrics = context.measureText( "- QTY : " + messageObject.qty );
+    if(textWidth < metrics.width)
+      textWidth = metrics.width;
+
+
+    var tx = textWidth/ 2.0;
+    var ty = fontSize / 2.0;
+
+    // then adjust for the justification
+    if ( vAlign == "bottom")
+      ty = fontSize;
+    else if (vAlign == "top")
+      ty = 0;
+
+    if (hAlign == "left")
+      tx = textWidth;
+    else if (hAlign == "right")
+      tx = 0;
+
+    var offsetY = cy
+
+  	this.roundRect(
+      context,
+      cx - tx,
+      cy - fontSize * 6 * 0.5,
+      // cy - fontSize * 6 * 0.5 + ty - 0.28 * fontSize,
+      textWidth,
+      // fontSize * 6 * 1.28,
+      fontSize * 8,
+      radius,
+      borderWidth,
+      borderColor,
+      backgroundColor,
+      0
+    );
+
+  	// text color
+  	context.fillStyle = textColor;
+    context.lineWidth = 3
+
+    // for location label
+    offsetY += - fontSize * 6 * 0.5 + Math.floor(fontSize)
+    context.font = Math.floor(fontSize) + "px " + fontFace;
+    context.fillStyle = 'rgba(134,199,252,1)'
+    context.fillText(
+      "Location",
+      cx - tx,
+      offsetY
+    );
+
+    // for location value
+    offsetY += fontSize * 2.5
+    context.font = "bold " + fontSize * 2 + "px " + fontFace;
+    context.fillStyle = textColor;
+    context.fillText(
+      messageObject.location,
+      cx - tx,
+      offsetY
+    );
+
+    // for values (material, qty)
+    offsetY += fontSize * 2
+    context.font = fontSize + "px " + fontFace;
+    context.fillStyle = 'rgba(204,204,204,1)';
+    context.fillText(
+      "- Material : " + messageObject.material,
+      cx - tx,
+      offsetY
+    );
+
+    offsetY += fontSize + ty
+    context.fillText(
+      "- QTY : " + messageObject.qty,
+      cx - tx,
+      offsetY
+    );
+
+
+  	// canvas contents will be used for a texture
+  	var texture = new THREE.Texture(canvas)
+  	texture.needsUpdate = true;
+
+  	var spriteMaterial = new THREE.SpriteMaterial({ map: texture } );
+  	var sprite = new THREE.Sprite( spriteMaterial );
+  	sprite.scale.set(window.innerWidth /4 * 3, window.innerWidth / 8 * 3, 1);
+  	// sprite.scale.set(canvas.width, canvas.height,1.0);
+
+    sprite.raycast = function(){}
+
+  	return sprite;
 
   }
 
@@ -823,13 +1016,13 @@ export default class ThreeContainer extends Container {
       vector.project(this._camera)
       vector.z = 0.5
 
-      var tooltipText = '';
-      for (let key in object.userData) {
-        if(object.userData[key] && typeof object.userData[key] != 'object' && key != 'loc')
-          tooltipText += key + ": " + object.userData[key] + "\n"
-      }
+      var tooltipTextObject = {
+        location: object.userData.location,
+        material: object.userData.material,
+        qty: object.userData.qty
+      };
 
-      tooltip = this.makeTextSprite(tooltipText)
+      tooltip = this.createTooltipForNavigator(tooltipTextObject)
 
       var vector2 = tooltip.getWorldScale().clone()
 
