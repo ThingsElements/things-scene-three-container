@@ -1008,7 +1008,7 @@ var Stock = function (_THREE$Mesh) {
       var tooltipText = '';
 
       for (var key in this.userData) {
-        if (object.userData[key] && _typeof(object.userData[key]) != 'object' && key != 'loc') tooltipText += key + ": " + this.userData[key] + "\n";
+        if (this.userData[key] && _typeof(this.userData[key]) != 'object' && key != 'loc') tooltipText += key + ": " + this.userData[key] + "\n";
       }
 
       // tooltipText = 'loc : ' + loc
@@ -1298,7 +1298,7 @@ var ThreeContainer = function (_Container) {
 
         sprite.position.set(0, targetRackBoundBox.max.y + 60, 0);
 
-        sprite.name = targetName + "-nav";
+        sprite.name = targetName + "-marker";
 
         targetRack.add(sprite);
         // this._scene3d.add(sprite)
@@ -1326,9 +1326,13 @@ var ThreeContainer = function (_Container) {
 
       this._scene3d.updateMatrixWorld();
 
-      var box = new THREE.BoxHelper(object, 0xff3333);
-      box.material.linewidth = 10;
+      var box = new THREE.Mesh(object.geometry.clone(), object.material.clone());
+
       box.name = object.name + '-emp';
+      box.material.color.set(0x44a6f6);
+      box.raycast = function () {};
+
+      box.position.copy(object.getWorldPosition());
 
       this._scene3d.add(box);
     }
@@ -1703,7 +1707,7 @@ var ThreeContainer = function (_Container) {
               if (empObj) {
                 this._scene3d.remove(empObj);
               }
-              var navObj = this._scene3d.getObjectByName(loc + '-nav', true);
+              var navObj = this._scene3d.getObjectByName(loc + '-marker', true);
               if (navObj) {
                 navObj.parent.remove(navObj);
               }
@@ -1864,7 +1868,7 @@ var ThreeContainer = function (_Container) {
       if (tooltip) this._scene2d.remove(tooltip);
 
       var object = this._scene3d.getObjectByName(targetName, true);
-      var nav = this._scene3d.getObjectByName(targetName + '-nav', true);
+      var nav = this._scene3d.getObjectByName(targetName + '-marker', true);
 
       if (object && nav) {
         var vector = nav.getWorldPosition().clone();
@@ -1885,8 +1889,8 @@ var ThreeContainer = function (_Container) {
 
         vector2.normalize();
 
-        vector2.x = vector2.x / 2 * widthMultiplier;
-        vector2.y = -vector2.y / 2 * heightMultiplier;
+        vector2.x = 0;
+        vector2.y = vector2.y * heightMultiplier;
         vector2.z = 0;
 
         vector.add(vector2);

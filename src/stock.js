@@ -57,7 +57,7 @@ export default class Stock extends THREE.Mesh {
     var tooltipText = '';
 
     for (let key in this.userData) {
-      if(object.userData[key] && typeof object.userData[key] != 'object' && key != 'loc')
+      if(this.userData[key] && typeof this.userData[key] != 'object' && key != 'loc')
         tooltipText += key + ": " + this.userData[key] + "\n"
     }
 
