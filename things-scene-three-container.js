@@ -935,6 +935,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -1006,7 +1008,7 @@ var Stock = function (_THREE$Mesh) {
       var tooltipText = '';
 
       for (var key in this.userData) {
-        if (this.userData[key]) tooltipText += key + ": " + this.userData[key] + "\n";
+        if (object.userData[key] && _typeof(object.userData[key]) != 'object' && key != 'loc') tooltipText += key + ": " + this.userData[key] + "\n";
       }
 
       // tooltipText = 'loc : ' + loc
@@ -1290,22 +1292,16 @@ var ThreeContainer = function (_Container) {
 
         // let targetPath = this.findPath(targetName)
         var sprite = this.makeTextSprite(Number(i) + 1, {
-          backgroundColor: 'rgba(0,0,0,0)',
-          borderColor: 'rgba(0,0,0,0)'
+          isMarker: true
         });
         sprite.position.set(0, 100, 0);
 
-        var cone = this.createNotifyCone();
-
-        sprite.position.set(0, targetRackBoundBox.max.y + 40, 0);
-        cone.position.set(0, targetRackBoundBox.max.y + 10, 0);
+        sprite.position.set(0, targetRackBoundBox.max.y + 60, 0);
 
         sprite.name = targetName + "-nav";
-        cone.name = targetName + "-cone";
 
         targetRack.add(sprite);
         // this._scene3d.add(sprite)
-        targetRack.add(cone);
 
         //
         // this._scene3d.add(sprite)
@@ -1335,18 +1331,6 @@ var ThreeContainer = function (_Container) {
       box.name = object.name + '-emp';
 
       this._scene3d.add(box);
-    }
-  }, {
-    key: 'createNotifyCone',
-    value: function createNotifyCone() {
-
-      var geometry = new THREE.ConeGeometry(10, 10, 32, true);
-      var material = new THREE.MeshBasicMaterial({ color: 0xff3300 });
-      var cone = new THREE.Mesh(geometry, material);
-
-      cone.rotation.z = Math.PI;
-
-      return cone;
     }
   }, {
     key: 'findPath',
@@ -1435,13 +1419,13 @@ var ThreeContainer = function (_Container) {
 
       if (parameters === undefined) parameters = {};
 
+      var isMarker = parameters.hasOwnProperty("isMarker") ? parameters["isMarker"] : false;
+
       var fontFace = parameters.hasOwnProperty("fontFace") ? parameters["fontFace"] : "Arial";
 
       var fontSize = parameters.hasOwnProperty("fontSize") ? parameters["fontSize"] : 90;
 
-      var textColor = parameters.hasOwnProperty("textColor") ? parameters["textColor"] : 'rgba(255,30,30,1)';
-
-      var textBorderColor = parameters.hasOwnProperty("textBorderColor") ? parameters["textBorderColor"] : 'rgba(0,0,0,1)';
+      var textColor = parameters.hasOwnProperty("textColor") ? parameters["textColor"] : 'rgba(255,255,255,1)';
 
       var borderWidth = parameters.hasOwnProperty("borderWidth") ? parameters["borderWidth"] : 4;
 
@@ -1449,7 +1433,7 @@ var ThreeContainer = function (_Container) {
 
       var backgroundColor = parameters.hasOwnProperty("backgroundColor") ?
       // parameters["backgroundColor"] : 'rgba(51, 51, 51, 1.0)';
-      parameters["backgroundColor"] : 'rgba(255, 255, 255, 1.0)';
+      parameters["backgroundColor"] : 'rgba(0, 0, 0, 0.7)';
 
       var radius = parameters.hasOwnProperty("radius") ? parameters["radius"] : 30;
 
@@ -1471,14 +1455,14 @@ var ThreeContainer = function (_Container) {
 
       var textWidth = 0;
 
-      var msgArr = String(message).split('\n');
+      var msgArr = String(message).trim().split('\n');
 
       var cx = canvas.width / 2;
       var cy = canvas.height / 2;
 
-      for (var i in msgArr) {
+      for (var _i in msgArr) {
         // get size data (height depends only on font size)
-        var metrics = context.measureText(msgArr[i]);
+        var metrics = context.measureText(msgArr[_i]);
 
         if (textWidth < metrics.width) textWidth = metrics.width;
       }
@@ -1487,20 +1471,21 @@ var ThreeContainer = function (_Container) {
       var ty = fontSize / 2.0;
 
       // then adjust for the justification
-      if (vAlign == "bottom") ty = 0;else if (vAlign == "top") ty = fontSize;
+      if (vAlign == "bottom") ty = fontSize;else if (vAlign == "top") ty = 0;
 
       if (hAlign == "left") tx = textWidth;else if (hAlign == "right") tx = 0;
 
-      this.roundRect(context, cx - tx, cy - ty * msgArr.length + 0.28 * fontSize, textWidth, fontSize * 1.28 * msgArr.length, radius, borderWidth, borderColor, backgroundColor);
+      this.roundRect(context, cx - tx, cy - fontSize * msgArr.length * 0.5 + ty - 0.28 * fontSize, textWidth, fontSize * msgArr.length * 1.28, radius, borderWidth, borderColor, backgroundColor, 20, isMarker);
 
       // text color
       context.fillStyle = textColor;
-      context.strokeStyle = textBorderColor;
       context.lineWidth = 3;
 
-      for (var _i in msgArr) {
-        context.fillText(msgArr[_i], cx - tx, cy + ty / msgArr.length * (_i + 1));
-        context.strokeText(msgArr[_i], cx - tx, cy + ty / msgArr.length * (_i + 1));
+      for (var i in msgArr) {
+        i = Number(i);
+        context.fillText(msgArr[i], cx - tx,
+        // cy - fontSize * (i - msgArr.length/2) + ty
+        cy - fontSize * msgArr.length * 0.5 + fontSize * (i + 1) + ty);
       }
 
       // canvas contents will be used for a texture
@@ -1718,10 +1703,6 @@ var ThreeContainer = function (_Container) {
               if (empObj) {
                 this._scene3d.remove(empObj);
               }
-              var coneObj = this._scene3d.getObjectByName(loc + '-cone', true);
-              if (coneObj) {
-                coneObj.parent.remove(coneObj);
-              }
               var navObj = this._scene3d.getObjectByName(loc + '-nav', true);
               if (navObj) {
                 navObj.parent.remove(navObj);
@@ -1773,14 +1754,14 @@ var ThreeContainer = function (_Container) {
     }
   }, {
     key: 'roundRect',
-    value: function roundRect(ctx, x, y, w, h, r, borderWidth, borderColor, fillColor) {
+    value: function roundRect(ctx, x, y, w, h, r, borderWidth, borderColor, fillColor, padding, image) {
       // no point in drawing it if it isn't going to be rendered
       if (fillColor == undefined && borderColor == undefined) return;
 
-      var left = x - borderWidth - r;
-      var right = left + w + borderWidth * 2 + r * 2;
-      var top = y - borderWidth - r;
-      var bottom = top + h + borderWidth * 2 + r * 2;
+      var left = x - borderWidth - r - padding;
+      var right = left + w + borderWidth * 2 + r * 2 + padding * 2;
+      var top = y - borderWidth - r - padding;
+      var bottom = top + h + borderWidth * 2 + r * 2 + padding * 2;
 
       // x -= borderWidth + r;
       // y += borderWidth + r;
@@ -1797,7 +1778,18 @@ var ThreeContainer = function (_Container) {
       ctx.quadraticCurveTo(left, bottom, left, bottom - r);
       ctx.lineTo(left, top + r);
       ctx.quadraticCurveTo(left, top, left + r, top);
+      ctx.clip();
+
+      if (image) {
+
+        var image = new Image();
+        image.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAH0AAABuCAYAAAAKwhwQAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyppVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTMyIDc5LjE1OTI4NCwgMjAxNi8wNC8xOS0xMzoxMzo0MCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTUuNSAoTWFjaW50b3NoKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo3MkZDRjQ0RjVDOTYxMUU2QjMxRjhENEQwQjZBMjk5OSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo3MkZDRjQ1MDVDOTYxMUU2QjMxRjhENEQwQjZBMjk5OSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjcyRkNGNDRENUM5NjExRTZCMzFGOEQ0RDBCNkEyOTk5IiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjcyRkNGNDRFNUM5NjExRTZCMzFGOEQ0RDBCNkEyOTk5Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+nKWOowAAIaRJREFU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';
+        ctx.drawImage(image, x + w * 0.5 - image.width * 0.5 - padding, y + h * 0.5 - image.height * 0.5 + padding, image.width + padding * 2, image.height + padding * 2);
+      }
+
       ctx.closePath();
+
+      if (image) return;
 
       ctx.lineWidth = borderWidth;
 
@@ -1849,6 +1841,21 @@ var ThreeContainer = function (_Container) {
       return intersects;
     }
   }, {
+    key: 'moveCameraTo',
+    value: function moveCameraTo(targetName) {
+
+      if (!targetName) return;
+
+      var object = this._scene3d.getObjectByName(targetName, true);
+      if (!object) return;
+
+      var self = this;
+      this._controls.rotateLeft(5);
+      setTimeout(function () {
+        self.moveCameraTo(5);
+      }, 100);
+    }
+  }, {
     key: 'showTooltip',
     value: function showTooltip(targetName) {
       if (!targetName) return;
@@ -1857,10 +1864,10 @@ var ThreeContainer = function (_Container) {
       if (tooltip) this._scene2d.remove(tooltip);
 
       var object = this._scene3d.getObjectByName(targetName, true);
-      var cone = this._scene3d.getObjectByName(targetName + '-cone', true);
+      var nav = this._scene3d.getObjectByName(targetName + '-nav', true);
 
-      if (object && cone) {
-        var vector = cone.getWorldPosition().clone();
+      if (object && nav) {
+        var vector = nav.getWorldPosition().clone();
         vector.project(this._camera);
         vector.z = 0.5;
 
