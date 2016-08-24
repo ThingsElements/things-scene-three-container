@@ -188,7 +188,7 @@ export default class ThreeContainer extends Container {
       })
       sprite.position.set(0, 100, 0)
 
-      sprite.position.set(0, targetRackBoundBox.max.y + 60, 0)
+      sprite.position.set(0, targetRackBoundBox.max.y + 40, 0)
 
       sprite.name = targetName + "-marker"
 
@@ -326,7 +326,7 @@ export default class ThreeContainer extends Container {
   		parameters["fontFace"] : "Arial";
 
   	var fontSize = parameters.hasOwnProperty("fontSize") ?
-  		parameters["fontSize"] : 90;
+  		parameters["fontSize"] : 40;
 
   	var textColor = parameters.hasOwnProperty("textColor") ?
   		parameters["textColor"] : 'rgba(255,255,255,1)';
@@ -397,14 +397,16 @@ export default class ThreeContainer extends Container {
   	this.roundRect(
       context,
       cx - tx,
-      cy - fontSize * msgArr.length * 0.5 + ty - 0.28 * fontSize,
+      cy - fontSize * msgArr.length * 0.5,
+      // cy - fontSize * msgArr.length * 0.5 + ty - 0.28 * fontSize,
       textWidth,
-      fontSize * msgArr.length * 1.28,
+      fontSize * msgArr.length,
+      // fontSize * msgArr.length * 1.28,
       radius,
       borderWidth,
       borderColor,
       backgroundColor,
-      20,
+      5,
       isMarker
     );
 
@@ -412,13 +414,17 @@ export default class ThreeContainer extends Container {
   	context.fillStyle = textColor;
     context.lineWidth = 3
 
+    var offsetY = cy - fontSize * msgArr.length * 0.5 - 5 - borderWidth
+
     for(var i in msgArr) {
       i = Number(i)
+      offsetY += fontSize
+
       context.fillText(
         msgArr[i],
         cx - tx,
         // cy - fontSize * (i - msgArr.length/2) + ty
-        cy - fontSize * msgArr.length * 0.5 + fontSize * (i + 1) + ty
+        offsetY
       );
     }
 
@@ -430,7 +436,7 @@ export default class ThreeContainer extends Container {
 
   	var spriteMaterial = new THREE.SpriteMaterial({ map: texture } );
   	var sprite = new THREE.Sprite( spriteMaterial );
-  	sprite.scale.set(window.innerWidth /2 , window.innerWidth / 4, 1);
+  	sprite.scale.set(window.innerWidth / 4 * 3 , window.innerWidth / 8 * 3, 1);
   	// sprite.scale.set(canvas.width, canvas.height,1.0);
 
     sprite.raycast = function(){}
