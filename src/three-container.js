@@ -900,6 +900,8 @@ export default class ThreeContainer extends Container {
         self._camera.position.y = 300 - diffY * (delta - 1)
         self._camera.position.z = vector.z
 
+        self._camera.lookAt(self._scene3d.position)
+
       },
       duration: 2000,
       delta: 'linear'
