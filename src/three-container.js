@@ -677,7 +677,7 @@ export default class ThreeContainer extends Container {
       return
     }
 
-    super._draw()
+    super._draw(ctx)
   }
 
   _post_draw(ctx) {

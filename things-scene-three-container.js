@@ -1730,7 +1730,7 @@ var ThreeContainer = function (_Container) {
         return;
       }
 
-      _get(Object.getPrototypeOf(ThreeContainer.prototype), '_draw', this).call(this);
+      _get(Object.getPrototypeOf(ThreeContainer.prototype), '_draw', this).call(this, ctx);
     }
   }, {
     key: '_post_draw',
