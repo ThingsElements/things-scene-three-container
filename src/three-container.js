@@ -327,8 +327,8 @@ export default class ThreeContainer extends Container {
 
     // document.body.appendChild(canvas)
 
-    canvas.width = image.width + padding * 2
-    canvas.height = image.height + padding * 2
+    canvas.width = image.width
+    canvas.height = image.height
 
     context.font = fontSize + "px " + fontFace;
     context.textBaseline = "alphabetic";
@@ -357,16 +357,16 @@ export default class ThreeContainer extends Container {
 
   	context.drawImage(
       image,
-      cx - image.width * 0.5 - padding,
-      cy - image.height * 0.5 - padding,
-      image.width + padding * 2,
-      image.height  + padding * 2
+      cx - image.width * 0.5,
+      cy - image.height * 0.5,
+      image.width,
+      image.height
     );
 
   	// text color
   	context.fillStyle = textColor;
 
-    var offsetY = cy - fontSize * 0.5
+    var offsetY = cy - fontSize * 0.5 + padding
 
     context.fillText(
       message,
@@ -381,7 +381,7 @@ export default class ThreeContainer extends Container {
 
   	var spriteMaterial = new THREE.SpriteMaterial({ map: texture } );
   	var sprite = new THREE.Sprite( spriteMaterial );
-  	sprite.scale.set(textWidth * 4, textWidth * 2, 1);
+  	sprite.scale.set(Math.floor(image.width * 0.5), Math.floor(image.height * 0.5), 1);
   	// sprite.scale.set(canvas.width, canvas.height,1.0);
 
     sprite.raycast = function(){}
@@ -509,7 +509,7 @@ export default class ThreeContainer extends Container {
 
   	var spriteMaterial = new THREE.SpriteMaterial({ map: texture } );
   	var sprite = new THREE.Sprite( spriteMaterial );
-  	sprite.scale.set(textWidth * 3, textWidth * 1.5, 1);
+  	sprite.scale.set(1000, 500, 1);
   	// sprite.scale.set(canvas.width, canvas.height,1.0);
 
     sprite.raycast = function(){}
