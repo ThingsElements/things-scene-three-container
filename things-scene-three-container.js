@@ -1,353 +1,4 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Cube = function () {
-  function Cube(viewer, model) {
-    _classCallCheck(this, Cube);
-
-    this._viewer = viewer;
-
-    this._model = {
-      cx: 0,
-      cy: 0,
-      cz: 0
-    };
-
-    Object.assign(this._model, model);
-
-    this._transforms = {}; // All of the matrix transforms
-    this._locations = {}; //All of the shader locations
-    // this._buffers = []
-
-    this.setAttributesAndUniforms();
-
-    // Get the rest going
-    // this._buffers.push(this.createBuffersForCube(viewer._gl, this.createCubeData() ))
-    this._buffers = this.createBuffersForCube(viewer._gl, this.createModelData());
-
-    // this._webglProgram = viewer.setupProgram(this);
-
-    this._rotateX = 0;
-    this._rotateY = 0;
-    this._rotateZ = 0;
-
-    this.draw();
-  }
-
-  _createClass(Cube, [{
-    key: "draw",
-    value: function draw() {
-      var gl = this._viewer._gl;
-
-      // Compute our matrices
-      this.computeModelMatrix();
-
-      // Update the data going to the GPU
-      this.updateAttributesAndUniforms();
-
-      // Perform the actual draw
-      gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
-
-      // gl.drawArrays(gl.LINE_STRIP, 0, 24)
-
-      // Run the draw as a loop
-      requestAnimationFrame(this.draw.bind(this));
-    }
-  }, {
-    key: "setAttributesAndUniforms",
-    value: function setAttributesAndUniforms() {
-
-      var webglProgram = this._viewer._webglProgram;
-      var gl = this._viewer._gl;
-
-      // Save the attribute and uniform locations
-      this._locations.model = gl.getUniformLocation(webglProgram, "model");
-
-      this._locations.position = gl.getAttribLocation(webglProgram, "position");
-      this._locations.color = gl.getAttribLocation(webglProgram, "color");
-      this._locations.outlineColor = gl.getAttribLocation(webglProgram, "outlineColor");
-    }
-  }, {
-    key: "computeModelMatrix",
-    value: function computeModelMatrix() {
-
-      //Scale up
-      var scale = this._viewer.scaleMatrix(this._model.width, this._model.height, this._model.depth);
-
-      // Rotate a slight tilt
-      var rotateX = this._viewer.rotateXMatrix(this._rotateX);
-      // Rotate according to time
-      var rotateY = this._viewer.rotateYMatrix(this._rotateY);
-
-      var rotateZ = this._viewer.rotateZMatrix(this._rotateZ);
-
-      var position = this._viewer.translateMatrix(this._model.cx, this._model.cy, this._model.cz);
-
-      var modelMtr = this._viewer.multiplyArrayOfMatrices([position, // step 4
-      // rotateZ,
-      // rotateY,  // step 3
-      // rotateX,  // step 2
-      scale // step 1
-      ]);
-
-      // Multiply together, make sure and read them in opposite order
-      this._transforms.model = modelMtr;
-
-      // Performance caveat: in real production code it's best not to create
-      // new arrays and objects in a loop. This example chooses code clarity
-      // over performance.
-    }
-  }, {
-    key: "updateAttributesAndUniforms",
-    value: function updateAttributesAndUniforms() {
-
-      var gl = this._viewer._gl;
-
-      // Setup the color uniform that will be shared across all triangles
-
-      gl.uniformMatrix4fv(this._locations.model, false, new Float32Array(this._transforms.model));
-
-      // Set the positions attribute
-      gl.enableVertexAttribArray(this._locations.position);
-      gl.bindBuffer(gl.ARRAY_BUFFER, this._buffers.positions);
-      gl.vertexAttribPointer(this._locations.position, 3, gl.FLOAT, false, 0, 0);
-
-      // Set the colors attribute
-      gl.enableVertexAttribArray(this._locations.color);
-      gl.bindBuffer(gl.ARRAY_BUFFER, this._buffers.colors);
-      gl.vertexAttribPointer(this._locations.color, 4, gl.FLOAT, gl.TRUE, 0, 0);
-
-      // Set the outline colors attribute
-      gl.enableVertexAttribArray(this._locations.outlineColor);
-      gl.bindBuffer(gl.ARRAY_BUFFER, this._buffers.outlineColors);
-      gl.vertexAttribPointer(this._locations.outlineColor, 4, gl.FLOAT, false, 0, 0);
-
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._buffers.elements);
-    }
-  }, {
-    key: "createModelData",
-    value: function createModelData() {
-
-      var positions = this.createPositions();
-      var colors = this.createColors();
-      var elements = this.createElements();
-
-      var outlineColors = [];
-
-      for (var i = 0; i < 24; i++) {
-        outlineColors = outlineColors.concat([0.0, 0.0, 0.0, 1.0]);
-      }
-
-      return {
-        positions: positions,
-        elements: elements,
-        colors: colors,
-        outlineColors: outlineColors
-      };
-    }
-  }, {
-    key: "createPositions",
-    value: function createPositions() {
-      var positions = [
-      // Front face
-      -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0,
-
-      // Back face
-      -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0,
-
-      // Top face
-      -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0,
-
-      // Bottom face
-      -1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0,
-
-      // Right face
-      1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0,
-
-      // Left face
-      -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0];
-
-      return positions;
-    }
-  }, {
-    key: "createColors",
-    value: function createColors() {
-
-      var colorsOfFaces = [[0.3, 1.0, 1.0, 1.0], // Front face: cyan
-      [1.0, 0.3, 0.3, 1.0], // Back face: red
-      [0.3, 1.0, 0.3, 1.0], // Top face: green
-      [0.3, 0.3, 1.0, 1.0], // Bottom face: blue
-      [1.0, 1.0, 0.3, 1.0], // Right face: yellow
-      [1.0, 0.3, 1.0, 1.0] // Left face: purple
-      ];
-
-      var colors = [];
-
-      for (var j = 0; j < 6; j++) {
-        var polygonColor = colorsOfFaces[j];
-
-        for (var i = 0; i < 4; i++) {
-          colors = colors.concat(polygonColor);
-        }
-      }
-
-      return colors;
-    }
-  }, {
-    key: "createElements",
-    value: function createElements() {
-      var elements = [0, 1, 2, 0, 2, 3, // front
-      4, 5, 6, 4, 6, 7, // back
-      8, 9, 10, 8, 10, 11, // top
-      12, 13, 14, 12, 14, 15, // bottom
-      16, 17, 18, 16, 18, 19, // right
-      20, 21, 22, 20, 22, 23 // left
-      ];
-
-      return elements;
-    }
-  }, {
-    key: "createBuffersForCube",
-    value: function createBuffersForCube(gl, cube) {
-
-      var positions = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, positions);
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cube.positions), gl.STATIC_DRAW);
-
-      var colors = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, colors);
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cube.colors), gl.STATIC_DRAW);
-
-      var elements = gl.createBuffer();
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elements);
-      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cube.elements), gl.STATIC_DRAW);
-
-      var outlineColors = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, outlineColors);
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cube.outlineColors), gl.STATIC_DRAW);
-
-      return {
-        positions: positions,
-        colors: colors,
-        elements: elements,
-        outlineColors: outlineColors
-      };
-    }
-  }]);
-
-  return Cube;
-}();
-
-exports.default = Cube;
-
-},{}],2:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _cube = require('./cube');
-
-var _cube2 = _interopRequireDefault(_cube);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var Floor = function (_Cube) {
-  _inherits(Floor, _Cube);
-
-  function Floor() {
-    _classCallCheck(this, Floor);
-
-    return _possibleConstructorReturn(this, Object.getPrototypeOf(Floor).apply(this, arguments));
-  }
-
-  _createClass(Floor, [{
-    key: 'createColors',
-    value: function createColors() {
-
-      var colorsOfFaces = [[1.0, 0.3, 0.3, 1.0], // Front face: cyan
-      [1.0, 0.3, 0.3, 1.0], // Back face: red
-      [1.0, 0.3, 0.3, 1.0], // Top face: green
-      [1.0, 0.3, 0.3, 1.0], // Bottom face: blue
-      [1.0, 0.3, 0.3, 1.0], // Right face: yellow
-      [1.0, 0.3, 0.3, 1.0] // Left face: purple
-      ];
-
-      var colors = [];
-
-      for (var j = 0; j < 6; j++) {
-        var polygonColor = colorsOfFaces[j];
-
-        for (var i = 0; i < 4; i++) {
-          colors = colors.concat(polygonColor);
-        }
-      }
-
-      return colors;
-    }
-  }, {
-    key: 'createPositions',
-    value: function createPositions() {
-
-      var positions = [
-      // Front face
-      -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0,
-
-      // Back face
-      -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0,
-
-      // Top face
-      -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0,
-
-      // Bottom face
-      -1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0,
-
-      // Right face
-      1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0,
-
-      // Left face
-      -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0];
-
-      return positions;
-    }
-  }, {
-    key: 'createElements',
-    value: function createElements() {
-      var elements = [0, 1, 2, 0, 2, 3, // front
-      4, 5, 6, 4, 6, 7, // back
-      8, 9, 10, 8, 10, 11, // top
-      12, 13, 14, 12, 14, 15, // bottom
-      16, 17, 18, 16, 18, 19, // right
-      20, 21, 22, 20, 22, 23 // left
-      ];
-
-      return elements;
-    }
-  }]);
-
-  return Floor;
-}(_cube2.default);
-
-exports.default = Floor;
-
-},{"./cube":1}],3:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -410,8 +61,8 @@ var ForkLift = function (_THREE$Object3D) {
         return;
       }
 
-      var cx = model.left + model.width / 2 - canvasSize.width / 2;
-      var cy = model.top + model.height / 2 - canvasSize.height / 2;
+      var cx = model.cx - canvasSize.width / 2;
+      var cy = model.cy - canvasSize.height / 2;
       var cz = 0.5 * model.depth;
 
       var left = model.left - canvasSize.width / 2;
@@ -440,7 +91,7 @@ var ForkLift = function (_THREE$Object3D) {
 
 exports.default = ForkLift;
 
-},{}],4:[function(require,module,exports){
+},{}],2:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -731,7 +382,7 @@ var Sensor = exports.Sensor = function (_Ellipse) {
 
 Component.register('humidity-sensor', Sensor);
 
-},{}],5:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -758,7 +409,7 @@ Object.defineProperty(exports, 'VideoPlayer360', {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./three-container":11,"./video-player-360":14}],6:[function(require,module,exports){
+},{"./three-container":9,"./video-player-360":12}],4:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -976,7 +627,7 @@ var LinePath = exports.LinePath = function (_Line) {
 
 Component.register('path', LinePath);
 
-},{}],7:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1073,7 +724,7 @@ var Person = function (_THREE$Object3D) {
 
 exports.default = Person;
 
-},{}],8:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1143,7 +794,7 @@ var Plane = function (_THREE$Mesh) {
 
 exports.default = Plane;
 
-},{}],9:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1277,7 +928,7 @@ var Rack = function (_THREE$Object3D) {
 
 exports.default = Rack;
 
-},{"./stock":10}],10:[function(require,module,exports){
+},{"./stock":8}],8:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1399,7 +1050,7 @@ var Stock = function (_THREE$Mesh) {
 
 exports.default = Stock;
 
-},{}],11:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2623,7 +2274,7 @@ exports.default = ThreeContainer;
 
 Component.register('three-container', ThreeContainer);
 
-},{"./forkLift":3,"./humidity-sensor":4,"./path":6,"./person":7,"./plane":8,"./rack":9,"./three-controls":12,"./three-layout":13}],12:[function(require,module,exports){
+},{"./forkLift":1,"./humidity-sensor":2,"./path":4,"./person":5,"./plane":6,"./rack":7,"./three-controls":10,"./three-layout":11}],10:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3314,7 +2965,7 @@ ThreeControls.prototype.constructor = ThreeControls;
 
 exports.default = ThreeControls;
 
-},{}],13:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3345,7 +2996,7 @@ Layout.register('three', ThreeLayout);
 
 exports.default = ThreeLayout;
 
-},{}],14:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3829,403 +3480,4 @@ exports.default = VideoPlayer360;
 
 Component.register('video-player-360', VideoPlayer360);
 
-},{}],15:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _rack = require('./rack');
-
-var _rack2 = _interopRequireDefault(_rack);
-
-var _forkLift = require('./forkLift');
-
-var _forkLift2 = _interopRequireDefault(_forkLift);
-
-var _person = require('./person');
-
-var _person2 = _interopRequireDefault(_person);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var WebGL3dViewer = function () {
-  function WebGL3dViewer(target, model, data) {
-    _classCallCheck(this, WebGL3dViewer);
-
-    if (typeof target == 'string') this._container = document.getElementById(target);else this._container = target;
-
-    this._model = model;
-
-    this.init();
-
-    // EVENTS
-    this.bindEvents();
-
-    this.run();
-  }
-
-  _createClass(WebGL3dViewer, [{
-    key: 'init',
-    value: function init() {
-
-      var model = this._model;
-
-      this.registerLoaders();
-
-      // PROPERTY
-      this._mouse = { x: 0, y: 0 };
-      this.INTERSECTED;
-
-      this.FLOOR_WIDTH = model.width;
-      this.FLOOR_HEIGHT = model.height;
-
-      // SCENE
-      this._scene = new THREE.Scene();
-
-      // CAMERA
-      this.SCREEN_WIDTH = this._container.clientWidth;
-      this.SCREEN_HEIGHT = this._container.clientHeight;
-      this.VIEW_ANGLE = 45;
-      this.ASPECT = this.SCREEN_WIDTH / this.SCREEN_HEIGHT;
-      this.NEAR = 0.1;
-      this.FAR = 20000;
-
-      this._camera = new THREE.PerspectiveCamera(this.VIEW_ANGLE, this.ASPECT, this.NEAR, this.FAR);
-      this._scene.add(this._camera);
-      this._camera.position.set(800, 800, 800);
-      this._camera.lookAt(this._scene.position);
-
-      // RENDERER
-      if (this._renderer && this._renderer.domElement) {
-        this._container.removeChild(this._renderer.domElement);
-      }
-
-      this._renderer = new THREE.WebGLRenderer({ precision: 'mediump' });
-      // this._renderer = new THREE.WebGLRenderer( {antialias:true, precision: 'mediump'} );
-      this._renderer.setClearColor('#424b57');
-      this._renderer.setSize(this.SCREEN_WIDTH, this.SCREEN_HEIGHT);
-
-      this._container.appendChild(this._renderer.domElement);
-
-      // KEYBOARD
-      this._keyboard = new THREEx.KeyboardState();
-
-      // CONTROLS
-      this._controls = new THREE.OrbitControls(this._camera, this._renderer.domElement);
-
-      // LIGHT
-      var light = new THREE.PointLight(0xffffff);
-      light.position.set(10, 10, 0);
-      this._camera.add(light);
-
-      this.createFloor();
-
-      ////////////
-      // CUSTOM //
-      ////////////
-      this.createObjects(model.components);
-
-      // initialize object to perform world/screen calculations
-      this._projector = new THREE.Projector();
-
-      this._loadManager = new THREE.LoadingManager();
-      this._loadManager.onProgress = function (item, loaded, total) {};
-
-      // this.loadExtMtl('obj/Casual_Man_02/', 'Casual_Man.mtl', '', function(materials){
-      //   materials.preload();
-      //
-      //   this.loadExtObj('obj/Casual_Man_02/', 'Casual_Man.obj', materials, function(object){
-      //
-      //     object.position.x = 0;
-      //     object.position.y = 0;
-      //     object.position.z = 350;
-      //     object.rotation.y = Math.PI;
-      //     object.scale.set(15, 15, 15)
-      //
-      //     this._scene.add(object);
-      //   })
-      // })
-    }
-  }, {
-    key: 'registerLoaders',
-    value: function registerLoaders() {
-      THREE.Loader.Handlers.add(/\.tga$/i, new THREE.TGALoader());
-    }
-  }, {
-    key: 'loadExtMtl',
-    value: function loadExtMtl(path, filename, texturePath, funcSuccess) {
-
-      var self = this;
-      var mtlLoader = new THREE.MTLLoader();
-      mtlLoader.setPath(path);
-      if (texturePath) mtlLoader.setTexturePath(texturePath);
-
-      mtlLoader.load(filename, funcSuccess.bind(self));
-    }
-  }, {
-    key: 'loadExtObj',
-    value: function loadExtObj(path, filename, materials, funcSuccess) {
-      var self = this;
-      var loader = new THREE.OBJLoader(this._loadManager);
-
-      loader.setPath(path);
-
-      if (materials) loader.setMaterials(materials);
-
-      loader.load(filename, funcSuccess.bind(self), function () {}, function () {
-        console.log("error");
-      });
-    }
-  }, {
-    key: 'createFloor',
-    value: function createFloor() {
-
-      // FLOOR
-      var model = this._model;
-      var floorColor = model.color || '#7a8696';
-
-      // var floorTexture = new THREE.TextureLoader().load('textures/Light-gray-rough-concrete-wall-Seamless-background-photo-texture.jpg');
-      // floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
-      // floorTexture.repeat.set( 1, 1 );
-      // var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
-      var floorMaterial = new THREE.MeshBasicMaterial({ color: floorColor, side: THREE.DoubleSide });
-      var floorGeometry = new THREE.BoxGeometry(this.FLOOR_WIDTH, this.FLOOR_HEIGHT, 1, 10, 10);
-      // var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
-      // var floorGeometry = new THREE.PlaneGeometry(this.FLOOR_WIDTH, this.FLOOR_HEIGHT, 10, 10);
-      var floor = new THREE.Mesh(floorGeometry, floorMaterial);
-      floor.position.y = -1;
-      floor.rotation.x = Math.PI / 2;
-      this._scene.add(floor);
-    }
-  }, {
-    key: 'createSkyBox',
-    value: function createSkyBox() {
-
-      // SKYBOX/FOG
-      var skyBoxGeometry = new THREE.BoxGeometry(10000, 10000, 10000);
-      var skyBoxMaterial = new THREE.MeshBasicMaterial({ color: 0x9999ff, side: THREE.BackSide });
-      var skyBox = new THREE.Mesh(skyBoxGeometry, skyBoxMaterial);
-      this._scene.add(skyBox);
-    }
-  }, {
-    key: 'createObjects',
-    value: function createObjects(models) {
-
-      var scene = this._scene;
-      var model = this._model;
-      var canvasSize = {
-        width: this.FLOOR_WIDTH,
-        height: this.FLOOR_HEIGHT
-      };
-
-      var obj = new THREE.Object3D();
-
-      models.forEach(function (model) {
-
-        var item;
-        switch (model.type) {
-
-          case 'rack':
-
-            item = new _rack2.default(model, canvasSize);
-            break;
-
-          case 'forklift':
-
-            item = new _forkLift2.default(model, canvasSize);
-
-            break;
-          case 'person':
-
-            item = new _person2.default(model, canvasSize);
-
-            break;
-          default:
-            break;
-
-        }
-        obj.add(item);
-      });
-
-      scene.add(obj);
-    }
-  }, {
-    key: 'animate',
-    value: function animate() {
-
-      this._animFrame = requestAnimationFrame(this.animate.bind(this));
-      this.rotateCam(0.015);
-      this.render();
-      this.update();
-    }
-  }, {
-    key: 'update',
-    value: function update() {
-
-      var tooltip = document.getElementById("tooltip");
-
-      // find intersections
-
-      // create a Ray with origin at the mouse position
-      //   and direction into the scene (camera direction)
-      var vector = new THREE.Vector3(this._mouse.x, this._mouse.y, 1);
-      vector.unproject(this._camera);
-      var ray = new THREE.Raycaster(this._camera.position, vector.sub(this._camera.position).normalize());
-
-      // create an array containing all objects in the scene with which the ray intersects
-      var intersects = ray.intersectObjects(this._scene.children, true);
-
-      // INTERSECTED = the object in the scene currently closest to the camera
-      //		and intersected by the Ray projected from the mouse position
-
-      // if there is one (or more) intersections
-      if (intersects.length > 0) {
-        // if the closest object intersected is not the currently stored intersection object
-        if (intersects[0].object != this.INTERSECTED) {
-          // restore previous intersection object (if it exists) to its original color
-          // if ( this.INTERSECTED )
-          //   this.INTERSECTED.material.color.setHex( this.INTERSECTED.currentHex );
-          // store reference to closest object as current intersection object
-          this.INTERSECTED = intersects[0].object;
-          // store color of closest object (for later restoration)
-          // this.INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex();
-          // set a new color for closest object
-          // this.INTERSECTED.material.color.setHex( 0xffff00 );
-
-          if (this.INTERSECTED.type === 'stock') {
-            if (!this.INTERSECTED.visible) return;
-
-            if (!this.INTERSECTED.userData) this.INTERSECTED.userData = {};
-
-            var loc = this.INTERSECTED.name;
-            var status = this.INTERSECTED.userData.status;
-            var boxId = this.INTERSECTED.userData.boxId;
-            var inDate = this.INTERSECTED.userData.inDate;
-            var type = this.INTERSECTED.userData.type;
-            var count = this.INTERSECTED.userData.count;
-
-            tooltip.textContent = '';
-
-            for (var key in this.INTERSECTED.userData) {
-              if (this.INTERSECTED.userData[key]) tooltip.textContent += key + ": " + this.INTERSECTED.userData[key] + "\n";
-            }
-
-            var mouseX = (this._mouse.x + 1) / 2 * this.SCREEN_WIDTH;
-            var mouseY = (-this._mouse.y + 1) / 2 * this.SCREEN_HEIGHT;
-
-            tooltip.style.left = mouseX + 20 + 'px';
-            tooltip.style.top = mouseY - 20 + 'px';
-            tooltip.style.display = 'block';
-          } else {
-            tooltip.style.display = 'none';
-          }
-        }
-      } else // there are no intersections
-        {
-          // restore previous intersection object (if it exists) to its original color
-          // if ( this.INTERSECTED )
-          //   this.INTERSECTED.material.color.setHex( this.INTERSECTED.currentHex );
-          // remove previous intersection object reference
-          //     by setting current intersection object to "nothing"
-          this.INTERSECTED = null;
-
-          tooltip.style.display = 'none';
-        }
-
-      if (this._keyboard.pressed("z")) {
-        // do something
-      }
-
-      this._controls.update();
-    }
-  }, {
-    key: 'render',
-    value: function render() {
-      this._renderer.render(this._scene, this._camera);
-    }
-  }, {
-    key: 'bindEvents',
-    value: function bindEvents() {
-
-      // when the mouse moves, call the given function
-      // this._container.addEventListener( 'mousedown', this.onMouseMove.bind(this), false );
-      this._container.addEventListener('mousemove', this.onMouseMove.bind(this), false);
-      // this.bindResize()
-      THREEx.FullScreen.bindKey({ charCode: 'm'.charCodeAt(0) });
-    }
-  }, {
-    key: 'onMouseDown',
-    value: function onMouseDown(e) {
-      this._mouse.x = e.offsetX / this.SCREEN_WIDTH * 2 - 1;
-      this._mouse.y = -(e.offsetY / this.SCREEN_HEIGHT) * 2 + 1;
-    }
-  }, {
-    key: 'onMouseMove',
-    value: function onMouseMove(e) {
-      // the following line would stop any other event handler from firing
-      // (such as the mouse's TrackballControls)
-      // event.preventDefault();
-
-      // update the mouse variable
-      this._mouse.x = e.offsetX / this.SCREEN_WIDTH * 2 - 1;
-      this._mouse.y = -(e.offsetY / this.SCREEN_HEIGHT) * 2 + 1;
-    }
-  }, {
-    key: 'bindResize',
-    value: function bindResize() {
-      var renderer = this._renderer;
-      var camera = this._camera;
-
-      var callback = function callback() {
-        this.SCREEN_WIDTH = this._container.clientWidth;
-        this.SCREEN_HEIGHT = this._container.clientHeight;
-
-        // notify the renderer of the size change
-        // renderer.setSize( window.innerWidth, window.innerHeight );
-        renderer.setSize(this.SCREEN_WIDTH, this.SCREEN_HEIGHT);
-        renderer.setFaceCulling("front_and_back", "cw");
-        // update the camera
-        camera.aspect = this.SCREEN_WIDTH / this.SCREEN_HEIGHT;
-        camera.updateProjectionMatrix();
-      };
-      // bind the resize event
-      this._container.addEventListener('resize', callback.bind(this), false);
-      // return .stop() the function to stop watching window resize
-      return {
-        /**
-        * Stop watching window resize
-        */
-        stop: function stop() {
-          this._container.removeEventListener('resize', callback);
-        }
-      };
-    }
-  }, {
-    key: 'run',
-    value: function run() {
-      this.animate();
-    }
-  }, {
-    key: 'stop',
-    value: function stop() {
-      cancelAnimationFrame(this._animFrame);
-    }
-  }, {
-    key: 'rotateCam',
-    value: function rotateCam(angle) {
-      this._controls.rotateLeft(angle);
-    }
-  }]);
-
-  return WebGL3dViewer;
-}();
-
-exports.default = WebGL3dViewer;
-
-},{"./forkLift":3,"./person":7,"./rack":9}]},{},[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]);
+},{}]},{},[3]);

@@ -49,8 +49,8 @@ export default class ForkLift extends THREE.Object3D {
       return;
     }
 
-    let cx = (model.left + (model.width/2)) - canvasSize.width/2
-    let cy = (model.top + (model.height/2)) - canvasSize.height/2
+    let cx = model.cx - canvasSize.width/2
+    let cy = model.cy - canvasSize.height/2
     let cz = 0.5 * model.depth
 
     let left = model.left - canvasSize.width/2
