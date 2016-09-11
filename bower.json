@@ -1,6 +1,6 @@
 {
   "name": "things-scene-three-container",
-  "version": "0.0.39",
+  "version": "0.0.40",
   "authors": [
     "Stellan Gil <lotstar87@gmail.com>"
   ],
@@ -18,15 +18,15 @@
     "/test/"
   ],
   "dependencies": {
+    "threejs": "r80",
+    "heatmap.js-amd": "pa7/heatmap.js",
+    "things-scene": "^0.7.0"
+  },
+  "devDependencies": {
     "polymer": "Polymer/polymer#^1.2.0",
     "iron-elements": "PolymerElements/iron-elements#^1.0.0",
     "paper-elements": "PolymerElements/paper-elements#^1.0.1",
-    "threejs": "r80",
-    "heatmap.js-amd": "pa7/heatmap.js"
-  },
-  "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
-    "web-component-tester": "^4.0.0",
     "things-scene-viewer": "ThingsElements/things-scene-viewer",
     "things-scene-modeler": "ThingsElements/things-scene-modeler",
     "things-designer-elements": "ThingsElements/things-designer-elements",
@@ -34,6 +34,7 @@
     "things-scene-forklift": "ThingsElements/things-scene-forklift",
     "things-scene-person": "ThingsElements/things-scene-person",
     "stomp-websocket": "^2.3.4",
-    "sockjs": "^0.3.4"
+    "sockjs": "^0.3.4",
+    "web-component-tester": "^4.0.0"
   }
 }
