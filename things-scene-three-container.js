@@ -864,7 +864,8 @@ var Rack = function (_THREE$Object3D) {
         var stock = new _stock2.default({
           width: model.width * scale,
           height: model.height * scale,
-          depth: model.depth * scale
+          depth: model.depth * scale,
+          fillStyle: model.fillStyle
         });
 
         var stockDepth = model.depth * scale;
@@ -971,9 +972,12 @@ var Stock = function (_THREE$Mesh) {
   }, {
     key: 'createStock',
     value: function createStock(w, h, d) {
+      var _model$fillStyle = this.model.fillStyle;
+      var fillStyle = _model$fillStyle === undefined ? '#ccaa76' : _model$fillStyle;
+
 
       this.geometry = new THREE.BoxGeometry(w, d, h);
-      this.material = new THREE.MeshLambertMaterial({ color: '#ccaa76', side: THREE.FrontSide });
+      this.material = new THREE.MeshLambertMaterial({ color: fillStyle, side: THREE.FrontSide });
       this.type = 'stock';
 
       this.castShadow = true;
@@ -1042,6 +1046,11 @@ var Stock = function (_THREE$Mesh) {
         threeContainer._renderer && threeContainer._renderer.render(threeContainer._scene2d, threeContainer._2dCamera);
         threeContainer.invalidate();
       }
+    }
+  }, {
+    key: 'model',
+    get: function get() {
+      return this._model;
     }
   }]);
 

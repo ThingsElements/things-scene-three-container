@@ -44,7 +44,8 @@ export default class Rack extends THREE.Object3D {
       let stock = new Stock({
         width : model.width * scale,
         height : model.height * scale,
-        depth : model.depth * scale
+        depth : model.depth * scale,
+        fillStyle: model.fillStyle
       })
 
       let stockDepth = model.depth * scale

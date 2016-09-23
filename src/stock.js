@@ -20,12 +20,20 @@ export default class Stock extends THREE.Mesh {
 
   createStock(w, h, d) {
 
+    let {
+      fillStyle = '#ccaa76'
+    } = this.model
+
     this.geometry = new THREE.BoxGeometry(w, d, h);
-    this.material = new THREE.MeshLambertMaterial( { color : '#ccaa76', side: THREE.FrontSide } );
+    this.material = new THREE.MeshLambertMaterial( { color : fillStyle, side: THREE.FrontSide } );
     this.type = 'stock'
 
     this.castShadow = true
 
+  }
+
+  get model() {
+    return this._model
   }
 
   onUserDataChanged() {
