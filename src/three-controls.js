@@ -238,9 +238,11 @@ var ThreeControls = function( object, component ) {
     if(this.enabled === false || this.enableRotate === false)
       return;
 
-    if(event.altKey === true) 
+    scope.component.stop()
+
+    if(event.altKey === true)
       state = STATE.PAN
-    else 
+    else
       state = STATE.ROTATE
 
     switch(state) {
@@ -262,6 +264,7 @@ var ThreeControls = function( object, component ) {
   }
 
   this.onDragMove = function( event ) {
+
     if(!this.enabled)
       return
 
@@ -293,6 +296,8 @@ var ThreeControls = function( object, component ) {
       return;
 
     state = STATE.NONE;
+
+    scope.component.threed_animate()
   }
 
   this.onKeyDown = function(event) {

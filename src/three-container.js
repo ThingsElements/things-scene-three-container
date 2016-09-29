@@ -4,6 +4,8 @@ import ForkLift from './forkLift'
 import Person from './person'
 import HumiditySensor from './humidity-sensor'
 import Path from './path'
+import Wall from './wall'
+import Door from './door'
 
 import ThreeLayout from './three-layout'
 import ThreeControls from './three-controls'
@@ -104,6 +106,14 @@ export default class ThreeContainer extends Container {
         // case 'marker':
         //   item = new Marker(model, canvasSize, this)
         //   break;
+
+        case 'wall':
+          item = new Wall(model, canvasSize, this)
+          break;
+
+        case 'door':
+          item = new Door(model, canvasSize, this)
+          break;
 
         default:
           break;
@@ -516,6 +526,32 @@ export default class ThreeContainer extends Container {
     this._projector = undefined
     this._load_manager = undefined
 
+    for(let i in this._scene3d.children) {
+      let child = this._scene3d.children[i]
+      if(child.dispose)
+        child.dispose();
+      if(child.geometry)
+        child.geometry.dispose();
+      if(child.material)
+        child.material.dispose();
+      if(child.texture)
+        child.texture.dispose();
+      this._scene3d.remove(child)
+    }
+
+    for(let i in this._scene2d.children) {
+      let child = this._scene2d.children[i]
+      if(child.dispose)
+        child.dispose();
+      if(child.geometry)
+        child.geometry.dispose();
+      if(child.material)
+        child.material.dispose();
+      if(child.texture)
+        child.texture.dispose();
+      this._scene2d.remove(child)
+    }
+
     this._scene3d = undefined
     this._scene2d = undefined
   }
@@ -636,7 +672,7 @@ export default class ThreeContainer extends Container {
   }
 
   update() {
-    this._controls.update();
+    // this._controls.update();
   }
 
   get scene3d() {
@@ -759,6 +795,11 @@ export default class ThreeContainer extends Container {
     } else {
       super._post_draw(ctx);
     }
+  }
+
+  dispose() {
+    super.dispose();
+    this.destroy_scene3d()
   }
 
   get layout() {
@@ -1121,6 +1162,8 @@ export default class ThreeContainer extends Container {
       this._camera.updateProjectionMatrix();
 
       this._controls.cameraChanged = true
+
+      this._controls.update()
     }
 
     if(after.hasOwnProperty("data")){
