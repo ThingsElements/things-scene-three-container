@@ -526,31 +526,37 @@ export default class ThreeContainer extends Container {
     this._projector = undefined
     this._load_manager = undefined
 
-    for(let i in this._scene3d.children) {
-      let child = this._scene3d.children[i]
-      if(child.dispose)
-        child.dispose();
-      if(child.geometry)
-        child.geometry.dispose();
-      if(child.material)
-        child.material.dispose();
-      if(child.texture)
-        child.texture.dispose();
-      this._scene3d.remove(child)
+    if(this._scene3d) {
+      for(let i in this._scene3d.children) {
+        let child = this._scene3d.children[i]
+        if(child.dispose)
+          child.dispose();
+        if(child.geometry)
+          child.geometry.dispose();
+        if(child.material)
+          child.material.dispose();
+        if(child.texture)
+          child.texture.dispose();
+        this._scene3d.remove(child)
+      }
     }
 
-    for(let i in this._scene2d.children) {
-      let child = this._scene2d.children[i]
-      if(child.dispose)
-        child.dispose();
-      if(child.geometry)
-        child.geometry.dispose();
-      if(child.material)
-        child.material.dispose();
-      if(child.texture)
-        child.texture.dispose();
-      this._scene2d.remove(child)
+    if(this._scene2d) {
+      for(let i in this._scene2d.children) {
+        let child = this._scene2d.children[i]
+        if(child.dispose)
+          child.dispose();
+        if(child.geometry)
+          child.geometry.dispose();
+        if(child.material)
+          child.material.dispose();
+        if(child.texture)
+          child.texture.dispose();
+        this._scene2d.remove(child)
+      }
     }
+
+
 
     this._scene3d = undefined
     this._scene2d = undefined
