@@ -51,3 +51,4 @@ export class Door2d extends Rect {
 }
 
 Component.register('door', Door2d)
+scene.Component3d.register('door', Door)

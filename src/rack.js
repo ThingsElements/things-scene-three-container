@@ -135,3 +135,6 @@ export default class Rack extends THREE.Object3D {
   }
 
 }
+
+
+scene.Component3d.register('rack', Rack)

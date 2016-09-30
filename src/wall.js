@@ -56,3 +56,4 @@ export class Wall2d extends Rect {
 }
 
 Component.register('wall', Wall2d)
+scene.Component3d.register('wall', Wall)

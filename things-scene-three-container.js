@@ -1,4 +1,58 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var _scene = scene;
+var Component = _scene.Component;
+var Container = _scene.Container;
+var Layout = _scene.Layout;
+
+
+var registry = {};
+//
+// scene.Component3d = new function Component3d(){
+//   this.register = function(type, clazz) {
+//     if(!clazz)
+//       return registry[type]
+//     registry[type] = clazz
+//   }
+// }
+
+// scene.Component3d.prototype.register = function(type, clazz) {
+//   if(!clazz)
+//     return registry[type]
+//   registry[type] = clazz
+// };
+
+var Component3d = function () {
+  function Component3d() {
+    _classCallCheck(this, Component3d);
+  }
+
+  _createClass(Component3d, null, [{
+    key: "register",
+    value: function register(type, clazz) {
+      if (!clazz) return registry[type];
+      registry[type] = clazz;
+    }
+  }]);
+
+  return Component3d;
+}();
+
+exports.default = Component3d;
+
+
+scene.Component3d = Component3d;
+
+},{}],2:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -87,8 +141,9 @@ var Door2d = exports.Door2d = function (_Rect) {
 }(Rect);
 
 Component.register('door', Door2d);
+scene.Component3d.register('door', Door);
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -181,7 +236,10 @@ var ForkLift = function (_THREE$Object3D) {
 
 exports.default = ForkLift;
 
-},{}],3:[function(require,module,exports){
+
+scene.Component3d.register('forklift', ForkLift);
+
+},{}],4:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -471,13 +529,15 @@ var Sensor = exports.Sensor = function (_Ellipse) {
 }(Ellipse);
 
 Component.register('humidity-sensor', Sensor);
+scene.Component3d.register('humidity-sensor', HumiditySensor);
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.VideoPlayer360 = exports.ThreeContainer = undefined;
 
 var _threeContainer = require('./three-container');
 
@@ -497,9 +557,13 @@ Object.defineProperty(exports, 'VideoPlayer360', {
   }
 });
 
+var _component3d = require('./component-3d');
+
+var _component3d2 = _interopRequireDefault(_component3d);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./three-container":10,"./video-player-360":13}],5:[function(require,module,exports){
+},{"./component-3d":1,"./three-container":11,"./video-player-360":14}],6:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -717,7 +781,7 @@ var LinePath = exports.LinePath = function (_Line) {
 
 Component.register('path', LinePath);
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -814,7 +878,10 @@ var Person = function (_THREE$Object3D) {
 
 exports.default = Person;
 
-},{}],7:[function(require,module,exports){
+
+scene.Component3d.register('person', Person);
+
+},{}],8:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -884,7 +951,10 @@ var Plane = function (_THREE$Mesh) {
 
 exports.default = Plane;
 
-},{}],8:[function(require,module,exports){
+
+scene.Component3d.register('rect', Plane);
+
+},{}],9:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1019,7 +1089,10 @@ var Rack = function (_THREE$Object3D) {
 
 exports.default = Rack;
 
-},{"./stock":9}],9:[function(require,module,exports){
+
+scene.Component3d.register('rack', Rack);
+
+},{"./stock":10}],10:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1149,7 +1222,7 @@ var Stock = function (_THREE$Mesh) {
 
 exports.default = Stock;
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1290,47 +1363,57 @@ var ThreeContainer = function (_Container) {
 
       components.forEach(function (model) {
 
-        var item;
-        switch (model.type) {
-          case 'rack':
-            item = new _rack2.default(model, canvasSize);
-            break;
+        var clazz = scene.Component3d.register(model.type);
 
-          case 'forklift':
-            item = new _forkLift2.default(model, canvasSize);
-            break;
-
-          case 'person':
-            item = new _person2.default(model, canvasSize);
-            break;
-
-          case 'rect':
-            item = new _plane2.default(model, canvasSize);
-            break;
-
-          case 'humidity-sensor':
-            item = new _humiditySensor2.default(model, canvasSize, _this2);
-            break;
-
-          case 'path':
-            item = new _path2.default(model, canvasSize, _this2);
-            break;
-
-          // case 'marker':
-          //   item = new Marker(model, canvasSize, this)
-          //   break;
-
-          case 'wall':
-            item = new _wall2.default(model, canvasSize, _this2);
-            break;
-
-          case 'door':
-            item = new _door2.default(model, canvasSize, _this2);
-            break;
-
-          default:
-            break;
+        if (!clazz) {
+          console.warn("Class not found : 3d class is not exist");
+          return;
         }
+
+        var item = new clazz(model, canvasSize, _this2);
+
+        // var item
+        // switch (model.type) {
+        //   case 'rack':
+        //     item = new Rack(model, canvasSize)
+        //     break;
+        //
+        //   case 'forklift':
+        //     item = new ForkLift(model, canvasSize)
+        //     break;
+        //
+        //   case 'person':
+        //     item = new Person(model, canvasSize)
+        //     break;
+        //
+        //   case 'rect':
+        //     item = new Plane(model, canvasSize)
+        //     break;
+        //
+        //   case 'humidity-sensor':
+        //     item = new HumiditySensor(model, canvasSize, this)
+        //     break;
+        //
+        //
+        //   case 'path':
+        //     item = new Path(model, canvasSize, this)
+        //     break;
+        //
+        //   // case 'marker':
+        //   //   item = new Marker(model, canvasSize, this)
+        //   //   break;
+        //
+        //   case 'wall':
+        //     item = new Wall(model, canvasSize, this)
+        //     break;
+        //
+        //   case 'door':
+        //     item = new Door(model, canvasSize, this)
+        //     break;
+        //
+        //   default:
+        //     break;
+        // }
 
         if (item) _this2._scene3d.add(item);
         // obj.add(item)
@@ -2415,7 +2498,7 @@ exports.default = ThreeContainer;
 
 Component.register('three-container', ThreeContainer);
 
-},{"./door":1,"./forkLift":2,"./humidity-sensor":3,"./path":5,"./person":6,"./plane":7,"./rack":8,"./three-controls":11,"./three-layout":12,"./wall":14}],11:[function(require,module,exports){
+},{"./door":2,"./forkLift":3,"./humidity-sensor":4,"./path":6,"./person":7,"./plane":8,"./rack":9,"./three-controls":12,"./three-layout":13,"./wall":15}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3111,7 +3194,7 @@ ThreeControls.prototype.constructor = ThreeControls;
 
 exports.default = ThreeControls;
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3142,7 +3225,7 @@ Layout.register('three', ThreeLayout);
 
 exports.default = ThreeLayout;
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3626,7 +3709,7 @@ exports.default = VideoPlayer360;
 
 Component.register('video-player-360', VideoPlayer360);
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3720,5 +3803,6 @@ var Wall2d = exports.Wall2d = function (_Rect) {
 }(Rect);
 
 Component.register('wall', Wall2d);
+scene.Component3d.register('wall', Wall);
 
-},{}]},{},[4]);
+},{}]},{},[5]);

@@ -243,3 +243,4 @@ export class Sensor extends Ellipse {
 }
 
 Component.register('humidity-sensor', Sensor)
+scene.Component3d.register('humidity-sensor', HumiditySensor)

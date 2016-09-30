@@ -74,3 +74,5 @@ export default class Person extends THREE.Object3D {
   }
 
 }
+
+scene.Component3d.register('person', Person)

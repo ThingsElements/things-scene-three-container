@@ -34,7 +34,7 @@ export default class Plane extends THREE.Mesh {
       texture.repeat.set(1,1)
       this.material = new THREE.MeshBasicMaterial( { map : texture, side: THREE.FrontSide } );
     } else {
-      this.material = new THREE.MeshBasicMaterial( { color : fillStyle|| '#ccaa76', side: THREE.FrontSide } );  
+      this.material = new THREE.MeshBasicMaterial( { color : fillStyle|| '#ccaa76', side: THREE.FrontSide } );
     }
 
     this.rotation.x = - Math.PI / 2
@@ -44,3 +44,4 @@ export default class Plane extends THREE.Mesh {
 
 }
 
+scene.Component3d.register('rect', Plane)

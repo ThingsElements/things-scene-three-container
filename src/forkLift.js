@@ -68,3 +68,5 @@ export default class ForkLift extends THREE.Object3D {
   }
 
 }
+
+scene.Component3d.register('forklift', ForkLift)

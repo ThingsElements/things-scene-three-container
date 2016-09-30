@@ -76,48 +76,57 @@ export default class ThreeContainer extends Container {
 
     components.forEach(model => {
 
-      var item
-      switch (model.type) {
-        case 'rack':
-          item = new Rack(model, canvasSize)
-          break;
+      var clazz = scene.Component3d.register(model.type)
 
-        case 'forklift':
-          item = new ForkLift(model, canvasSize)
-          break;
-
-        case 'person':
-          item = new Person(model, canvasSize)
-          break;
-
-        case 'rect':
-          item = new Plane(model, canvasSize)
-          break;
-
-        case 'humidity-sensor':
-          item = new HumiditySensor(model, canvasSize, this)
-          break;
-
-
-        case 'path':
-          item = new Path(model, canvasSize, this)
-          break;
-
-        // case 'marker':
-        //   item = new Marker(model, canvasSize, this)
-        //   break;
-
-        case 'wall':
-          item = new Wall(model, canvasSize, this)
-          break;
-
-        case 'door':
-          item = new Door(model, canvasSize, this)
-          break;
-
-        default:
-          break;
+      if(!clazz) {
+        console.warn("Class not found : 3d class is not exist");
+        return;
       }
+
+      var item = new clazz(model, canvasSize, this)
+
+      // var item
+      // switch (model.type) {
+      //   case 'rack':
+      //     item = new Rack(model, canvasSize)
+      //     break;
+      //
+      //   case 'forklift':
+      //     item = new ForkLift(model, canvasSize)
+      //     break;
+      //
+      //   case 'person':
+      //     item = new Person(model, canvasSize)
+      //     break;
+      //
+      //   case 'rect':
+      //     item = new Plane(model, canvasSize)
+      //     break;
+      //
+      //   case 'humidity-sensor':
+      //     item = new HumiditySensor(model, canvasSize, this)
+      //     break;
+      //
+      //
+      //   case 'path':
+      //     item = new Path(model, canvasSize, this)
+      //     break;
+      //
+      //   // case 'marker':
+      //   //   item = new Marker(model, canvasSize, this)
+      //   //   break;
+      //
+      //   case 'wall':
+      //     item = new Wall(model, canvasSize, this)
+      //     break;
+      //
+      //   case 'door':
+      //     item = new Door(model, canvasSize, this)
+      //     break;
+      //
+      //   default:
+      //     break;
+      // }
 
       if(item)
         this._scene3d.add(item)
