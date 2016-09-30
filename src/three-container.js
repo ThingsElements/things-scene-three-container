@@ -1,12 +1,3 @@
-import Rack from './rack'
-import Plane from './plane'
-import ForkLift from './forkLift'
-import Person from './person'
-import HumiditySensor from './humidity-sensor'
-import Path from './path'
-import Wall from './wall'
-import Door from './door'
-
 import ThreeLayout from './three-layout'
 import ThreeControls from './three-controls'
 
