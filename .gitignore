@@ -3,3 +3,4 @@ lib/
 npm-debug.log
 bower_components
 .DS_Store
+things-scene-three-container.js
