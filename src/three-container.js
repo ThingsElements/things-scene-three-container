@@ -3,6 +3,43 @@ import ThreeControls from './three-controls'
 
 var { Component, Container, Layout } = scene
 
+const NATURE = {
+  mutable: false,
+  resizable: true,
+  rotatable: true,
+  properties : [{
+    type: 'checkbox',
+    label: '3dmode',
+    name: 'threed',
+    property: 'threed'
+  }, {
+    type: 'number',
+    label: 'fov',
+    name: 'fov',
+    property: 'fov'
+  }, {
+    type: 'number',
+    label: 'near',
+    name: 'near',
+    property: 'near'
+  }, {
+    type: 'number',
+    label: 'far',
+    name: 'far',
+    property: 'far'
+  }, {
+    type: 'number',
+    label: 'zoom',
+    name: 'zoom',
+    property: 'zoom'
+  }, {
+    type: 'checkbox',
+    label: 'auto-rotate',
+    name: 'autoRotate',
+    property: 'autoRotate'
+  }]
+}
+
 function registerLoaders() {
   if(!registerLoaders.done) {
     THREE.Loader.Handlers.add( /\.tga$/i, new THREE.TGALoader() );
@@ -810,6 +847,10 @@ export default class ThreeContainer extends Container {
 
   get layout() {
     return Layout.get('three')
+  }
+
+  get nature() {
+    return NATURE
   }
 
   roundRect(ctx, x, y, w, h, r, borderWidth, borderColor, fillColor, padding, image) {
