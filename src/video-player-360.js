@@ -1,6 +1,27 @@
 var { Rect, Component } = scene
 
+const NATURE = {
+  mutable: false,
+  resizable: true,
+  rotatable: true,
+  properties : [{
+    type: 'string',
+    label: 'src',
+    name: 'src',
+    property: 'src'
+  }, {
+    type: 'checkbox',
+    label: 'autoplay',
+    name: 'autoplay',
+    property: 'autoplay'
+  }]
+}
+
 export default class VideoPlayer360 extends Rect {
+
+  get nature() {
+    return NATURE
+  }
 
   init_scene(width, height) {
     var { mute, loop, autoplay, src, fov, clickAndDrag, wheelEnabled } = this.model
