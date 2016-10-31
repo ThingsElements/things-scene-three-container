@@ -52,7 +52,7 @@ export default class Wall extends THREE.Mesh {
 }
 
 export class Wall2d extends Rect {
-
+  get controls() {}
 }
 
 Component.register('wall', Wall2d)
