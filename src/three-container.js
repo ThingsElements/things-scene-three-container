@@ -604,9 +604,6 @@ export default class ThreeContainer extends Container {
     if(this._scene3d)
       this.destroy_scene3d()
 
-    // window.addEventListener('focus', this.onWindowFocus.bind(this));
-    // window.addEventListener('blur', this.onWindowBlur.bind(this));
-
     registerLoaders()
 
     var {
@@ -657,16 +654,6 @@ export default class ThreeContainer extends Container {
 
     // LIGHT
     var _light = new THREE.PointLight(light, 1)
-    // _light.position.set(1,1,1)
-    // _light.castShadow = true
-    // _light.shadow.mapSize.width = 2048;
-    // _light.shadow.mapSize.height = 2048;
-    //
-    // _light.shadow.camera.left = -50;
-    // _light.shadow.camera.right = 50;
-    // _light.shadow.camera.top = 50;
-    // _light.shadow.camera.bottom = -50;
-    // _light.shadow.camera.far = 3500;
     this._camera.add(_light)
     this._camera.castShadow = true
 
@@ -682,17 +669,6 @@ export default class ThreeContainer extends Container {
     this.createFloor(fillStyle, width, height)
     this.createObjects(components, { width, height })
 
-    // this.navigatePath(['LOC-1-1-1-A-1', 'LOC-2-1-1-A-1'])
-    //   let obj = this._scene3d.getObjectByName('LOC-2-1-1-A-1', true)
-    //   obj.userData = {
-    //     location: '2-1-1-A-1',
-    //     material : 'aa',
-    //     qty: 35
-    //   }
-
-    // initialize object to perform world/screen calculations
-    // this._projector = new THREE.Projector();
-
     this._load_manager = new THREE.LoadingManager();
     this._load_manager.onProgress = function(item, loaded, total){
 
@@ -706,7 +682,8 @@ export default class ThreeContainer extends Container {
 
     var delta = this._clock.getDelta()
 
-    this.update();
+    if(this.autoRotate)
+      this.update();
 
   }
 
@@ -715,7 +692,7 @@ export default class ThreeContainer extends Container {
   }
 
   update() {
-    // this._controls.update();
+    this._controls.update();
   }
 
   get scene3d() {
@@ -736,18 +713,16 @@ export default class ThreeContainer extends Container {
   }
 
   /* Container Overides .. */
-
   _draw(ctx) {
-
     if(this.model.threed) {
       return
     }
 
     super._draw(ctx)
+
   }
 
   _post_draw(ctx) {
-
     var {
       left,
       top,
@@ -769,7 +744,6 @@ export default class ThreeContainer extends Container {
       }
 
       if(this._dataChanged) {
-        console.log("dataChanged", this._data)
         if(this._pickingLocations) {
           for(let i in this._pickingLocations) {
             let loc = this._pickingLocations[i]
@@ -862,11 +836,6 @@ export default class ThreeContainer extends Container {
     let right = left + w + borderWidth * 2 + r * 2 + padding * 2
     let top = y - borderWidth - r - padding
     let bottom = top + h + borderWidth * 2 + r * 2 + padding * 2
-
-    // x -= borderWidth + r;
-    // y += borderWidth + r;
-    // w += borderWidth * 2 + r * 2;
-    // h += borderWidth * 2 + r * 2;
 
     ctx.beginPath();
     ctx.moveTo(left+r, top);
@@ -1323,15 +1292,6 @@ export default class ThreeContainer extends Container {
 
     this.set('zoom', zoom)
 
-  }
-
-  onWindowFocus(e) {
-    console.log("focus!!")
-    // this.render_threed();
-  }
-
-  onWindowBlur(e) {
-    // this.stop()
   }
 
 }

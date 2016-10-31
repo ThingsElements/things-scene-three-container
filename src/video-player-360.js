@@ -1,4 +1,4 @@
-var { Rect, Component } = scene
+var { RectPath, Component } = scene
 
 const NATURE = {
   mutable: false,
@@ -17,7 +17,7 @@ const NATURE = {
   }]
 }
 
-export default class VideoPlayer360 extends Rect {
+export default class VideoPlayer360 extends RectPath(Component) {
 
   get nature() {
     return NATURE
@@ -310,6 +310,19 @@ export default class VideoPlayer360 extends Rect {
   /* Component Overides .. */
 
   _draw(ctx) {
+    var {
+      left,
+      top,
+      width,
+      height,
+      src
+    } = this.model
+
+    ctx.beginPath()
+    ctx.rect(left, top, width, height);
+  }
+
+  _post_draw(ctx) {
 
     var {
       left,
@@ -332,8 +345,10 @@ export default class VideoPlayer360 extends Rect {
       )
 
     } else {
-      super._draw(ctx);
+      this.drawFill(ctx)
     }
+
+    this.drawStroke(ctx)
   }
 
   onchange(after, before) {
