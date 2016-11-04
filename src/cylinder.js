@@ -64,6 +64,9 @@ export default class Cylinder extends THREE.Mesh{
     return this._model
   }
 
+  get nature() {
+    return NATURE
+  }
 }
 
 export class Cylinder2d extends Ellipse {

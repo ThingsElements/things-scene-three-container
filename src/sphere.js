@@ -65,6 +65,9 @@ export default class Sphere extends THREE.Mesh{
     return this._model
   }
 
+  get nature() {
+    return NATURE
+  }
 }
 
 export class Sphere2d extends Ellipse {

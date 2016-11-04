@@ -57,6 +57,9 @@ export default class Cube extends THREE.Mesh{
     return this._model
   }
 
+  get nature() {
+    return NATURE
+  }
 }
 
 export class Cube2d extends Rect {
