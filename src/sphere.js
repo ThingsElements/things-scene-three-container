@@ -1,5 +1,18 @@
 var { Component, Ellipse } = scene
 
+const NATURE = {
+  mutable: false,
+  resizable: true,
+  rotatable: true,
+  properties : [{
+    type: 'number',
+    label: 'depth',
+    name: 'rz',
+    property: 'rz'
+  }]
+}
+
+
 export default class Sphere extends THREE.Mesh{
 
   constructor(model, canvasSize) {

@@ -1,5 +1,17 @@
 var { Component, Rect } = scene
 
+const NATURE = {
+  mutable: false,
+  resizable: true,
+  rotatable: true,
+  properties : [{
+    type: 'number',
+    label: 'depth',
+    name: 'depth',
+    property: 'depth'
+  }]
+}
+
 export default class Cube extends THREE.Mesh{
 
   constructor(model, canvasSize) {
