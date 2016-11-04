@@ -1,252 +1,56 @@
-export default class Cube {
+var { Component, Rect } = scene
 
-  constructor(viewer, model) {
-    this._viewer = viewer
+export default class Cube extends THREE.Mesh{
 
-    this._model = {
-      cx : 0,
-      cy : 0,
-      cz : 0
-    }
+  constructor(model, canvasSize) {
 
-    Object.assign(this._model, model)
+    super();
 
-    this._transforms = {}; // All of the matrix transforms
-    this._locations = {}; //All of the shader locations
-    // this._buffers = []
+    this._model = model;
 
-    this.setAttributesAndUniforms()
-
-    // Get the rest going
-    // this._buffers.push(this.createBuffersForCube(viewer._gl, this.createCubeData() ))
-    this._buffers = this.createBuffersForCube(viewer._gl, this.createModelData() );
-
-
-    // this._webglProgram = viewer.setupProgram(this);
-
-    this._rotateX = 0
-    this._rotateY = 0
-    this._rotateZ = 0
-
-    this.draw()
+    this.createObject(model, canvasSize);
 
   }
 
-  draw() {
-    var gl = this._viewer._gl;
+  createObject(model, canvasSize) {
 
-    // Compute our matrices
-    this.computeModelMatrix();
+    let cx = (model.left + (model.width/2)) - canvasSize.width/2
+    let cy = (model.top + (model.height/2)) - canvasSize.height/2
+    let cz = 0.5 * model.depth
 
-    // Update the data going to the GPU
-    this.updateAttributesAndUniforms();
+    let rotation = model.rotation
+    this.type = model.type
 
-    // Perform the actual draw
-    gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
+    this.createCube(model.width, model.height, model.depth)
 
-    // gl.drawArrays(gl.LINE_STRIP, 0, 24)
-
-    // Run the draw as a loop
-    requestAnimationFrame( this.draw.bind(this) );
-  }
-
-  setAttributesAndUniforms() {
-
-    var webglProgram = this._viewer._webglProgram
-    var gl = this._viewer._gl
-
-    // Save the attribute and uniform locations
-    this._locations.model = gl.getUniformLocation(webglProgram, "model");
-
-    this._locations.position = gl.getAttribLocation(webglProgram, "position");
-    this._locations.color = gl.getAttribLocation(webglProgram, "color");
-    this._locations.outlineColor = gl.getAttribLocation(webglProgram, "outlineColor");
-  }
-
-  computeModelMatrix() {
-
-    //Scale up
-    var scale = this._viewer.scaleMatrix(this._model.width, this._model.height, this._model.depth);
-
-    // Rotate a slight tilt
-    var rotateX = this._viewer.rotateXMatrix( this._rotateX );
-    // Rotate according to time
-    var rotateY = this._viewer.rotateYMatrix( this._rotateY );
-
-    var rotateZ = this._viewer.rotateZMatrix( this._rotateZ );
-
-    var position = this._viewer.translateMatrix(this._model.cx, this._model.cy, this._model.cz);
-
-    var modelMtr = this._viewer.multiplyArrayOfMatrices([
-      position, // step 4
-      // rotateZ,
-      // rotateY,  // step 3
-      // rotateX,  // step 2
-      scale     // step 1
-    ]);
-
-    // Multiply together, make sure and read them in opposite order
-    this._transforms.model = modelMtr;
-
-
-    // Performance caveat: in real production code it's best not to create
-    // new arrays and objects in a loop. This example chooses code clarity
-    // over performance.
+    this.position.set(cx,cz,cy)
+    this.rotation.y = rotation || 0
 
   }
 
-  updateAttributesAndUniforms() {
+  createCube(w, h, d) {
 
-    var gl = this._viewer._gl;
+    let {
+      fillStyle = 'lightgray'
+    } = this.model
 
-    // Setup the color uniform that will be shared across all triangles
+    this.geometry = new THREE.BoxGeometry(w, d, h);
+    this.material = new THREE.MeshLambertMaterial( { color : fillStyle, side: THREE.FrontSide } );
 
-    gl.uniformMatrix4fv(this._locations.model, false, new Float32Array(this._transforms.model));
-
-    // Set the positions attribute
-    gl.enableVertexAttribArray(this._locations.position);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._buffers.positions);
-    gl.vertexAttribPointer(this._locations.position, 3, gl.FLOAT, false, 0, 0);
-
-    // Set the colors attribute
-    gl.enableVertexAttribArray(this._locations.color);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._buffers.colors);
-    gl.vertexAttribPointer(this._locations.color, 4, gl.FLOAT, gl.TRUE, 0, 0);
-
-    // Set the outline colors attribute
-    gl.enableVertexAttribArray(this._locations.outlineColor);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._buffers.outlineColors);
-    gl.vertexAttribPointer(this._locations.outlineColor, 4, gl.FLOAT, false, 0, 0);
-
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._buffers.elements );
+    this.castShadow = true
 
   }
 
-  createModelData() {
-
-      var positions = this.createPositions();
-      var colors = this.createColors();
-      var elements = this.createElements();
-
-      var outlineColors = [];
-
-      for (var i=0; i<24; i++) {
-        outlineColors = outlineColors.concat([0.0, 0.0, 0.0, 1.0])
-      }
-
-      return {
-        positions: positions,
-        elements: elements,
-        colors: colors,
-        outlineColors : outlineColors
-      }
-
-  }
-
-  createPositions() {
-    var positions = [
-      // Front face
-      -1.0, -1.0,  1.0,
-       1.0, -1.0,  1.0,
-       1.0,  1.0,  1.0,
-      -1.0,  1.0,  1.0,
-
-      // Back face
-      -1.0, -1.0, -1.0,
-      -1.0,  1.0, -1.0,
-       1.0,  1.0, -1.0,
-       1.0, -1.0, -1.0,
-
-      // Top face
-      -1.0,  1.0, -1.0,
-      -1.0,  1.0,  1.0,
-       1.0,  1.0,  1.0,
-       1.0,  1.0, -1.0,
-
-      // Bottom face
-      -1.0, -1.0, -1.0,
-       1.0, -1.0, -1.0,
-       1.0, -1.0,  1.0,
-      -1.0, -1.0,  1.0,
-
-      // Right face
-       1.0, -1.0, -1.0,
-       1.0,  1.0, -1.0,
-       1.0,  1.0,  1.0,
-       1.0, -1.0,  1.0,
-
-      // Left face
-      -1.0, -1.0, -1.0,
-      -1.0, -1.0,  1.0,
-      -1.0,  1.0,  1.0,
-      -1.0,  1.0, -1.0
-    ];
-
-    return positions;
-  }
-
-  createColors() {
-
-    var colorsOfFaces = [
-      [0.3,  1.0,  1.0,  1.0],    // Front face: cyan
-      [1.0,  0.3,  0.3,  1.0],    // Back face: red
-      [0.3,  1.0,  0.3,  1.0],    // Top face: green
-      [0.3,  0.3,  1.0,  1.0],    // Bottom face: blue
-      [1.0,  1.0,  0.3,  1.0],    // Right face: yellow
-      [1.0,  0.3,  1.0,  1.0]     // Left face: purple
-    ];
-
-    var colors = [];
-
-    for (var j=0; j<6; j++) {
-      var polygonColor = colorsOfFaces[j];
-
-      for (var i=0; i<4; i++) {
-        colors = colors.concat( polygonColor );
-      }
-    }
-
-    return colors;
-
-  }
-
-  createElements() {
-    var elements = [
-      0,  1,  2,      0,  2,  3,    // front
-      4,  5,  6,      4,  6,  7,    // back
-      8,  9,  10,     8,  10, 11,   // top
-      12, 13, 14,     12, 14, 15,   // bottom
-      16, 17, 18,     16, 18, 19,   // right
-      20, 21, 22,     20, 22, 23    // left
-    ]
-
-    return elements;
-  }
-
-  createBuffersForCube( gl, cube ) {
-
-    var positions = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positions);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cube.positions), gl.STATIC_DRAW);
-
-    var colors = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, colors);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cube.colors), gl.STATIC_DRAW);
-
-    var elements = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elements);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cube.elements), gl.STATIC_DRAW);
-
-    var outlineColors = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, outlineColors);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cube.outlineColors), gl.STATIC_DRAW);
-
-    return {
-      positions: positions,
-      colors: colors,
-      elements: elements,
-      outlineColors : outlineColors
-    }
+  get model() {
+    return this._model
   }
 
 }
+
+export class Cube2d extends Rect {
+  get controls() {}
+}
+
+
+Component.register('cube', Cube2d)
+scene.Component3d.register('cube', Cube)

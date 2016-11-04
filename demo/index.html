@@ -161,54 +161,54 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           return components.concat(row)
         }, [])
 
-        components.push({
-          type : 'forklift',
-          left : 600,
-          top : 600,
-          width : 10,
-          height : 10,
-          depth : 10
-        })
-        components.push({
-          type : 'forklift',
-          left : 100,
-          top : 100,
-          width : 10,
-          height : 10,
-          depth : 10
-        })
-        components.push({
-          type : 'forklift',
-          left : 200,
-          top : 500,
-          width : 10,
-          height : 10,
-          depth : 10
-        })
-        components.push({
-          type : 'person',
-          left : 600,
-          top : 200,
-          width : 10,
-          height : 10,
-          depth : 10
-        })
-        components.push({
-          type : 'person',
-          left : 300,
-          top : 100,
-          width : 10,
-          height : 10,
-          depth : 10
-        })
-        components.push({
-          type : 'person',
-          left : 200,
-          top : 600,
-          width : 10,
-          height : 10,
-          depth : 10
-        })
+        // components.push({
+        //   type : 'forklift',
+        //   left : 600,
+        //   top : 600,
+        //   width : 10,
+        //   height : 10,
+        //   depth : 10
+        // })
+        // components.push({
+        //   type : 'forklift',
+        //   left : 100,
+        //   top : 100,
+        //   width : 10,
+        //   height : 10,
+        //   depth : 10
+        // })
+        // components.push({
+        //   type : 'forklift',
+        //   left : 200,
+        //   top : 500,
+        //   width : 10,
+        //   height : 10,
+        //   depth : 10
+        // })
+        // components.push({
+        //   type : 'person',
+        //   left : 600,
+        //   top : 200,
+        //   width : 10,
+        //   height : 10,
+        //   depth : 10
+        // })
+        // components.push({
+        //   type : 'person',
+        //   left : 300,
+        //   top : 100,
+        //   width : 10,
+        //   height : 10,
+        //   depth : 10
+        // })
+        // components.push({
+        //   type : 'person',
+        //   left : 200,
+        //   top : 600,
+        //   width : 10,
+        //   height : 10,
+        //   depth : 10
+        // })
         components.push({
           type:'rect',
           left: 600,
@@ -274,63 +274,64 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         //     Math.floor(Math.random() * 80)
         //   ]
         // }
-        , {
-          type: 'wall',
-          left: 0,
-          top: 0,
-          width: 10,
-          height: 800,
-          depth: 100,
-          fillStyle: 'brown'
-        }, {
-          type: 'wall',
-          left: 0,
-          top: 0,
-          width: 1200,
-          height: 10,
-          depth: 100,
-          fillStyle: 'brown'
-        }, {
-          type: 'wall',
-          left: 1190,
-          top: 0,
-          width: 10,
-          height: 800,
-          depth: 100,
-          fillStyle: 'brown'
-        }, {
-          type: 'wall',
-          left: 0,
-          top: 790,
-          width: 550,
-          height: 10,
-          depth: 100,
-          opacity : 0.7,
-          fillStyle: 'brown'
-        }, {
-          type: 'wall',
-          left: 650,
-          top: 790,
-          width: 550,
-          height: 10,
-          depth: 100,
-          opacity : 0.7,
-          fillStyle: 'brown'
-        }
         // , {
-        //   type: 'door',
-        //   left: 550,
-        //   top: 793,
-        //   width: 100,
-        //   height: 5,
-        //   depth: 100
+        //   type: 'wall',
+        //   left: 0,
+        //   top: 0,
+        //   width: 10,
+        //   height: 800,
+        //   depth: 100,
+        //   fillStyle: 'brown'
+        // }, {
+        //   type: 'wall',
+        //   left: 0,
+        //   top: 0,
+        //   width: 1200,
+        //   height: 10,
+        //   depth: 100,
+        //   fillStyle: 'brown'
+        // }, {
+        //   type: 'wall',
+        //   left: 1190,
+        //   top: 0,
+        //   width: 10,
+        //   height: 800,
+        //   depth: 100,
+        //   fillStyle: 'brown'
+        // }, {
+        //   type: 'wall',
+        //   left: 0,
+        //   top: 790,
+        //   width: 550,
+        //   height: 10,
+        //   depth: 100,
+        //   opacity : 0.7,
+        //   fillStyle: 'brown'
+        // }, {
+        //   type: 'wall',
+        //   left: 650,
+        //   top: 790,
+        //   width: 550,
+        //   height: 10,
+        //   depth: 100,
+        //   opacity : 0.7,
+        //   fillStyle: 'brown'
         // }
+        , {
+          type: 'sphere',
+          cx: 100,
+          cy: 100,
+          cz: 50,
+          rx: 200,
+          rz: 100,
+          fillStyle: 'black'
+        }
         // inside wall
         , {
-            type: 'wall',
+            type: 'cube',
             left: 5,
             top: 370,
-            width: 1190,
+            width: 300,
             height: 5,
             depth: 100,
             fillStyle: 'brown'
