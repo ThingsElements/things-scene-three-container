@@ -26,23 +26,16 @@ export default class Cylinder extends THREE.Mesh{
 
   createObject(model, canvasSize) {
 
-    // let cx = (model.left + (model.width/2)) - canvasSize.width/2
-    // let cy = (model.top + (model.height/2)) - canvasSize.height/2
-    // let cz = 0.5 * model.depth
-    let {
-      cx,
-      cy,
-      cz = 0,
-      rx,
-      rz
-    } = this.model
+    let cx = (model.cx) - canvasSize.width/2
+    let cy = (model.cy) - canvasSize.height/2
+    let cz = this.model.rz / 2
 
     let rotation = model.rotation
     this.type = model.type
 
-    this.createCylinder(rx, rz)
+    this.createCylinder(this.model.rx, this.model.rz)
 
-    this.position.set(cx,rz / 2,cy) // z좌표는 땅에 붙어있게 함
+    this.position.set(cx,cz,cy) // z좌표는 땅에 붙어있게 함
     this.rotation.y = rotation || 0
 
   }
@@ -64,13 +57,14 @@ export default class Cylinder extends THREE.Mesh{
     return this._model
   }
 
-  get nature() {
-    return NATURE
-  }
 }
 
 export class Cylinder2d extends Ellipse {
   get controls() {}
+
+  get nature() {
+    return NATURE
+  }
 }
 
 

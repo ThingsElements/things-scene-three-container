@@ -27,23 +27,16 @@ export default class Sphere extends THREE.Mesh{
 
   createObject(model, canvasSize) {
 
-    // let cx = (model.left + (model.width/2)) - canvasSize.width/2
-    // let cy = (model.top + (model.height/2)) - canvasSize.height/2
-    // let cz = 0.5 * model.depth
-    let {
-      cx,
-      cy,
-      cz = 0,
-      rx,
-      rz
-    } = this.model
+    let cx = (model.cx) - canvasSize.width/2
+    let cy = (model.cy) - canvasSize.height/2
+    let cz = this.model.rx
 
     let rotation = model.rotation
     this.type = model.type
 
-    this.createSphere(rx, rz)
+    this.createSphere(this.model.rx, this.model.rz)
 
-    this.position.set(cx,rx,cy) // z좌표는 땅에 붙어있게 함
+    this.position.set(cx,cz,cy) // z좌표는 땅에 붙어있게 함
     this.rotation.y = rotation || 0
 
   }
@@ -65,13 +58,14 @@ export default class Sphere extends THREE.Mesh{
     return this._model
   }
 
-  get nature() {
-    return NATURE
-  }
 }
 
 export class Sphere2d extends Ellipse {
   get controls() {}
+
+  get nature() {
+    return NATURE
+  }
 }
 
 
