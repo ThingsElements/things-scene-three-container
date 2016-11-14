@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "serve": "watchify src/*.js -o things-scene-three-container.js src/index.js & polyserve",
+    "serve": "watchify src/index.js -o things-scene-three-container.js src/index.js & polyserve",
     "build": "browserify src/index.js -o things-scene-three-container.js && uglifyjs things-scene-three-container.js -m -c -o things-scene-three-container-min.js"
   },
   "repository": {

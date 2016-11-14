@@ -18,11 +18,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <link rel="import" href="../../things-scene-viewer/things-scene-viewer.html">
     <link rel="import" href="../../things-scene-modeler/things-scene-properties.html">
+    <link rel="import" href="./things-subscriber.html">
     <link rel="import" href="../../things-scene-indoor-map/things-scene-indoor-map.html">
     <link rel="import" href="../../things-scene-forklift/things-scene-forklift.html">
     <link rel="import" href="../../things-scene-person/things-scene-person.html">
 
-    <link rel="import" href="./things-subscriber.html">
 
     <link rel="import" href="./things-scene-three-container.html">
 
@@ -209,12 +209,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         //   height : 10,
         //   depth : 10
         // })
-        components.push({
-          type:'rect',
-          left: 600,
-          top : 600,
-          width: 50,
-          height : 50,
+        components.push(
+        // {
+        //   type:'rect',
+        //   left: 600,
+        //   top : 600,
+        //   width: 50,
+        //   height : 50,
+        //   fillStyle: {
+        //     type: 'pattern',
+        //     image: './images/livevideo-play.png',
+        //     fitPattern: true
+        //   }
+        // },
+        {
+          type:'banner',
+          left: 350,
+          top : 5,
+          zPos: 100,
+          width: 500,
+          height : 10,
+          depth: 200,
           fillStyle: {
             type: 'pattern',
             image: './images/livevideo-play.png',
@@ -317,25 +332,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         //   opacity : 0.7,
         //   fillStyle: 'brown'
         // }
-        , {
-          type: 'sphere',
-          cx: 100,
-          cy: 100,
-          cz: 50,
-          rx: 200,
-          rz: 100,
-          fillStyle: 'black'
-        }
+        // , {
+        //   type: 'sphere',
+        //   cx: 100,
+        //   cy: 100,
+        //   cz: 50,
+        //   rx: 200,
+        //   rz: 100,
+        //   fillStyle: 'black'
+        // }
         // inside wall
-        , {
-            type: 'cube',
-            left: 5,
-            top: 370,
-            width: 300,
-            height: 5,
-            depth: 100,
-            fillStyle: 'brown'
-        }
+        // , {
+        //     type: 'cube',
+        //     left: 5,
+        //     top: 370,
+        //     width: 300,
+        //     height: 5,
+        //     depth: 100,
+        //     fillStyle: 'brown'
+        // }
         );
 
         // components.push({
