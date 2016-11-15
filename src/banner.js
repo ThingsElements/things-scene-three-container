@@ -19,6 +19,11 @@ const NATURE = {
     label: 'rotation',
     name: 'rotation',
     property: 'rotation'
+  }, {
+    type: 'color',
+    label: 'boxColor',
+    name: 'boxColor',
+    property: 'boxColor'
   }]
 }
 
@@ -59,8 +64,10 @@ export default class Banner extends THREE.Object3D {
 
   createCube(w, h, d) {
 
+    var {boxColor = '#ccaa76'} = this._model
+
     var geometry = new THREE.BoxGeometry(w, d, h);
-    var material = new THREE.MeshLambertMaterial( { color : '#ccaa76', side: THREE.FrontSide } );
+    var material = new THREE.MeshLambertMaterial( { color : boxColor, side: THREE.FrontSide } );
 
     var cube = new THREE.Mesh(geometry, material);
 
