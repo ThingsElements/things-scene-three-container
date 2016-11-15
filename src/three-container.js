@@ -639,7 +639,8 @@ export default class ThreeContainer extends Container {
     // RENDERER
     this._renderer = new THREE.WebGLRenderer({
       // precision: 'mediump',
-      alpha: true
+      alpha: true,
+      antialias: true
     });
 
     this._renderer.autoClear = false
