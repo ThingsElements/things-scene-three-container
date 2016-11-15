@@ -631,7 +631,7 @@ export default class ThreeContainer extends Container {
 
     this._scene3d.add(this._camera)
     this._scene2d.add(this._2dCamera)
-    this._camera.position.set(800,800,800)
+    this._camera.position.set(width * 0.8,height*0.8,Math.max(width, height) * 0.8)
     this._2dCamera.position.set(800,800,800)
     this._camera.lookAt(this._scene3d.position)
     this._2dCamera.lookAt(this._scene2d.position)
