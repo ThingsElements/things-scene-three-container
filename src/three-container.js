@@ -715,6 +715,10 @@ export default class ThreeContainer extends Container {
 
   /* Container Overides .. */
   _draw(ctx) {
+    if(this.app.isViewMode) {
+      this.model.threed = true
+    }
+
     if(this.model.threed) {
       return
     }
