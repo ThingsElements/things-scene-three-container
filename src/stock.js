@@ -67,8 +67,12 @@ export default class Stock extends THREE.Mesh {
     var tooltipText = '';
 
     for (let key in this.userData) {
-      if(this.userData[key] && typeof this.userData[key] != 'object' && key != 'loc')
+      // exclude private data
+      if(/^__/.test(key))
+        continue;
+      if(this.userData[key] && typeof this.userData[key] != 'object' && key != 'loc') {
         tooltipText += key + ": " + this.userData[key] + "\n"
+      }
     }
 
     // tooltipText = 'loc : ' + loc
@@ -77,26 +81,24 @@ export default class Stock extends THREE.Mesh {
       tooltip = threeContainer.tooltip = threeContainer.makeTextSprite(tooltipText)
 
       var vector = new THREE.Vector3()
-      var vector2 = tooltip.getWorldScale().clone()
-
-      var widthMultiplier = vector2.x / threeContainer.model.width
-      var heightMultiplier = vector2.y / threeContainer.model.height
+      var vector2 = new THREE.Vector3()
 
       vector.set(threeContainer._mouse.x, threeContainer._mouse.y, 0.5)
-      vector2.normalize()
+      vector2.set(100, 50, 0)
+      //
+      // vector2.normalize()
+      //
+      // vector2.subScalar(0.5)
+      //
+      // vector2.y = -vector2.y
+      // vector2.z = 0
 
-      vector2.x = vector2.x /2 * widthMultiplier
-      vector2.y = -vector2.y /2 * heightMultiplier
-      vector2.z = 0;
-
-      vector.add(vector2)
+      // vector.add(vector2)
 
       vector.unproject(threeContainer._2dCamera)
+      vector.add(vector2)
       tooltip.position.set(vector.x, vector.y, vector.z)
       tooltip.name = "tooltip"
-
-      tooltip.scale.x = tooltip.scale.x * widthMultiplier
-      tooltip.scale.y = tooltip.scale.y * heightMultiplier
 
       threeContainer._scene2d.add(tooltip)
       threeContainer._renderer && threeContainer._renderer.render(threeContainer._scene2d, threeContainer._2dCamera)

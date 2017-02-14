@@ -537,16 +537,14 @@ export default class ThreeContainer extends Container {
       );
     }
 
-
-
   	// canvas contents will be used for a texture
   	var texture = new THREE.Texture(canvas)
   	texture.needsUpdate = true;
 
   	var spriteMaterial = new THREE.SpriteMaterial({ map: texture } );
   	var sprite = new THREE.Sprite( spriteMaterial );
-  	sprite.scale.set(1000, 500, 1);
-  	// sprite.scale.set(canvas.width, canvas.height,1.0);
+  	sprite.scale.set(600, 300, 1);
+  	// sprite.scale.set(canvas.width, canvas.height, 1.0);
 
     sprite.raycast = function(){}
 
@@ -638,7 +636,7 @@ export default class ThreeContainer extends Container {
     this._scene3d.add(this._camera)
     this._scene2d.add(this._2dCamera)
     this._camera.position.set(height*0.8,Math.max(width, height) * 0.8,width * 0.8)
-    this._2dCamera.position.set(800,800,800)
+    this._2dCamera.position.set(height*0.8,Math.max(width, height) * 0.8,width * 0.8)
     this._camera.lookAt(this._scene3d.position)
     this._2dCamera.lookAt(this._scene2d.position)
 
@@ -689,7 +687,7 @@ export default class ThreeContainer extends Container {
 
     var delta = this._clock.getDelta()
 
-    if(this.autoRotate)
+    if(this.model.autoRotate)
       this.update();
 
   }
@@ -792,21 +790,45 @@ export default class ThreeContainer extends Container {
         this._pickingLocations = []
         this._selectedPickingLocation = null
 
-        this._data && this._data.forEach(d => {
-          let object = this._scene3d.getObjectByName(d.loc, true)
-          if(object) {
-            object.userData = d;
-            object.onUserDataChanged()
+        if(this._data) {
+          if(this._data instanceof Array) {
+            this._data.forEach(d => {
+              let object = this._scene3d.getObjectByName(d.loc, true)
+              if(object) {
+                object.userData = d;
+                object.onUserDataChanged()
 
-            if(d.navigationData) {
-              this._pickingLocations.push(d.loc)
-            }
-            if(d.selected) {
-              this._selectedPickingLocation = d.loc
+                if(d.navigationData) {
+                  this._pickingLocations.push(d.loc)
+                }
+                if(d.selected) {
+                  this._selectedPickingLocation = d.loc
+                }
+              }
+            })
+          } else {
+            for (var loc in this._data) {
+              if (this._data.hasOwnProperty(loc)) {
+                let d = this._data[loc]
+
+                let object = this._scene3d.getObjectByName(loc, true)
+                if(object) {
+                  object.userData = d;
+                  object.onUserDataChanged()
+
+                  if(d.navigationData) {
+                    this._pickingLocations.push(loc)
+                  }
+                  if(d.selected) {
+                    this._selectedPickingLocation = loc
+                  }
+                }
+
+              }
             }
           }
+        }
 
-        })
 
         this._dataChanged = false
 
@@ -1216,7 +1238,6 @@ export default class ThreeContainer extends Container {
   }
 
   onmousemove(e) {
-
     if(this._controls) {
       var pointer = this.transcoordC2S(e.offsetX, e.offsetY)
 
@@ -1237,6 +1258,13 @@ export default class ThreeContainer extends Container {
     }
   }
 
+  onmouseleave(e) {
+    if(tooltip) {
+      this._scene2d.remove(tooltip)
+      this.tooltip = null;
+    }
+  }
+
   onwheel(e) {
     if(this._controls) {
       this.handleMouseWheel(e)
@@ -1246,6 +1274,14 @@ export default class ThreeContainer extends Container {
 
   ondragstart(e) {
     if(this._controls) {
+      var pointer = this.transcoordC2S(e.offsetX, e.offsetY)
+
+      // this._mouse.originX = this.getContext().canvas.offsetLeft +e.offsetX;
+      // this._mouse.originY = this.getContext().canvas.offsetTop + e.offsetY;
+
+      this._mouse.x = ( (pointer.x - this.model.left ) / (this.model.width) ) * 2 - 1;
+      this._mouse.y = - ( (pointer.y - this.model.top ) / this.model.height ) * 2 + 1;
+
       this._controls.onDragStart(e)
       e.stopPropagation()
     }
