@@ -10,11 +10,6 @@ const NATURE = {
   resizable: true,
   rotatable: true,
   properties : [{
-    type: 'checkbox',
-    label: '3dmode',
-    name: 'threed',
-    property: 'threed'
-  }, {
     type: 'number',
     label: 'fov',
     name: 'fov',
@@ -39,6 +34,11 @@ const NATURE = {
     label: 'auto-rotate',
     name: 'autoRotate',
     property: 'autoRotate'
+  },{
+    type: 'checkbox',
+    label: '3dmode',
+    name: 'threed',
+    property: 'threed'
   }]
 }
 
