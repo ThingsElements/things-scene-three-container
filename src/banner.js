@@ -78,20 +78,27 @@ export default class Banner extends THREE.Object3D {
   createTextureBoard(w, h) {
 
     var boardMaterial
+    var self = this
 
     let {
       fillStyle = '#ccaa76'
     } = this._model
 
     if( fillStyle && fillStyle.type == 'pattern' && fillStyle.image ) {
-      var textureLoader = new THREE.TextureLoader()
-      textureLoader.setWithCredentials(true)
 
-      var texture = textureLoader.load(this._threeContainer.app.url(fillStyle.image))
-      texture.wrapS = THREE.RepeatWrapping
-      texture.wrapT = THREE.RepeatWrapping
+      var texture = this._threeContainer._textureLoader.load(
+        this._threeContainer.app.url(fillStyle.image),
+        function(texture) {
+          self._threeContainer.render_threed()
+        }
+      )
+      // texture.wrapS = THREE.RepeatWrapping
+      // texture.wrapT = THREE.RepeatWrapping
       texture.repeat.set(1,1)
+      texture.minFilter = THREE.LinearFilter
+
       boardMaterial = new THREE.MeshBasicMaterial( { map : texture, side: THREE.FrontSide } );
+
     } else {
       boardMaterial = new THREE.MeshLambertMaterial( { color : fillStyle|| '#ccaa76', side: THREE.FrontSide } );
     }

@@ -28,6 +28,8 @@ export default class Stock extends THREE.Mesh {
     this.material = new THREE.MeshLambertMaterial( { color : fillStyle, side: THREE.FrontSide } );
     this.type = 'stock'
 
+    this.visible = false
+
     this.castShadow = true
 
   }

@@ -1,6 +1,8 @@
 import ThreeLayout from './three-layout'
 import ThreeControls from './three-controls'
 
+THREE.Cache.enabled = true
+
 var { Component, Container, Layout } = scene
 
 const NATURE = {
@@ -61,14 +63,14 @@ export default class ThreeContainer extends Container {
 
     if(fillStyle.type == 'pattern' && fillStyle.image) {
 
-      var textureLoader = new THREE.TextureLoader()
-      textureLoader.setWithCredentials(true)
-      var texture = textureLoader.load(this.app.url(fillStyle.image), function(texture) {
-        // floorMaterial.map = texture
+      var floorTexture = this._textureLoader.load(this.app.url(fillStyle.image), function(texture) {
+        // texture.minFilter = THREE.LinearFilter
         self.render_threed()
       })
 
-      floorMaterial = new THREE.MeshBasicMaterial( { map: texture, side: THREE.DoubleSide, specular: 0x050505 } );
+      // var floorTexture = this._textureLoader.load(this.app.url(fillStyle.image));
+
+      floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide} );
 
       // floorTexture.premultiplyAlpha = true
       // floorTexture.wrapS = THREE.MirroredRepeatWrapping
@@ -554,7 +556,8 @@ export default class ThreeContainer extends Container {
 
   destroy_scene3d() {
     this.stop();
-    this._renderer && this._renderer.clear()
+    if(this._renderer)
+      this._renderer.clear()
     this._renderer = undefined
     this._camera = undefined
     this._2dCamera = undefined
@@ -605,6 +608,9 @@ export default class ThreeContainer extends Container {
       this.destroy_scene3d()
 
     registerLoaders()
+    this._textureLoader = new THREE.TextureLoader()
+    this._textureLoader.withCredential = true
+    this._textureLoader.crossOrigin = 'use-credentials'
 
     var {
       width,
@@ -631,7 +637,7 @@ export default class ThreeContainer extends Container {
 
     this._scene3d.add(this._camera)
     this._scene2d.add(this._2dCamera)
-    this._camera.position.set(width * 0.8,height*0.8,Math.max(width, height) * 0.8)
+    this._camera.position.set(height*0.8,Math.max(width, height) * 0.8,width * 0.8)
     this._2dCamera.position.set(800,800,800)
     this._camera.lookAt(this._scene3d.position)
     this._2dCamera.lookAt(this._scene2d.position)
@@ -703,8 +709,10 @@ export default class ThreeContainer extends Container {
   }
 
   render_threed() {
-    this._renderer.clear()
-    this._renderer && this._renderer.render(this._scene3d, this._camera)
+    if(this._renderer) {
+      this._renderer.clear()
+      this._renderer.render(this._scene3d, this._camera)
+    }
 
     if(this._renderer && this._scene2d && this._scene2d.children.length > 0){
       this._renderer.render(this._scene2d, this._2dCamera)

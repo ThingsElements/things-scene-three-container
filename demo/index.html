@@ -135,7 +135,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               top : 100 * top,
               width : 50,
               height : 20,
-              depth : 30,
+              depth : 100,
               shelves : 4,
               rotation: 0,
               fillStyle: "#e6e6fa"
@@ -148,7 +148,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               top : 100 * top + 20,
               width : 50,
               height : 20,
-              depth : 30,
+              depth : 100,
               shelves : 4,
               rotation : Math.PI
             }
@@ -161,14 +161,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           return components.concat(row)
         }, [])
 
-        // components.push({
-        //   type : 'forklift',
-        //   left : 600,
-        //   top : 600,
-        //   width : 10,
-        //   height : 10,
-        //   depth : 10
-        // })
+        components.push({
+          type : 'forklift',
+          left : 600,
+          top : 600,
+          width : 10,
+          height : 10,
+          depth : 10
+        })
         // components.push({
         //   type : 'forklift',
         //   left : 100,
@@ -185,30 +185,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         //   height : 10,
         //   depth : 10
         // })
-        // components.push({
-        //   type : 'person',
-        //   left : 600,
-        //   top : 200,
-        //   width : 10,
-        //   height : 10,
-        //   depth : 10
-        // })
-        // components.push({
-        //   type : 'person',
-        //   left : 300,
-        //   top : 100,
-        //   width : 10,
-        //   height : 10,
-        //   depth : 10
-        // })
-        // components.push({
-        //   type : 'person',
-        //   left : 200,
-        //   top : 600,
-        //   width : 10,
-        //   height : 10,
-        //   depth : 10
-        // })
+        components.push({
+          type : 'person',
+          left : 600,
+          top : 200,
+          width : 10,
+          height : 17,
+          depth : 10
+        })
+        components.push({
+          type : 'person',
+          left : 300,
+          top : 100,
+          width : 50,
+          height : 100,
+          depth : 50
+        })
+        components.push({
+          type : 'person',
+          left : 200,
+          top : 600,
+          width : 100,
+          height : 100,
+          depth : 180
+        })
         components.push(
         // {
         //   type:'rect',
@@ -382,7 +382,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             locked: true,
             fillStyle: {
               type: 'pattern',
-              image: 'http://factory.hatiolab.com/rest/download/827c5983-ea0a-4b57-af1f-e245ca094496'
+              image: 'http://factory.hatiolab.com/rest/download/8d34d67b-d4b1-46fe-820b-c19206e94128'
               // ,
               // offsetX: parseInt(this.pattern.offsetX) || 0,
               // offsetY: parseInt(this.pattern.offsetY) || 0,

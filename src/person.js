@@ -30,11 +30,12 @@ function init() {
 
 export default class Person extends THREE.Object3D {
 
-  constructor(model, canvasSize) {
+  constructor(model, canvasSize, threeContainer) {
 
     super();
 
     this._model = model;
+    this._threeContainer = threeContainer;
 
     this.createObject(model, canvasSize);
 
@@ -64,13 +65,26 @@ export default class Person extends THREE.Object3D {
     let rotation = model.rotation
 
     this.type = 'person'
-    this.add(Person.extObject.clone())
-    this.scale.set(10, 10, 10)
+    let person = Person.extObject.clone()
+
+    this.add(person)
+    person.scale.set(150, 150, 150)
+    // let boundBox = THREE.BoxHelper(person)
+
+    // console.log(boundBox);
+
+    /*
+
+    var MySize = MyObjInstance.renderer.bounds.size;
+    var MaxSize = 1/Mathf.Max(MySize.x, Mathf.Max(MySize.y, MySize.z));
+    MyObjInstance.transform.localScale = Vector3 (MaxSize, MaxSize, MaxSize);
+    */
+
     // this.scale.set(model.width, model.depth, model.height)
     this.position.set(cx, 0, cy)
     this.rotation.y = model.rotation || 0
 
-
+    this._threeContainer.render_threed()
   }
 
 }
