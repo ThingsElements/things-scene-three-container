@@ -712,7 +712,7 @@ export default class ThreeContainer extends Container {
       this._renderer.render(this._scene3d, this._camera)
     }
 
-    if(this._renderer && this._scene2d && this._scene2d.children.length > 0){
+    if(this._renderer && this._scene2d){
       this._renderer.render(this._scene2d, this._2dCamera)
     }
 
@@ -1251,6 +1251,10 @@ export default class ThreeContainer extends Container {
 
       if(object && object.onmousemove)
         object.onmousemove(e, this)
+      else {
+        this._scene2d.remove(this._scene2d.getObjectByName('tooltip'))
+        this.render_threed()
+      }
 
       this._controls.onMouseMove(e)
 

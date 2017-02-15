@@ -39,13 +39,20 @@ export default class Stock extends THREE.Mesh {
   }
 
   onUserDataChanged() {
-    this.material.color.set(STATUS_COLORS[this.userData.status])
-
-    if(this.userData.status === 0) {
-      this.visible = false
-    } else {
+    if(this.userData.__color) {
+      this.material.color.set(this.userData.__color)
       this.visible = true
+    } else {
+      this.visible = false
     }
+
+    // this.material.color.set(STATUS_COLORS[this.userData.status])
+    //
+    // if(this.userData.status === 0) {
+    //   this.visible = false
+    // } else {
+    //   this.visible = true
+    // }
   }
 
   onmousemove(e, threeContainer) {
