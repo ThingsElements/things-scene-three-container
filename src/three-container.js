@@ -1252,6 +1252,8 @@ export default class ThreeContainer extends Container {
       if(object && object.onmousemove)
         object.onmousemove(e, this)
       else {
+        if(!this._scene2d)
+          return
         this._scene2d.remove(this._scene2d.getObjectByName('tooltip'))
         this.render_threed()
       }
@@ -1263,9 +1265,12 @@ export default class ThreeContainer extends Container {
   }
 
   onmouseleave(e) {
+    if(!this._scene2d)
+      return
+
+    var tooltip = this._scene2d.getObjectByName('tooltip')
     if(tooltip) {
       this._scene2d.remove(tooltip)
-      this.tooltip = null;
     }
   }
 
