@@ -28,6 +28,8 @@ export default class Rack extends THREE.Object3D {
 
     this.add(frame)
 
+    var shelfPattern = model.shelfPattern;
+
     for(var i = 0; i < model.shelves; i++) {
 
       let bottom = - model.depth * model.shelves * 0.5
@@ -51,7 +53,7 @@ export default class Rack extends THREE.Object3D {
       let stockDepth = model.depth * scale
 
       stock.position.set(0, bottom + (model.depth * i) + (stockDepth * 0.5), 0)
-      stock.name = model.location + "-" + (i + 1)
+      stock.name = this.makeLocationString(this.makeShelfString(shelfPattern, i + 1, model.shelves))
 
       this.add(stock)
     }
@@ -128,7 +130,49 @@ export default class Rack extends THREE.Object3D {
 
   }
 
+  makeLocationString(shelfString) {
+    var {
+      locPattern,
+      zone,
+      section,
+      unit
+    } = this._model
 
+    var locationString = locPattern;
+
+    locationString = locationString.replace(/{z}/i, zone);
+    locationString = locationString.replace(/{s}/i, section);
+    locationString = locationString.replace(/{u}/i, unit);
+    locationString = locationString.replace(/{sh}/i, shelfString);
+
+    return locationString;
+  }
+
+  makeShelfString(pattern, shelf, length) {
+    /**
+     *  pattern #: 숫자
+     *  pattern 0: 고정 자리수
+     *  pattern -: 역순
+     */
+
+    var isReverse = /^\-/.test(pattern);
+    pattern = pattern.replace(/#+/, '#');
+
+    var fixedLength = (pattern.match(/0/g) || []).length || 0
+    var shelfString = String(isReverse ? length - shelf + 1 : shelf)
+
+    if(shelfString.length > fixedLength && fixedLength > 0) {
+      shelfString = shelfString.split('').shift(shelfString.length - fixedLength).join('')
+    } else {
+      var prefix = '';
+      for(var i = 0; i < fixedLength - shelfString.length; i++) {
+        prefix += '0';
+      }
+      shelfString = prefix + shelfString;
+    }
+
+    return shelfString
+  }
 
   raycast(raycaster, intersects) {
 

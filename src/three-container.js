@@ -793,16 +793,18 @@ export default class ThreeContainer extends Container {
         if(this._data) {
           if(this._data instanceof Array) {
             this._data.forEach(d => {
-              let object = this._scene3d.getObjectByName(d.loc, true)
+              let loc = d.loc || d.LOC || d.location || d.LOCATION;
+
+              let object = this._scene3d.getObjectByName(loc, true)
               if(object) {
                 object.userData = d;
                 object.onUserDataChanged()
 
                 if(d.navigationData) {
-                  this._pickingLocations.push(d.loc)
+                  this._pickingLocations.push(loc)
                 }
                 if(d.selected) {
-                  this._selectedPickingLocation = d.loc
+                  this._selectedPickingLocation = loc
                 }
               }
             })

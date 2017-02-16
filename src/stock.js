@@ -77,7 +77,8 @@ export default class Stock extends THREE.Mesh {
       // exclude private data
       if(/^__/.test(key))
         continue;
-      if(this.userData[key] && typeof this.userData[key] != 'object' && key != 'loc') {
+
+      if(this.userData[key] && typeof this.userData[key] != 'object') {
         tooltipText += key + ": " + this.userData[key] + "\n"
       }
     }
