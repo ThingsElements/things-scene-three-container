@@ -1,4 +1,11 @@
-const STATUS_COLORS = ['black', '#ccaa76', '#ff1100', '#252525', '#6ac428']
+// const STATUS_COLORS = ['black', '#ccaa76', '#ff1100', '#252525', '#6ac428']
+const STATUS_COLORS = {
+  A: 'black',
+  B: '#ccaa76',
+  C: '#ff1100',
+  D: '#252525',
+  E: '#6ac428'
+}
 
 export default class Stock extends THREE.Mesh {
 
@@ -39,20 +46,21 @@ export default class Stock extends THREE.Mesh {
   }
 
   onUserDataChanged() {
-    if(this.userData.__color) {
-      this.material.color.set(this.userData.__color)
-      this.visible = true
-    } else {
-      this.visible = false
-    }
-
-    // this.material.color.set(STATUS_COLORS[this.userData.status])
-    //
-    // if(this.userData.status === 0) {
-    //   this.visible = false
-    // } else {
+    // if(this.userData.__color) {
+    //   this.material.color.set(this.userData.__color)
     //   this.visible = true
+    // } else {
+    //   this.visible = false
     // }
+
+    var color = STATUS_COLORS[this.userData.GUBUN || this.userData.gubun]
+    this.material.color.set(color)
+
+    if(!color) {
+      this.visible = false
+    } else {
+      this.visible = true
+    }
   }
 
   onmousemove(e, threeContainer) {
