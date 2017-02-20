@@ -42,6 +42,8 @@ const NATURE = {
   }]
 }
 
+const WEBGL_NO_SUPPORT_TEXT = 'WebGL no support'
+
 function registerLoaders() {
   if(!registerLoaders.done) {
     THREE.Loader.Handlers.add( /\.tga$/i, new THREE.TGALoader() );
@@ -640,12 +642,21 @@ export default class ThreeContainer extends Container {
     this._camera.lookAt(this._scene3d.position)
     this._2dCamera.lookAt(this._scene2d.position)
 
-    // RENDERER
-    this._renderer = new THREE.WebGLRenderer({
-      // precision: 'mediump',
-      alpha: true,
-      antialias: true
-    });
+
+    try {
+      // RENDERER
+      this._renderer = new THREE.WebGLRenderer({
+        // precision: 'mediump',
+        alpha: true,
+        antialias: true
+      });
+    } catch(e) {
+      this._noSupportWebgl = true
+    }
+
+    if(this._noSupportWebgl)
+      return
+
 
     this._renderer.autoClear = false
 
@@ -722,10 +733,11 @@ export default class ThreeContainer extends Container {
   /* Container Overides .. */
   _draw(ctx) {
     if(this.app.isViewMode) {
-      this.model.threed = true
+      if(!this.model.threed)
+        this.model.threed = true
     }
 
-    if(this.model.threed) {
+    if(this.model.threed && !this._noSupportWebgl) {
       return
     }
 
@@ -754,87 +766,13 @@ export default class ThreeContainer extends Container {
         this.render_threed()
       }
 
+      if(this._noSupportWebgl) {
+        this._showWebglNoSupportText(ctx);
+        return
+      }
+
       if(this._dataChanged) {
-        if(this._pickingLocations) {
-          for(let i in this._pickingLocations) {
-            let loc = this._pickingLocations[i]
-
-            let obj = this._scene3d.getObjectByName(loc, true)
-            if(obj) {
-              obj.userData = {}
-            }
-
-            let empObj = this._scene3d.getObjectByName(loc + '-emp', true)
-            if(empObj) {
-              this._scene3d.remove(empObj)
-            }
-            let navObj = this._scene3d.getObjectByName(loc + '-marker', true)
-            if(navObj) {
-              navObj.parent.remove(navObj)
-            }
-
-            let navTooltipObj = this._scene2d.getObjectByName('navigator-tooltip', true)
-            if(navTooltipObj) {
-              this._scene2d.remove(navTooltipObj)
-            }
-          }
-        }
-
-        if(this._selectedPickingLocation) {
-          let obj = this._scene3d.getObjectByName(this._selectedPickingLocation, true)
-          if(obj &&  obj.userData) {
-             delete obj.userData.selected
-          }
-        }
-
-        this._pickingLocations = []
-        this._selectedPickingLocation = null
-
-        if(this._data) {
-          if(this._data instanceof Array) {
-            this._data.forEach(d => {
-              let loc = d.loc || d.LOC || d.location || d.LOCATION;
-
-              let object = this._scene3d.getObjectByName(loc, true)
-              if(object) {
-                object.userData = d;
-                object.onUserDataChanged()
-
-                if(d.navigationData) {
-                  this._pickingLocations.push(loc)
-                }
-                if(d.selected) {
-                  this._selectedPickingLocation = loc
-                }
-              }
-            })
-          } else {
-            for (var loc in this._data) {
-              if (this._data.hasOwnProperty(loc)) {
-                let d = this._data[loc]
-
-                let object = this._scene3d.getObjectByName(loc, true)
-                if(object) {
-                  object.userData = d;
-                  object.onUserDataChanged()
-
-                  if(d.navigationData) {
-                    this._pickingLocations.push(loc)
-                  }
-                  if(d.selected) {
-                    this._selectedPickingLocation = loc
-                  }
-                }
-
-              }
-            }
-          }
-        }
-
-
-        this._dataChanged = false
-
-        this.navigatePath(this._pickingLocations)
+        this._onDataChanged()
       }
 
       this.showTooltip(this._selectedPickingLocation)
@@ -1188,6 +1126,124 @@ export default class ThreeContainer extends Container {
       this.render_threed()
     }
 
+  }
+
+  _showWebglNoSupportText(context) {
+    context.save();
+
+    var {
+      width,
+      height
+    } = this.model
+
+    context.font = width/20 + 'px Arial'
+    context.textAlign = 'center'
+    context.fillText(WEBGL_NO_SUPPORT_TEXT, width / 2 - width / 40, height / 2)
+
+    context.restore();
+  }
+
+  _onDataChanged() {
+
+    if(this._pickingLocations) {
+      // set picking locations
+      for(let i in this._pickingLocations) {
+        let loc = this._pickingLocations[i]
+
+        let obj = this._scene3d.getObjectByName(loc, true)
+        if(obj) {
+          obj.userData = {}
+        }
+
+        let empObj = this._scene3d.getObjectByName(loc + '-emp', true)
+        if(empObj) {
+          this._scene3d.remove(empObj)
+        }
+        let navObj = this._scene3d.getObjectByName(loc + '-marker', true)
+        if(navObj) {
+          navObj.parent.remove(navObj)
+        }
+
+        let navTooltipObj = this._scene2d.getObjectByName('navigator-tooltip', true)
+        if(navTooltipObj) {
+          this._scene2d.remove(navTooltipObj)
+        }
+      }
+    }
+
+    if(this._selectedPickingLocation) {
+      // set selected picking location
+      let obj = this._scene3d.getObjectByName(this._selectedPickingLocation, true)
+      if(obj &&  obj.userData) {
+         delete obj.userData.selected
+      }
+    }
+
+    this._pickingLocations = []
+    this._selectedPickingLocation = null
+
+    if(this._data) {
+      if(this._data instanceof Array) {
+        /**
+         *  Array type data
+         *  (e.g. data: [{
+         *    'loc' : 'location1',
+         *    'description': 'description1'
+         *  },
+         *  ...
+         *  ])
+         */
+        this._data.forEach(d => {
+          let loc = d.loc || d.LOC || d.location || d.LOCATION;
+
+          let object = this._scene3d.getObjectByName(loc, true)
+          if(object) {
+            object.userData = d;
+            object.onUserDataChanged()
+
+            if(d.navigationData) {
+              this._pickingLocations.push(loc)
+            }
+            if(d.selected) {
+              this._selectedPickingLocation = loc
+            }
+          }
+        })
+      } else {
+        /**
+         *  Object type data
+         *  (e.g. data: {
+         *    'location1': {description: 'description'},
+         *    ...
+         *  })
+         */
+        for (var loc in this._data) {
+          if (this._data.hasOwnProperty(loc)) {
+            let d = this._data[loc]
+
+            let object = this._scene3d.getObjectByName(loc, true)
+            if(object) {
+              object.userData = d;
+              object.onUserDataChanged()
+
+              if(d.navigationData) {
+                this._pickingLocations.push(loc)
+              }
+              if(d.selected) {
+                this._selectedPickingLocation = loc
+              }
+            }
+
+          }
+        }
+      }
+    }
+
+    this._dataChanged = false
+
+    // draw navigatePath
+    if(this._pickingLocations && this._pickingLocations.length > 0)
+      this.navigatePath(this._pickingLocations)
   }
 
   /* Event Handlers */
