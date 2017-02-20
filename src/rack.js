@@ -132,13 +132,13 @@ export default class Rack extends THREE.Object3D {
 
   makeLocationString(shelfString) {
     var {
-      locPattern,
+      locPattern = "{z}{s}-{u}-{sh}",
       zone,
       section,
       unit
     } = this._model
 
-    var locationString = locPattern;
+    var locationString = locPattern
 
     locationString = locationString.replace(/{z}/i, zone);
     locationString = locationString.replace(/{s}/i, section);
@@ -154,6 +154,9 @@ export default class Rack extends THREE.Object3D {
      *  pattern 0: 고정 자리수
      *  pattern -: 역순
      */
+
+    if(!pattern || !shelf || !length)
+      return
 
     var isReverse = /^\-/.test(pattern);
     pattern = pattern.replace(/#+/, '#');
