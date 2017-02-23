@@ -60,6 +60,10 @@ export default class Cylinder extends THREE.Mesh{
 }
 
 export class Cylinder2d extends Ellipse {
+  is3dish() {
+    return true
+  }
+
   get controls() {}
 
   get nature() {

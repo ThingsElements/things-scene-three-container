@@ -53,6 +53,10 @@ function registerLoaders() {
 
 export default class ThreeContainer extends Container {
 
+  containable(component) {
+    return component.is3dish()
+  }
+
   /* THREE Object related .. */
 
   createFloor(color, width, height) {

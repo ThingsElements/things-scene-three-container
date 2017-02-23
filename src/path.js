@@ -158,7 +158,9 @@ export default class Path extends THREE.Object3D {
 var { Component, Line } = scene
 
 export class LinePath extends Line {
-
+  is3dish() {
+    return true
+  }
 }
 
 Component.register('path', LinePath)

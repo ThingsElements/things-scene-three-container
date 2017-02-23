@@ -47,7 +47,9 @@ export default class Door extends THREE.Mesh {
 }
 
 export class Door2d extends Rect {
-
+  is3dish() {
+    return true
+  }
 }
 
 Component.register('door', Door2d)

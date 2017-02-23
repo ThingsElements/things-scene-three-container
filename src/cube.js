@@ -60,6 +60,10 @@ export default class Cube extends THREE.Mesh{
 }
 
 export class Cube2d extends Rect {
+  is3dish() {
+    return true
+  }
+
   get controls() {}
 
   get nature() {

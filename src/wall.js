@@ -52,6 +52,10 @@ export default class Wall extends THREE.Mesh {
 }
 
 export class Wall2d extends Rect {
+  is3dish() {
+    return true
+  }
+
   get controls() {}
 }
 

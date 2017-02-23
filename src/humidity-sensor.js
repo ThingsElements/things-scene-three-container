@@ -239,6 +239,10 @@ export default class HumiditySensor extends THREE.Object3D {
 var { Component, Ellipse } = scene
 
 export class Sensor extends Ellipse {
+  is3dish() {
+    return true
+  }
+
   _draw(context) {
     var {
       left,

@@ -116,6 +116,10 @@ export default class Banner extends THREE.Object3D {
 }
 
 export class Banner2d extends ImageView {
+  is3dish() {
+    return true
+  }
+
   get nature() {
     return NATURE
   }

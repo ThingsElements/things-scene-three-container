@@ -61,6 +61,10 @@ export default class Sphere extends THREE.Mesh{
 }
 
 export class Sphere2d extends Ellipse {
+  is3dish() {
+    return true
+  }
+
   get controls() {}
 
   get nature() {
