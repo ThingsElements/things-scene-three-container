@@ -1248,6 +1248,8 @@ export default class ThreeContainer extends Container {
     // draw navigatePath
     if(this._pickingLocations && this._pickingLocations.length > 0)
       this.navigatePath(this._pickingLocations)
+
+    this.render_threed();
   }
 
   /* Event Handlers */
