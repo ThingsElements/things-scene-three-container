@@ -755,12 +755,7 @@ export default class ThreeContainer extends Container {
       top,
       width,
       height,
-      threed,
-      fov = 45,
-      near = 0.1,
-      far = 20000,
-      zoom = 100,
-      light = 0xffffff
+      threed
     } = this.model
 
     if(threed) {
