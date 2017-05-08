@@ -1,6 +1,6 @@
 {
   "name": "things-scene-three-container",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "authors": [
     "Stellan Gil <lotstar87@gmail.com>"
   ],
@@ -19,8 +19,7 @@
   ],
   "dependencies": {
     "threejs": "mrdoob/three.js#r84",
-    "heatmap.js-amd": "pa7/heatmap.js",
-    "things-scene": "^2.0.0"
+    "heatmap.js-amd": "pa7/heatmap.js"
   },
   "devDependencies": {
     "polymer": "Polymer/polymer#^1.2.0",
