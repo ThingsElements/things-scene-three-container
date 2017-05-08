@@ -19,7 +19,8 @@
   ],
   "dependencies": {
     "threejs": "mrdoob/three.js#r84",
-    "heatmap.js-amd": "pa7/heatmap.js"
+    "heatmap.js-amd": "pa7/heatmap.js",
+    "things-scene-core": "ThingsElements/things-scene-core#^2.0.0"
   },
   "devDependencies": {
     "polymer": "Polymer/polymer#^1.2.0",
