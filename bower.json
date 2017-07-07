@@ -1,6 +1,6 @@
 {
   "name": "things-scene-three-container",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "authors": [
     "Stellan Gil <lotstar87@gmail.com>"
   ],
@@ -11,7 +11,7 @@
     "seed"
   ],
   "main": "things-scene-three-container.html",
-  "license": "http://polymer.github.io/LICENSE.txt",
+  "license": "http://things-scene.hatiolab.com/EULA/",
   "homepage": "https://github.com/ThingsElements/things-scene-three-container",
   "ignore": [
     "/.*",

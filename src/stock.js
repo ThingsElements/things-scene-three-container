@@ -1,3 +1,6 @@
+/*
+ * Copyright © HatioLab Inc. All rights reserved.
+ */
 // const STATUS_COLORS = ['black', '#ccaa76', '#ff1100', '#252525', '#6ac428']
 const STATUS_COLORS = {
   A: 'black',

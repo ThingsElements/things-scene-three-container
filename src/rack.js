@@ -1,3 +1,6 @@
+/*
+ * Copyright © HatioLab Inc. All rights reserved.
+ */
 import Stock from './stock'
 
 export default class Rack extends THREE.Object3D {

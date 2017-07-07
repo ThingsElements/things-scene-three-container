@@ -1,3 +1,6 @@
+/*
+ * Copyright © HatioLab Inc. All rights reserved.
+ */
 var { Component, Component3d, ImageView } = scene
 
 const NATURE = {

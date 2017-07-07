@@ -1,3 +1,6 @@
+/*
+ * Copyright © HatioLab Inc. All rights reserved.
+ */
 import Rack from './rack'
 import ForkLift from './forkLift'
 import Person from './person'

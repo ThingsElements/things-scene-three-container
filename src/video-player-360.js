@@ -1,3 +1,6 @@
+/*
+ * Copyright © HatioLab Inc. All rights reserved.
+ */
 var { RectPath, Component } = scene
 
 const NATURE = {

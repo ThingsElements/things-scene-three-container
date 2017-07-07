@@ -1,3 +1,6 @@
+/*
+ * Copyright © HatioLab Inc. All rights reserved.
+ */
 import Cube from './cube'
 
 export default class Floor extends Cube {

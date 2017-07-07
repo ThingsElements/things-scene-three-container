@@ -1,3 +1,6 @@
+/*
+ * Copyright © HatioLab Inc. All rights reserved.
+ */
 import ThreeLayout from './three-layout'
 import ThreeControls from './three-controls'
 

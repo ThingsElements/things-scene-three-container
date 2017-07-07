@@ -1,3 +1,6 @@
+/*
+ * Copyright © HatioLab Inc. All rights reserved.
+ */
 /**
  * @author qiao / https://github.com/qiao
  * @author mrdoob / http://mrdoob.com

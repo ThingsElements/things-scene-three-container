@@ -1,3 +1,6 @@
+/*
+ * Copyright © HatioLab Inc. All rights reserved.
+ */
 var { Layout } = scene
 
 /* 대상 컴포넌트의 bounds를 계산한다. */

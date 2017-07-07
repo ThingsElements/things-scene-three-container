@@ -1,3 +1,6 @@
+/*
+ * Copyright © HatioLab Inc. All rights reserved.
+ */
 const STATUS_COLORS = ['#6666ff', '#ccccff', '#ffcccc', '#cc3300']
 
 export default class Path extends THREE.Object3D {
