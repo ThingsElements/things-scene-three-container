@@ -18,20 +18,20 @@ export default class Path extends THREE.Object3D {
 
   createObject(model, canvasSize) {
 
-    let x1 = (model.x1) - canvasSize.width/2
-    let y1 = (model.y1) - canvasSize.height/2
-    let x2 = (model.x2) - canvasSize.width/2
-    let y2 = (model.y2) - canvasSize.height/2
+    let x1 = (model.x1) - canvasSize.width / 2
+    let y1 = (model.y1) - canvasSize.height / 2
+    let x2 = (model.x2) - canvasSize.width / 2
+    let y2 = (model.y2) - canvasSize.height / 2
     let z = 0
     let lineWidth = model.lineWidth || 5
 
     this.type = 'path'
 
-    if(model.location)
+    if (model.location)
       this.name = model.location
 
     let material = new THREE.LineBasicMaterial({
-      color : 0x333333,
+      color: 0x333333,
       linewidth: lineWidth
     })
 
@@ -92,14 +92,14 @@ export default class Path extends THREE.Object3D {
     let geometry = new THREE.SphereGeometry(w, 32, 32);
     // let geometry = new THREE.SphereGeometry(w, d, h);
     var material
-    if(isFirst) {
+    if (isFirst) {
       // var texture = new THREE.TextureLoader().load('./images/drop-34055_1280.png')
       // texture.repeat.set(1,1)
       // // texture.premultiplyAlpha = true
-      material = new THREE.MeshLambertMaterial( { color : '#cc3300', side: THREE.FrontSide} );
+      material = new THREE.MeshLambertMaterial({ color: '#cc3300', side: THREE.FrontSide });
       // material = new THREE.MeshLambertMaterial( { color : '#74e98a', side: THREE.FrontSide} );
     } else {
-      material = new THREE.MeshBasicMaterial( { color : '#cc3300', side: THREE.FrontSide, wireframe: true, wireframeLinewidth : 1} );
+      material = new THREE.MeshBasicMaterial({ color: '#cc3300', side: THREE.FrontSide, wireframe: true, wireframeLinewidth: 1 });
       // material = new THREE.MeshBasicMaterial( { color : '#74e98a', side: THREE.FrontSide, wireframe: true, wireframeLinewidth : 1} );
     }
 
@@ -117,7 +117,7 @@ export default class Path extends THREE.Object3D {
 
   onUserDataChanged() {
 
-    var {cx, cy} = this._model
+    var { cx, cy } = this._model
     cx = Math.floor(cx)
     cy = Math.floor(cy)
 
@@ -125,7 +125,7 @@ export default class Path extends THREE.Object3D {
 
     for (let sphere of this.children) {
       var colorIndex = 0;
-      if(temperature < 0) {
+      if (temperature < 0) {
         colorIndex = 0;
       } else if (temperature < 10) {
         colorIndex = 1;

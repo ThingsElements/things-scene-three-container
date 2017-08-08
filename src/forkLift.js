@@ -4,7 +4,7 @@
 var extObj
 
 function init() {
-  if(init.done)
+  if (init.done)
     return
 
   init.done = true
@@ -15,12 +15,12 @@ function init() {
   objLoader.setPath('./obj/Fork_lift/')
   mtlLoader.setPath('./obj/Fork_lift/')
 
-  mtlLoader.load('ForkLift.mtl', function(materials){
+  mtlLoader.load('ForkLift.mtl', function (materials) {
     materials.preload();
     objLoader.setMaterials(materials)
     materials.side = THREE.frontSide
 
-    objLoader.load('ForkLift.obj', function(obj){
+    objLoader.load('ForkLift.obj', function (obj) {
       extObj = obj
     })
   })
@@ -39,7 +39,7 @@ export default class ForkLift extends THREE.Object3D {
   }
 
   static get extObject() {
-    if(!extObj)
+    if (!extObj)
       init()
 
     return extObj
@@ -47,17 +47,17 @@ export default class ForkLift extends THREE.Object3D {
 
   createObject(model, canvasSize) {
 
-    if(!ForkLift.extObject){
+    if (!ForkLift.extObject) {
       setTimeout(this.createObject.bind(this, model, canvasSize), 50)
       return;
     }
 
-    let cx = model.cx - canvasSize.width/2
-    let cy = model.cy - canvasSize.height/2
+    let cx = model.cx - canvasSize.width / 2
+    let cy = model.cy - canvasSize.height / 2
     let cz = 0.5 * model.depth
 
-    let left = model.left - canvasSize.width/2
-    let top = model.top - canvasSize.height/2
+    let left = model.left - canvasSize.width / 2
+    let top = model.top - canvasSize.height / 2
 
     let rotation = model.rotation
 

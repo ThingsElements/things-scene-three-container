@@ -1,13 +1,16 @@
 /*
  * Copyright © HatioLab Inc. All rights reserved.
  */
-var { Component, Ellipse } = scene
+var {
+  Component,
+  Ellipse
+} = scene
 
 const NATURE = {
   mutable: false,
   resizable: true,
   rotatable: true,
-  properties : [{
+  properties: [{
     type: 'number',
     label: 'depth',
     name: 'rz',
@@ -16,7 +19,7 @@ const NATURE = {
 }
 
 
-export default class Sphere extends THREE.Mesh{
+export default class Sphere extends THREE.Mesh {
 
   constructor(model, canvasSize) {
 
@@ -30,8 +33,8 @@ export default class Sphere extends THREE.Mesh{
 
   createObject(model, canvasSize) {
 
-    let cx = (model.cx) - canvasSize.width/2
-    let cy = (model.cy) - canvasSize.height/2
+    let cx = (model.cx) - canvasSize.width / 2
+    let cy = (model.cy) - canvasSize.height / 2
     let cz = this.model.rx
 
     let rotation = model.rotation
@@ -39,7 +42,7 @@ export default class Sphere extends THREE.Mesh{
 
     this.createSphere(this.model.rx, this.model.rz)
 
-    this.position.set(cx,cz,cy) // z좌표는 땅에 붙어있게 함
+    this.position.set(cx, cz, cy) // z좌표는 땅에 붙어있게 함
     this.rotation.y = rotation || 0
 
   }
@@ -51,9 +54,12 @@ export default class Sphere extends THREE.Mesh{
     } = this.model
 
     this.geometry = new THREE.SphereGeometry(rx, 20, 20);
-    this.material = new THREE.MeshLambertMaterial( { color : fillStyle, side: THREE.FrontSide } );
+    this.material = new THREE.MeshLambertMaterial({
+      color: fillStyle,
+      side: THREE.FrontSide
+    });
 
-    this.castShadow = true
+    // this.castShadow = true
 
   }
 
@@ -68,7 +74,7 @@ export class Sphere2d extends Ellipse {
     return true
   }
 
-  get controls() {}
+  get controls() { }
 
   get nature() {
     return NATURE
@@ -78,3 +84,4 @@ export class Sphere2d extends Ellipse {
 
 Component.register('sphere', Sphere2d)
 scene.Component3d.register('sphere', Sphere)
+

@@ -4,14 +4,14 @@
 var extObj
 
 function init() {
-  if(init.done)
+  if (init.done)
     return
 
   init.done = true
 
   let tgaLoader = new THREE.TGALoader();
 
-  THREE.Loader.Handlers.add( /\.tga$/i, tgaLoader);
+  THREE.Loader.Handlers.add(/\.tga$/i, tgaLoader);
 
   let objLoader = new THREE.OBJLoader();
   let mtlLoader = new THREE.MTLLoader();
@@ -19,12 +19,12 @@ function init() {
   objLoader.setPath('./obj/Casual_Man_02/')
   mtlLoader.setPath('./obj/Casual_Man_02/')
 
-  mtlLoader.load('Casual_Man.mtl', function(materials){
+  mtlLoader.load('Casual_Man.mtl', function (materials) {
     materials.preload();
     objLoader.setMaterials(materials)
     materials.side = THREE.frontSide
 
-    objLoader.load('Casual_Man.obj', function(obj){
+    objLoader.load('Casual_Man.obj', function (obj) {
       extObj = obj
     })
 
@@ -45,7 +45,7 @@ export default class Person extends THREE.Object3D {
   }
 
   static get extObject() {
-    if(!extObj)
+    if (!extObj)
       init()
 
     return extObj
@@ -53,17 +53,17 @@ export default class Person extends THREE.Object3D {
 
   createObject(model, canvasSize) {
 
-    if(!Person.extObject){
+    if (!Person.extObject) {
       setTimeout(this.createObject.bind(this, model, canvasSize), 50)
       return;
     }
 
-    let cx = (model.left + (model.width/2)) - canvasSize.width/2
-    let cy = (model.top + (model.height/2)) - canvasSize.height/2
+    let cx = (model.left + (model.width / 2)) - canvasSize.width / 2
+    let cy = (model.top + (model.height / 2)) - canvasSize.height / 2
     let cz = 0.5 * model.depth
 
-    let left = model.left - canvasSize.width/2
-    let top = model.top - canvasSize.height/2
+    let left = model.left - canvasSize.width / 2
+    let top = model.top - canvasSize.height / 2
 
     let rotation = model.rotation
 

@@ -6,13 +6,17 @@ import ThreeControls from './three-controls'
 
 THREE.Cache.enabled = true
 
-var { Component, Container, Layout } = scene
+var {
+  Component,
+  Container,
+  Layout
+} = scene
 
 const NATURE = {
   mutable: false,
   resizable: true,
   rotatable: true,
-  properties : [{
+  properties: [{
     type: 'number',
     label: 'fov',
     name: 'fov',
@@ -33,11 +37,23 @@ const NATURE = {
     name: 'zoom',
     property: 'zoom'
   }, {
+    type: 'select',
+    label: 'precision',
+    name: 'precision',
+    property: {
+      options: ['highp', 'mediump', 'lowp']
+    }
+  }, {
+    type: 'checkbox',
+    label: 'anti-alias',
+    name: 'antialias',
+    property: 'antialias'
+  }, {
     type: 'checkbox',
     label: 'auto-rotate',
     name: 'autoRotate',
     property: 'autoRotate'
-  },{
+  }, {
     type: 'checkbox',
     label: '3dmode',
     name: 'threed',
@@ -48,8 +64,8 @@ const NATURE = {
 const WEBGL_NO_SUPPORT_TEXT = 'WebGL no support'
 
 function registerLoaders() {
-  if(!registerLoaders.done) {
-    THREE.Loader.Handlers.add( /\.tga$/i, new THREE.TGALoader() );
+  if (!registerLoaders.done) {
+    THREE.Loader.Handlers.add(/\.tga$/i, new THREE.TGALoader());
     registerLoaders.done = true
   }
 }
@@ -58,6 +74,20 @@ export default class ThreeContainer extends Container {
 
   containable(component) {
     return component.is3dish()
+  }
+
+  putStock(loc, stock) {
+    if (!this._stocks)
+      this._stocks = {}
+
+    this._stocks[loc] = stock;
+  }
+
+  getStock(loc) {
+    if (!this._stocks)
+      this._stocks = {}
+
+    return this._stocks[loc]
   }
 
   /* THREE Object related .. */
@@ -70,22 +100,17 @@ export default class ThreeContainer extends Container {
 
     var self = this;
 
-    if(fillStyle.type == 'pattern' && fillStyle.image) {
+    if (fillStyle.type == 'pattern' && fillStyle.image) {
 
-      var floorTexture = this._textureLoader.load(this.app.url(fillStyle.image), function(texture) {
-        // texture.minFilter = THREE.LinearFilter
+      var floorTexture = this._textureLoader.load(this.app.url(fillStyle.image), function (texture) {
+        texture.minFilter = THREE.LinearFilter
         self.render_threed()
       })
 
-      // var floorTexture = this._textureLoader.load(this.app.url(fillStyle.image));
-
-      floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide} );
-
-      // floorTexture.premultiplyAlpha = true
-      // floorTexture.wrapS = THREE.MirroredRepeatWrapping
-      // floorTexture.wrapT = THREE.MirroredRepeatWrapping
-      // floorTexture.repeat.set(1,1)
-      // floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.FrontSide } );
+      floorMaterial = new THREE.MeshBasicMaterial({
+        map: floorTexture,
+        side: THREE.DoubleSide
+      });
     } else {
       floorMaterial = new THREE.MeshBasicMaterial({
         color: color,
@@ -95,13 +120,12 @@ export default class ThreeContainer extends Container {
 
 
     var floorGeometry = new THREE.PlaneGeometry(width, height)
-    // var floorGeometry = new THREE.BoxGeometry(width, height, 10, 10, 10)
 
     var floor = new THREE.Mesh(floorGeometry, floorMaterial)
 
-    floor.receiveShadow = true
+    // floor.receiveShadow = true
 
-    floor.rotation.x = - Math.PI / 2
+    floor.rotation.x = -Math.PI / 2
     floor.position.y = -2
 
     floor.name = 'floor'
@@ -111,74 +135,35 @@ export default class ThreeContainer extends Container {
 
   createObjects(components, canvasSize) {
 
-    // var obj = new THREE.Object3D();
+    var items = []
+    components.forEach(component => {
 
-    components.forEach(model => {
+      var clazz = scene.Component3d.register(component.model.type)
 
-      var clazz = scene.Component3d.register(model.type)
-
-      if(!clazz) {
+      if (!clazz) {
         console.warn("Class not found : 3d class is not exist");
         return;
       }
 
-      var item = new clazz(model, canvasSize, this)
+      var item = new clazz(component.model, canvasSize, this, component)
 
-      // var item
-      // switch (model.type) {
-      //   case 'rack':
-      //     item = new Rack(model, canvasSize)
-      //     break;
-      //
-      //   case 'forklift':
-      //     item = new ForkLift(model, canvasSize)
-      //     break;
-      //
-      //   case 'person':
-      //     item = new Person(model, canvasSize)
-      //     break;
-      //
-      //   case 'rect':
-      //     item = new Plane(model, canvasSize)
-      //     break;
-      //
-      //   case 'humidity-sensor':
-      //     item = new HumiditySensor(model, canvasSize, this)
-      //     break;
-      //
-      //
-      //   case 'path':
-      //     item = new Path(model, canvasSize, this)
-      //     break;
-      //
-      //   // case 'marker':
-      //   //   item = new Marker(model, canvasSize, this)
-      //   //   break;
-      //
-      //   case 'wall':
-      //     item = new Wall(model, canvasSize, this)
-      //     break;
-      //
-      //   case 'door':
-      //     item = new Door(model, canvasSize, this)
-      //     break;
-      //
-      //   default:
-      //     break;
-      // }
-
-      if(item)
-        this._scene3d.add(item)
-        // obj.add(item)
+      if (item) {
+        // items.push(item)
+        setTimeout(function () {
+          this._scene3d.add(item)
+        }.bind(this))
+      }
 
     })
+
+    // this._scene3d.add(items)
 
     // this._scene3d.add(obj);
   }
 
   createHeatmap(width, height) {
 
-    if(this._model.useHeatmap === false)
+    if (this._model.useHeatmap === false)
       return
 
     var div = document.createElement('div');
@@ -192,15 +177,15 @@ export default class ThreeContainer extends Container {
 
     var heatmapMaterial = new THREE.MeshBasicMaterial({
       side: THREE.FrontSide,
-      transparent : true,
-      visible : false
+      transparent: true,
+      visible: false
     })
 
     var heatmapGeometry = new THREE.PlaneGeometry(width, height)
 
     var heatmap = new THREE.Mesh(heatmapGeometry, heatmapMaterial)
 
-    heatmap.rotation.x = - Math.PI / 2
+    heatmap.rotation.x = -Math.PI / 2
     heatmap.position.y = -1
 
     heatmap.name = 'heatmap'
@@ -228,7 +213,7 @@ export default class ThreeContainer extends Container {
       let targetRackBoundBox = targetRack.geometry.boundingBox
 
       // let targetPath = this.findPath(targetName)
-      let sprite = this.createMarker(Number(i)+1)
+      let sprite = this.createMarker(Number(i) + 1)
       sprite.position.set(0, 100, 0)
 
       sprite.position.set(0, targetRackBoundBox.max.y + 25, 0)
@@ -251,13 +236,11 @@ export default class ThreeContainer extends Container {
 
   findTarget(name) {
     var targetObject = this._scene3d.getObjectByName(name, true)
-    if(!targetObject)
+    if (!targetObject)
       return
 
     return targetObject
   }
-
-
 
   emphasizeTarget(object) {
 
@@ -267,7 +250,7 @@ export default class ThreeContainer extends Container {
 
     box.name = object.name + '-emp'
     box.material.color.set(0x44a6f6);
-    box.raycast = function(){}
+    box.raycast = function () { }
 
     box.position.copy(object.getWorldPosition())
 
@@ -277,11 +260,11 @@ export default class ThreeContainer extends Container {
 
   findPath(target) {
     var targetObject = this._scene3d.getObjectByName(target, true)
-    if(!targetObject)
+    if (!targetObject)
       return
 
-    targetObject = targetObject.parent  // 찾은 stock에 강조표시를 하면 눈이 띄지 않는다.
-                                        // 부모(Rack)에 강조표시.
+    targetObject = targetObject.parent // 찾은 stock에 강조표시를 하면 눈이 띄지 않는다.
+    // 부모(Rack)에 강조표시.
 
     // targetObject.updateMatrix()
     this._scene3d.updateMatrixWorld()
@@ -327,7 +310,7 @@ export default class ThreeContainer extends Container {
     let lineWidth = 5
 
     let material = new THREE.LineBasicMaterial({
-      color : 0xff3333,
+      color: 0xff3333,
       linewidth: lineWidth
     })
 
@@ -358,8 +341,8 @@ export default class ThreeContainer extends Container {
   createMarker(message) {
 
     var fontFace = "Arial";
-  	var fontSize = 32;
-  	var textColor = 'rgba(255,255,255,1)';
+    var fontSize = 32;
+    var textColor = 'rgba(255,255,255,1)';
     var vAlign = 'middle';
     var hAlign = 'center';
     var padding = 10;
@@ -382,14 +365,14 @@ export default class ThreeContainer extends Container {
     var cx = canvas.width / 2;
     var cy = canvas.height / 2;
 
-    var metrics = context.measureText( String(message) );
+    var metrics = context.measureText(String(message));
     var textWidth = metrics.width;
 
-    var tx = textWidth/ 2.0;
+    var tx = textWidth / 2.0;
     var ty = fontSize / 2.0;
 
     // then adjust for the justification
-    if ( vAlign == "bottom")
+    if (vAlign == "bottom")
       ty = fontSize;
     else if (vAlign == "top")
       ty = 0;
@@ -400,7 +383,7 @@ export default class ThreeContainer extends Container {
       tx = 0;
 
 
-  	context.drawImage(
+    context.drawImage(
       image,
       cx - image.width * 0.5,
       cy - image.height * 0.5,
@@ -408,8 +391,8 @@ export default class ThreeContainer extends Container {
       image.height
     );
 
-  	// text color
-  	context.fillStyle = textColor;
+    // text color
+    context.fillStyle = textColor;
 
     var offsetY = cy - fontSize * 0.5 + padding
 
@@ -420,57 +403,59 @@ export default class ThreeContainer extends Container {
     );
 
 
-  	// canvas contents will be used for a texture
-  	var texture = new THREE.Texture(canvas)
-  	texture.needsUpdate = true;
+    // canvas contents will be used for a texture
+    var texture = new THREE.Texture(canvas)
+    texture.needsUpdate = true;
 
-  	var spriteMaterial = new THREE.SpriteMaterial({ map: texture } );
-  	var sprite = new THREE.Sprite( spriteMaterial );
-  	sprite.scale.set(Math.floor(image.width * 0.5), Math.floor(image.height * 0.5), 1);
-  	// sprite.scale.set(canvas.width, canvas.height,1.0);
+    var spriteMaterial = new THREE.SpriteMaterial({
+      map: texture
+    });
+    var sprite = new THREE.Sprite(spriteMaterial);
+    sprite.scale.set(Math.floor(image.width * 0.5), Math.floor(image.height * 0.5), 1);
+    // sprite.scale.set(canvas.width, canvas.height,1.0);
 
-    sprite.raycast = function(){}
+    sprite.raycast = function () { }
 
-  	return sprite;
+    return sprite;
   }
 
-  makeTextSprite( message, parameters ) {
+  makeTextSprite(message, parameters) {
 
-    if(!message)
+    if (!message)
       return
 
-  	if ( parameters === undefined ) parameters = {};
+    if (parameters === undefined) parameters = {};
 
-  	var fontFace = parameters.hasOwnProperty("fontFace") ?
-  		parameters["fontFace"] : "Arial";
+    var fontFace = parameters.hasOwnProperty("fontFace") ?
+      parameters["fontFace"] : "Arial";
 
-  	var fontSize = parameters.hasOwnProperty("fontSize") ?
-  		parameters["fontSize"] : 32;
+    var fontSize = parameters.hasOwnProperty("fontSize") ?
+      parameters["fontSize"] : 32;
 
-  	var textColor = parameters.hasOwnProperty("textColor") ?
-  		parameters["textColor"] : 'rgba(255,255,255,1)';
+    var textColor = parameters.hasOwnProperty("textColor") ?
+      parameters["textColor"] : 'rgba(255,255,255,1)';
 
     var borderWidth = parameters.hasOwnProperty("borderWidth") ?
-		  parameters["borderWidth"] : 2;
+      parameters["borderWidth"] : 2;
 
-  	var borderColor = parameters.hasOwnProperty("borderColor") ?
-		  parameters["borderColor"] : 'rgba(0, 0, 0, 1.0)';
+    var borderColor = parameters.hasOwnProperty("borderColor") ?
+      parameters["borderColor"] : 'rgba(0, 0, 0, 1.0)';
 
-	  var backgroundColor = parameters.hasOwnProperty("backgroundColor") ?
-		  // parameters["backgroundColor"] : 'rgba(51, 51, 51, 1.0)';
-		  parameters["backgroundColor"] : 'rgba(0, 0, 0, 0.7)';
+    var backgroundColor = parameters.hasOwnProperty("backgroundColor") ?
+      // parameters["backgroundColor"] : 'rgba(51, 51, 51, 1.0)';
+      parameters["backgroundColor"] : 'rgba(0, 0, 0, 0.7)';
 
     var radius = parameters.hasOwnProperty("radius") ?
-		  parameters["radius"] : 30;
+      parameters["radius"] : 30;
 
     var vAlign = parameters.hasOwnProperty("vAlign") ?
-		  parameters["vAlign"] : 'middle';
+      parameters["vAlign"] : 'middle';
 
     var hAlign = parameters.hasOwnProperty("hAlign") ?
-		  parameters["hAlign"] : 'center';
+      parameters["hAlign"] : 'center';
 
 
-  	var canvas = document.createElement('canvas');
+    var canvas = document.createElement('canvas');
     var context = canvas.getContext('2d');
 
     // document.body.appendChild(canvas)
@@ -489,20 +474,20 @@ export default class ThreeContainer extends Container {
     var cx = canvas.width / 2;
     var cy = canvas.height / 2;
 
-    for(let i in msgArr) {
+    for (let i in msgArr) {
       // get size data (height depends only on font size)
-      var metrics = context.measureText( msgArr[i] );
+      var metrics = context.measureText(msgArr[i]);
 
-      if(textWidth < metrics.width)
+      if (textWidth < metrics.width)
         textWidth = metrics.width;
 
     }
 
-    var tx = textWidth/ 2.0;
+    var tx = textWidth / 2.0;
     var ty = fontSize / 2.0;
 
     // then adjust for the justification
-    if ( vAlign == "bottom")
+    if (vAlign == "bottom")
       ty = fontSize;
     else if (vAlign == "top")
       ty = 0;
@@ -513,7 +498,7 @@ export default class ThreeContainer extends Container {
       tx = 0;
 
 
-  	this.roundRect(
+    this.roundRect(
       context,
       cx - tx,
       cy - fontSize * msgArr.length * 0.5,
@@ -528,13 +513,13 @@ export default class ThreeContainer extends Container {
       5
     );
 
-  	// text color
-  	context.fillStyle = textColor;
+    // text color
+    context.fillStyle = textColor;
     context.lineWidth = 3
 
     var offsetY = cy - fontSize * msgArr.length * 0.5 - 5 - borderWidth
 
-    for(var i in msgArr) {
+    for (var i in msgArr) {
       i = Number(i)
       offsetY += fontSize
 
@@ -546,24 +531,26 @@ export default class ThreeContainer extends Container {
       );
     }
 
-  	// canvas contents will be used for a texture
-  	var texture = new THREE.Texture(canvas)
-  	texture.needsUpdate = true;
+    // canvas contents will be used for a texture
+    var texture = new THREE.Texture(canvas)
+    texture.needsUpdate = true;
 
-  	var spriteMaterial = new THREE.SpriteMaterial({ map: texture } );
-  	var sprite = new THREE.Sprite( spriteMaterial );
-  	sprite.scale.set(600, 300, 1);
-  	// sprite.scale.set(canvas.width, canvas.height, 1.0);
+    var spriteMaterial = new THREE.SpriteMaterial({
+      map: texture
+    });
+    var sprite = new THREE.Sprite(spriteMaterial);
+    sprite.scale.set(600, 300, 1);
+    // sprite.scale.set(canvas.width, canvas.height, 1.0);
 
-    sprite.raycast = function(){}
+    sprite.raycast = function () { }
 
-  	return sprite;
+    return sprite;
   }
 
 
   destroy_scene3d() {
     this.stop();
-    if(this._renderer)
+    if (this._renderer)
       this._renderer.clear()
     this._renderer = undefined
     this._camera = undefined
@@ -573,37 +560,35 @@ export default class ThreeContainer extends Container {
     this._projector = undefined
     this._load_manager = undefined
 
-    if(this._scene3d) {
-      for(let i in this._scene3d.children) {
+    if (this._scene3d) {
+      for (let i in this._scene3d.children) {
         let child = this._scene3d.children[i]
-        if(child.dispose)
+        if (child.dispose)
           child.dispose();
-        if(child.geometry)
+        if (child.geometry)
           child.geometry.dispose();
-        if(child.material)
+        if (child.material)
           child.material.dispose();
-        if(child.texture)
+        if (child.texture)
           child.texture.dispose();
         this._scene3d.remove(child)
       }
     }
 
-    if(this._scene2d) {
-      for(let i in this._scene2d.children) {
+    if (this._scene2d) {
+      for (let i in this._scene2d.children) {
         let child = this._scene2d.children[i]
-        if(child.dispose)
+        if (child.dispose)
           child.dispose();
-        if(child.geometry)
+        if (child.geometry)
           child.geometry.dispose();
-        if(child.material)
+        if (child.material)
           child.material.dispose();
-        if(child.texture)
+        if (child.texture)
           child.texture.dispose();
         this._scene2d.remove(child)
       }
     }
-
-
 
     this._scene3d = undefined
     this._scene2d = undefined
@@ -611,7 +596,7 @@ export default class ThreeContainer extends Container {
 
   init_scene3d() {
 
-    if(this._scene3d)
+    if (this._scene3d)
       this.destroy_scene3d()
 
     registerLoaders()
@@ -626,11 +611,11 @@ export default class ThreeContainer extends Container {
       near = 0.1,
       far = 20000,
       fillStyle = '#424b57',
-      light = 0xffffff
+      light = 0xffffff,
+      antialias = true,
+      precision = 'highp'
     } = this.model
-    var {
-      components = []
-    } = this.hierarchy
+    var components = this.components || []
 
     // SCENE
     this._scene3d = new THREE.Scene()
@@ -640,37 +625,37 @@ export default class ThreeContainer extends Container {
     var aspect = width / height
 
     this._camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
-    this._2dCamera = new THREE.OrthographicCamera(-width/2, width/2, height/2, -height/2, 1, 1000)
+    this._2dCamera = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, 1, 1000)
 
     this._scene3d.add(this._camera)
     this._scene2d.add(this._2dCamera)
-    this._camera.position.set(height*0.8,Math.max(width, height) * 0.8,width * 0.8)
-    this._2dCamera.position.set(height*0.8,Math.max(width, height) * 0.8,width * 0.8)
+    this._camera.position.set(height * 0.8, Math.max(width, height) * 0.8, width * 0.8)
+    this._2dCamera.position.set(height * 0.8, Math.max(width, height) * 0.8, width * 0.8)
     this._camera.lookAt(this._scene3d.position)
     this._2dCamera.lookAt(this._scene2d.position)
-
+    this._camera.zoom = this.model.zoom * 0.01
 
     try {
       // RENDERER
       this._renderer = new THREE.WebGLRenderer({
-        // precision: 'mediump',
+        precision: precision,
         alpha: true,
-        antialias: true
+        antialias: antialias
       });
-    } catch(e) {
+    } catch (e) {
       this._noSupportWebgl = true
     }
 
-    if(this._noSupportWebgl)
+    if (this._noSupportWebgl)
       return
 
 
     this._renderer.autoClear = false
 
     this._renderer.setClearColor(0xffffff, 0) // transparent
-    // this._renderer.setClearColor(0x000000, 0) // transparent
     this._renderer.setSize(width, height)
-    this._renderer.shadowMap.enabled = true
+    // this._renderer.setSize(1600, 900)
+    // this._renderer.shadowMap.enabled = true
 
     // CONTROLS
     this._controls = new ThreeControls(this._camera, this)
@@ -678,7 +663,7 @@ export default class ThreeContainer extends Container {
     // LIGHT
     var _light = new THREE.PointLight(light, 1)
     this._camera.add(_light)
-    this._camera.castShadow = true
+    // this._camera.castShadow = true
 
     this._raycaster = new THREE.Raycaster()
     // this._mouse = { x: 0, y: 0, originX: 0, originY : 0 }
@@ -688,12 +673,15 @@ export default class ThreeContainer extends Container {
     this._tick = 0
     this._clock = new THREE.Clock(true)
 
-    this.createHeatmap(width, height)
+    // this.createHeatmap(width, height)
     this.createFloor(fillStyle, width, height)
-    this.createObjects(components, { width, height })
+    this.createObjects(components, {
+      width,
+      height
+    })
 
     this._load_manager = new THREE.LoadingManager();
-    this._load_manager.onProgress = function(item, loaded, total){
+    this._load_manager.onProgress = function (item, loaded, total) {
 
     }
 
@@ -701,12 +689,12 @@ export default class ThreeContainer extends Container {
   }
 
   threed_animate() {
-    this._animationFrame = requestAnimationFrame( this.threed_animate.bind(this) );
+    this._animationFrame = requestAnimationFrame(this.threed_animate.bind(this));
 
     var delta = this._clock.getDelta()
 
-    if(this.model.autoRotate)
-      this.update();
+    // if (this.model.autoRotate)
+    this.update();
 
   }
 
@@ -719,18 +707,18 @@ export default class ThreeContainer extends Container {
   }
 
   get scene3d() {
-    if(!this._scene3d)
+    if (!this._scene3d)
       this.init_scene3d()
     return this._scene3d
   }
 
   render_threed() {
-    if(this._renderer) {
+    if (this._renderer) {
       this._renderer.clear()
       this._renderer.render(this._scene3d, this._camera)
     }
 
-    if(this._renderer && this._scene2d){
+    if (this._renderer && this._scene2d) {
       this._renderer.render(this._scene2d, this._2dCamera)
     }
 
@@ -739,12 +727,12 @@ export default class ThreeContainer extends Container {
 
   /* Container Overides .. */
   _draw(ctx) {
-    if(this.app.isViewMode) {
-      if(!this.model.threed)
+    if (this.app.isViewMode) {
+      if (!this.model.threed)
         this.model.threed = true
     }
 
-    if(this.model.threed && !this._noSupportWebgl) {
+    if (this.model.threed && !this._noSupportWebgl) {
       return
     }
 
@@ -761,19 +749,19 @@ export default class ThreeContainer extends Container {
       threed
     } = this.model
 
-    if(threed) {
+    if (threed) {
 
-      if(!this._scene3d) {
+      if (!this._scene3d) {
         this.init_scene3d()
         this.render_threed()
       }
 
-      if(this._noSupportWebgl) {
+      if (this._noSupportWebgl) {
         this._showWebglNoSupportText(ctx);
         return
       }
 
-      if(this._dataChanged) {
+      if (this._dataChanged) {
         this._onDataChanged()
       }
 
@@ -815,15 +803,15 @@ export default class ThreeContainer extends Container {
     let bottom = top + h + borderWidth * 2 + r * 2 + padding * 2
 
     ctx.beginPath();
-    ctx.moveTo(left+r, top);
-    ctx.lineTo(right-r, top);
-    ctx.quadraticCurveTo(right, top, right, top+r);
-    ctx.lineTo(right, bottom-r);
-    ctx.quadraticCurveTo(right, bottom, right-r, bottom);
-    ctx.lineTo(left+r, bottom);
-    ctx.quadraticCurveTo(left, bottom, left, bottom-r);
-    ctx.lineTo(left, top+r);
-    ctx.quadraticCurveTo(left, top, left+r, top);
+    ctx.moveTo(left + r, top);
+    ctx.lineTo(right - r, top);
+    ctx.quadraticCurveTo(right, top, right, top + r);
+    ctx.lineTo(right, bottom - r);
+    ctx.quadraticCurveTo(right, bottom, right - r, bottom);
+    ctx.lineTo(left + r, bottom);
+    ctx.quadraticCurveTo(left, bottom, left, bottom - r);
+    ctx.lineTo(left, top + r);
+    ctx.quadraticCurveTo(left, top, left + r, top);
     ctx.closePath();
 
     ctx.lineWidth = borderWidth;
@@ -849,7 +837,7 @@ export default class ThreeContainer extends Container {
     var intersects = this.getObjectsByRaycast()
     var intersected
 
-    if(intersects.length > 0) {
+    if (intersects.length > 0) {
       intersected = intersects[0].object
     }
 
@@ -857,32 +845,30 @@ export default class ThreeContainer extends Container {
   }
 
   getObjectsByRaycast() {
-    var intersected = null
     // find intersections
 
     // create a Ray with origin at the mouse position
     //   and direction into the scene (camera direction)
 
-    // var vector = new THREE.Vector3( this._mouse.x, this._mouse.y, 1 );
     var vector = this._mouse
-    if(!this._camera)
+    if (!this._camera)
       return
 
     this._raycaster.setFromCamera(vector, this._camera)
 
     // create an array containing all objects in the scene with which the ray intersects
-    var intersects = this._raycaster.intersectObjects( this._scene3d.children, true );
+    var intersects = this._raycaster.intersectObjects(this._scene3d.children, true);
 
     return intersects
   }
 
   moveCameraTo(targetName) {
 
-    if(!targetName)
+    if (!targetName)
       return
 
     let object = this._scene3d.getObjectByName(targetName, true)
-    if(!object)
+    if (!object)
       return
 
 
@@ -894,9 +880,9 @@ export default class ThreeContainer extends Container {
 
     let objectPositionVector = object.getWorldPosition()
     objectPositionVector.y = 0
-    let distance = objectPositionVector.distanceTo(new THREE.Vector3(0,0,0))
+    let distance = objectPositionVector.distanceTo(new THREE.Vector3(0, 0, 0))
 
-    objectPositionVector.multiplyScalar(1000/(distance||1))
+    objectPositionVector.multiplyScalar(1000 / (distance || 1))
 
     var self = this
     var diffX = this._camera.position.x - objectPositionVector.x
@@ -905,7 +891,7 @@ export default class ThreeContainer extends Container {
 
 
     this.animate({
-      step: function(delta) {
+      step: function (delta) {
 
         let vector = new THREE.Vector3()
 
@@ -913,9 +899,9 @@ export default class ThreeContainer extends Container {
         vector.y = 0
         vector.z = objectPositionVector.z - diffZ * (delta - 1)
 
-        let distance = vector.distanceTo(new THREE.Vector3(0,0,0))
+        let distance = vector.distanceTo(new THREE.Vector3(0, 0, 0))
 
-        vector.multiplyScalar(1000/(distance||1))
+        vector.multiplyScalar(1000 / (distance || 1))
 
         self._camera.position.x = vector.x
         self._camera.position.y = 300 - diffY * (delta - 1)
@@ -938,21 +924,21 @@ export default class ThreeContainer extends Container {
 
   createTooltipForNavigator(messageObject) {
 
-    if(!messageObject)
+    if (!messageObject)
       return
 
     let isMarker = true;
-  	let fontFace = "Arial";
-  	let fontSize = 40;
-  	let textColor = 'rgba(255,255,255,1)';
+    let fontFace = "Arial";
+    let fontSize = 40;
+    let textColor = 'rgba(255,255,255,1)';
     let borderWidth = 2;
-  	let borderColor = 'rgba(0, 0, 0, 1.0)';
-	  let backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    let borderColor = 'rgba(0, 0, 0, 1.0)';
+    let backgroundColor = 'rgba(0, 0, 0, 0.7)';
     let radius = 30;
     let vAlign = 'middle';
     let hAlign = 'center';
 
-  	let canvas = document.createElement('canvas');
+    let canvas = document.createElement('canvas');
     let context = canvas.getContext('2d');
 
     // document.body.appendChild(canvas)
@@ -971,32 +957,32 @@ export default class ThreeContainer extends Container {
 
     // for location label
     context.font = Math.floor(fontSize) + "px " + fontFace;
-    var metrics = context.measureText( "Location" );
-    if(textWidth < metrics.width)
+    var metrics = context.measureText("Location");
+    if (textWidth < metrics.width)
       textWidth = metrics.width;
 
     // for location value
     context.font = "bold " + fontSize * 2 + "px " + fontFace;
-    metrics = context.measureText( messageObject.location );
-    if(textWidth < metrics.width)
+    metrics = context.measureText(messageObject.location);
+    if (textWidth < metrics.width)
       textWidth = metrics.width;
 
     // for values (material, qty)
     context.font = fontSize + "px " + fontFace;
-    metrics = context.measureText( "- Material : " + messageObject.material );
-    if(textWidth < metrics.width)
+    metrics = context.measureText("- Material : " + messageObject.material);
+    if (textWidth < metrics.width)
       textWidth = metrics.width;
 
-    metrics = context.measureText( "- QTY : " + messageObject.qty );
-    if(textWidth < metrics.width)
+    metrics = context.measureText("- QTY : " + messageObject.qty);
+    if (textWidth < metrics.width)
       textWidth = metrics.width;
 
 
-    var tx = textWidth/ 2.0;
+    var tx = textWidth / 2.0;
     var ty = fontSize / 2.0;
 
     // then adjust for the justification
-    if ( vAlign == "bottom")
+    if (vAlign == "bottom")
       ty = fontSize;
     else if (vAlign == "top")
       ty = 0;
@@ -1008,7 +994,7 @@ export default class ThreeContainer extends Container {
 
     var offsetY = cy
 
-  	this.roundRect(
+    this.roundRect(
       context,
       cx - tx,
       cy - fontSize * 6 * 0.5,
@@ -1023,12 +1009,12 @@ export default class ThreeContainer extends Container {
       0
     );
 
-  	// text color
-  	context.fillStyle = textColor;
+    // text color
+    context.fillStyle = textColor;
     context.lineWidth = 3
 
     // for location label
-    offsetY += - fontSize * 6 * 0.5 + Math.floor(fontSize)
+    offsetY += -fontSize * 6 * 0.5 + Math.floor(fontSize)
     context.font = Math.floor(fontSize) + "px " + fontFace;
     context.fillStyle = 'rgba(134,199,252,1)'
     context.fillText(
@@ -1065,33 +1051,35 @@ export default class ThreeContainer extends Container {
     );
 
 
-  	// canvas contents will be used for a texture
-  	var texture = new THREE.Texture(canvas)
-  	texture.needsUpdate = true;
+    // canvas contents will be used for a texture
+    var texture = new THREE.Texture(canvas)
+    texture.needsUpdate = true;
 
-  	var spriteMaterial = new THREE.SpriteMaterial({ map: texture } );
-  	var sprite = new THREE.Sprite( spriteMaterial );
-  	sprite.scale.set(window.innerWidth /4 * 3, window.innerWidth / 8 * 3, 1);
-  	// sprite.scale.set(canvas.width, canvas.height,1.0);
+    var spriteMaterial = new THREE.SpriteMaterial({
+      map: texture
+    });
+    var sprite = new THREE.Sprite(spriteMaterial);
+    sprite.scale.set(window.innerWidth / 4 * 3, window.innerWidth / 8 * 3, 1);
+    // sprite.scale.set(canvas.width, canvas.height,1.0);
 
-    sprite.raycast = function(){}
+    sprite.raycast = function () { }
 
-  	return sprite;
+    return sprite;
 
   }
 
   showTooltip(targetName) {
-    if(!targetName)
+    if (!targetName)
       return
 
     var tooltip = this._scene2d.getObjectByName('navigator-tooltip')
-    if(tooltip)
+    if (tooltip)
       this._scene2d.remove(tooltip)
 
     var object = this._scene3d.getObjectByName(targetName, true)
     var nav = this._scene3d.getObjectByName(targetName + '-marker', true)
 
-    if(object && nav) {
+    if (object && nav) {
       let vector = nav.getWorldPosition().clone()
       vector.project(this._camera)
       vector.z = 0.5
@@ -1138,7 +1126,7 @@ export default class ThreeContainer extends Container {
       height
     } = this.model
 
-    context.font = width/20 + 'px Arial'
+    context.font = width / 20 + 'px Arial'
     context.textAlign = 'center'
     context.fillText(WEBGL_NO_SUPPORT_TEXT, width / 2 - width / 40, height / 2)
 
@@ -1147,45 +1135,49 @@ export default class ThreeContainer extends Container {
 
   _onDataChanged() {
 
-    if(this._pickingLocations) {
+    /* for picking navigator
+
+    if (this._pickingLocations) {
       // set picking locations
-      for(let i in this._pickingLocations) {
+      for (let i in this._pickingLocations) {
         let loc = this._pickingLocations[i]
 
         let obj = this._scene3d.getObjectByName(loc, true)
-        if(obj) {
+        if (obj) {
           obj.userData = {}
         }
 
         let empObj = this._scene3d.getObjectByName(loc + '-emp', true)
-        if(empObj) {
+        if (empObj) {
           this._scene3d.remove(empObj)
         }
         let navObj = this._scene3d.getObjectByName(loc + '-marker', true)
-        if(navObj) {
+        if (navObj) {
           navObj.parent.remove(navObj)
         }
 
         let navTooltipObj = this._scene2d.getObjectByName('navigator-tooltip', true)
-        if(navTooltipObj) {
+        if (navTooltipObj) {
           this._scene2d.remove(navTooltipObj)
         }
       }
     }
 
-    if(this._selectedPickingLocation) {
+    if (this._selectedPickingLocation) {
       // set selected picking location
       let obj = this._scene3d.getObjectByName(this._selectedPickingLocation, true)
-      if(obj &&  obj.userData) {
-         delete obj.userData.selected
+      if (obj && obj.userData) {
+        delete obj.userData.selected
       }
     }
 
     this._pickingLocations = []
     this._selectedPickingLocation = null
 
-    if(this._data) {
-      if(this._data instanceof Array) {
+    */
+
+    if (this._data) {
+      if (this._data instanceof Array) {
         /**
          *  Array type data
          *  (e.g. data: [{
@@ -1196,20 +1188,23 @@ export default class ThreeContainer extends Container {
          *  ])
          */
         this._data.forEach(d => {
-          let loc = d.loc || d.LOC || d.location || d.LOCATION;
+          let data = d
 
-          let object = this._scene3d.getObjectByName(loc, true)
-          if(object) {
-            object.userData = d;
-            object.onUserDataChanged()
+          setTimeout(function () {
+            let loc = data.loc || data.LOC || data.location || data.LOCATION;
+            let object = this.getStock(loc)
+            if (object) {
+              object.userData = data;
+              object.onUserDataChanged()
 
-            if(d.navigationData) {
-              this._pickingLocations.push(loc)
+              // if (d.navigationData) {
+              //   this._pickingLocations.push(loc)
+              // }
+              // if (d.selected) {
+              //   this._selectedPickingLocation = loc
+              // }
             }
-            if(d.selected) {
-              this._selectedPickingLocation = loc
-            }
-          }
+          }.bind(this))
         })
       } else {
         /**
@@ -1220,21 +1215,24 @@ export default class ThreeContainer extends Container {
          *  })
          */
         for (var loc in this._data) {
-          if (this._data.hasOwnProperty(loc)) {
-            let d = this._data[loc]
+          let location = loc
+          if (this._data.hasOwnProperty(location)) {
 
-            let object = this._scene3d.getObjectByName(loc, true)
-            if(object) {
-              object.userData = d;
-              object.onUserDataChanged()
+            setTimeout(function () {
+              let d = this._data[location]
+              let object = this.getStock(location)
+              if (object) {
+                object.userData = d;
+                object.onUserDataChanged()
 
-              if(d.navigationData) {
-                this._pickingLocations.push(loc)
+                // if (d.navigationData) {
+                //   this._pickingLocations.push(location)
+                // }
+                // if (d.selected) {
+                //   this._selectedPickingLocation = location
+                // }
               }
-              if(d.selected) {
-                this._selectedPickingLocation = loc
-              }
-            }
+            }.bind(this))
 
           }
         }
@@ -1244,7 +1242,7 @@ export default class ThreeContainer extends Container {
     this._dataChanged = false
 
     // draw navigatePath
-    if(this._pickingLocations && this._pickingLocations.length > 0)
+    if (this._pickingLocations && this._pickingLocations.length > 0)
       this.navigatePath(this._pickingLocations)
 
     this.render_threed();
@@ -1254,19 +1252,19 @@ export default class ThreeContainer extends Container {
 
   onchange(after, before) {
 
-    if(after.hasOwnProperty('width')
-      || after.hasOwnProperty('height')
-      || after.hasOwnProperty('threed'))
+    if (after.hasOwnProperty('width') ||
+      after.hasOwnProperty('height') ||
+      after.hasOwnProperty('threed'))
       this.destroy_scene3d()
 
-    if(after.hasOwnProperty('autoRotate')) {
+    if (after.hasOwnProperty('autoRotate')) {
       this._controls.autoRotate = after.autoRotate
     }
 
-    if(after.hasOwnProperty('fov')
-      || after.hasOwnProperty('near')
-      || after.hasOwnProperty('far')
-      || after.hasOwnProperty('zoom')) {
+    if (after.hasOwnProperty('fov') ||
+      after.hasOwnProperty('near') ||
+      after.hasOwnProperty('far') ||
+      after.hasOwnProperty('zoom')) {
 
       this._camera.near = this.model.near
       this._camera.far = this.model.far
@@ -1279,8 +1277,8 @@ export default class ThreeContainer extends Container {
       this._controls.update()
     }
 
-    if(after.hasOwnProperty("data")){
-      if(this._data !== after.data) {
+    if (after.hasOwnProperty("data")) {
+      if (this._data !== after.data) {
         this._data = after.data
         this._dataChanged = true
       }
@@ -1294,27 +1292,27 @@ export default class ThreeContainer extends Container {
   }
 
   onmousedown(e) {
-    if(this._controls) {
+    if (this._controls) {
       this._controls.onMouseDown(e)
     }
   }
 
   onmousemove(e) {
-    if(this._controls) {
+    if (this._controls) {
       var pointer = this.transcoordC2S(e.offsetX, e.offsetY)
 
       // this._mouse.originX = this.getContext().canvas.offsetLeft +e.offsetX;
       // this._mouse.originY = this.getContext().canvas.offsetTop + e.offsetY;
 
-      this._mouse.x = ( (pointer.x - this.model.left ) / (this.model.width) ) * 2 - 1;
-      this._mouse.y = - ( (pointer.y - this.model.top ) / this.model.height ) * 2 + 1;
+      this._mouse.x = ((pointer.x - this.model.left) / (this.model.width)) * 2 - 1;
+      this._mouse.y = -((pointer.y - this.model.top) / this.model.height) * 2 + 1;
 
       var object = this.getObjectByRaycast()
 
-      if(object && object.onmousemove)
+      if (object && object.onmousemove)
         object.onmousemove(e, this)
       else {
-        if(!this._scene2d)
+        if (!this._scene2d)
           return
         this._scene2d.remove(this._scene2d.getObjectByName('tooltip'))
         this.render_threed()
@@ -1327,31 +1325,31 @@ export default class ThreeContainer extends Container {
   }
 
   onmouseleave(e) {
-    if(!this._scene2d)
+    if (!this._scene2d)
       return
 
     var tooltip = this._scene2d.getObjectByName('tooltip')
-    if(tooltip) {
+    if (tooltip) {
       this._scene2d.remove(tooltip)
     }
   }
 
   onwheel(e) {
-    if(this._controls) {
+    if (this._controls) {
       this.handleMouseWheel(e)
       e.stopPropagation()
     }
   }
 
   ondragstart(e) {
-    if(this._controls) {
+    if (this._controls) {
       var pointer = this.transcoordC2S(e.offsetX, e.offsetY)
 
       // this._mouse.originX = this.getContext().canvas.offsetLeft +e.offsetX;
       // this._mouse.originY = this.getContext().canvas.offsetTop + e.offsetY;
 
-      this._mouse.x = ( (pointer.x - this.model.left ) / (this.model.width) ) * 2 - 1;
-      this._mouse.y = - ( (pointer.y - this.model.top ) / this.model.height ) * 2 + 1;
+      this._mouse.x = ((pointer.x - this.model.left) / (this.model.width)) * 2 - 1;
+      this._mouse.y = -((pointer.y - this.model.top) / this.model.height) * 2 + 1;
 
       this._controls.onDragStart(e)
       e.stopPropagation()
@@ -1359,55 +1357,55 @@ export default class ThreeContainer extends Container {
   }
 
   ondragmove(e) {
-    if(this._controls) {
+    if (this._controls) {
       this._controls.onDragMove(e)
       e.stopPropagation()
     }
   }
 
   ondragend(e) {
-    if(this._controls) {
+    if (this._controls) {
       this._controls.onDragEnd(e)
       e.stopPropagation()
     }
   }
 
   ontouchstart(e) {
-    if(this._controls) {
+    if (this._controls) {
       this._controls.onTouchStart(e)
       e.stopPropagation()
     }
   }
 
   ontouchmove(e) {
-    if(this._controls) {
+    if (this._controls) {
       this._controls.onTouchMove(e)
       e.stopPropagation()
     }
   }
 
   ontouchend(e) {
-    if(this._controls) {
+    if (this._controls) {
       this._controls.onTouchEnd(e)
       e.stopPropagation()
     }
   }
 
   onkeydown(e) {
-    if(this._controls) {
+    if (this._controls) {
       this._controls.onKeyDown(e)
       e.stopPropagation()
     }
   }
 
-  handleMouseWheel( event ) {
+  handleMouseWheel(event) {
 
     var delta = 0;
     var zoom = this.model.zoom
 
-    delta = - event.deltaY
+    delta = -event.deltaY
     zoom += delta * 0.01
-    if(zoom < 0)
+    if (zoom < 0)
       zoom = 0
 
     this.set('zoom', zoom)
@@ -1417,3 +1415,4 @@ export default class ThreeContainer extends Container {
 }
 
 Component.register('three-container', ThreeContainer)
+

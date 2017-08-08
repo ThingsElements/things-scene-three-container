@@ -17,8 +17,8 @@ export default class Door extends THREE.Mesh {
 
   createObject(model, canvasSize) {
 
-    let cx = (model.left + (model.width/2)) - canvasSize.width/2
-    let cy = (model.top + (model.height/2)) - canvasSize.height/2
+    let cx = (model.left + (model.width / 2)) - canvasSize.width / 2
+    let cy = (model.top + (model.height / 2)) - canvasSize.height / 2
     let cz = 0.5 * model.depth
 
     let rotation = model.rotation
@@ -26,7 +26,7 @@ export default class Door extends THREE.Mesh {
 
     this.createDoor(model.width, model.height, model.depth)
 
-    this.position.set(cx,cz,cy)
+    this.position.set(cx, cz, cy)
     this.rotation.y = rotation || 0
 
   }
@@ -38,9 +38,9 @@ export default class Door extends THREE.Mesh {
     } = this.model
 
     this.geometry = new THREE.BoxGeometry(w, d, h);
-    this.material = new THREE.MeshLambertMaterial( { color : fillStyle, side: THREE.FrontSide } );
+    this.material = new THREE.MeshLambertMaterial({ color: fillStyle, side: THREE.FrontSide });
 
-    this.castShadow = true
+    // this.castShadow = true
 
   }
 

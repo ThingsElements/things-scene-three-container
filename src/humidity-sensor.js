@@ -7,7 +7,7 @@ const NATURE = {
   mutable: false,
   resizable: true,
   rotatable: true,
-  properties : [{
+  properties: [{
     type: 'number',
     label: 'z-pos',
     name: 'zPos',
@@ -30,7 +30,7 @@ export default class HumiditySensor extends THREE.Object3D {
     this._container = container
 
     this.userData.temperature = model.humidity ? model.humidity[0] : 0
-    this.userData.humidity = model.humidity? model.humidity[1] : 0
+    this.userData.humidity = model.humidity ? model.humidity[1] : 0
 
     // this.raycast = THREE.Mesh.prototype.raycast
 
@@ -40,21 +40,21 @@ export default class HumiditySensor extends THREE.Object3D {
 
   createObject(model, canvasSize) {
 
-    let cx = (model.cx) - canvasSize.width/2
-    let cy = (model.cy) - canvasSize.height/2
-    let cz = (model.zPos || 0) + (model.depth/2)
+    let cx = (model.cx) - canvasSize.width / 2
+    let cy = (model.cy) - canvasSize.height / 2
+    let cz = (model.zPos || 0) + (model.depth / 2)
 
     let rotation = model.rotation
 
     this.type = 'humidity-sensor'
 
-    if(model.location)
+    if (model.location)
       this.name = model.location
 
 
 
-    for(var i=0; i<3; i++ ){
-      let mesh = this.createSensor(model.rx * (1 + 0.5*i), model.ry * (1 + 0.5*i), model.depth * (1 + 0.5*i), i)
+    for (var i = 0; i < 3; i++) {
+      let mesh = this.createSensor(model.rx * (1 + 0.5 * i), model.ry * (1 + 0.5 * i), model.depth * (1 + 0.5 * i), i)
       mesh.material.opacity = 0.5 - (i * 0.15)
     }
 
@@ -100,15 +100,15 @@ export default class HumiditySensor extends THREE.Object3D {
     let geometry = new THREE.SphereGeometry(w, 32, 32);
     // let geometry = new THREE.SphereGeometry(w, d, h);
     var material
-    if(isFirst) {
+    if (isFirst) {
       // var texture = new THREE.TextureLoader().load('./images/drop-34055_1280.png')
       // texture.repeat.set(1,1)
       // // texture.premultiplyAlpha = true
       //  material = new THREE.MeshBasicMaterial( { color : '#cc3300', side: THREE.FrontSide, wireframe: true, wireframeLinewidth : 1} );
-      material = new THREE.MeshLambertMaterial( { color : '#cc3300', side: THREE.FrontSide} );
+      material = new THREE.MeshLambertMaterial({ color: '#cc3300', side: THREE.FrontSide });
       // material = new THREE.MeshLambertMaterial( { color : '#74e98a', side: THREE.FrontSide} );
     } else {
-      material = new THREE.MeshBasicMaterial( { color : '#cc3300', side: THREE.FrontSide, wireframe: true, wireframeLinewidth : 1} );
+      material = new THREE.MeshBasicMaterial({ color: '#cc3300', side: THREE.FrontSide, wireframe: true, wireframeLinewidth: 1 });
       // material = new THREE.MeshBasicMaterial( { color : '#74e98a', side: THREE.FrontSide, wireframe: true, wireframeLinewidth : 1} );
     }
 
@@ -118,10 +118,10 @@ export default class HumiditySensor extends THREE.Object3D {
     var mesh = new THREE.Mesh(geometry, material)
     mesh.material.transparent = true;
 
-    if(isFirst)
+    if (isFirst)
       mesh.onmousemove = this.onmousemove
     else
-      mesh.raycast = function(){}
+      mesh.raycast = function () { }
 
     this.add(mesh);
 
@@ -131,7 +131,7 @@ export default class HumiditySensor extends THREE.Object3D {
 
   onUserDataChanged() {
 
-    var {cx, cy} = this._model
+    var { cx, cy } = this._model
     cx = Math.floor(cx)
     cy = Math.floor(cy)
 
@@ -139,7 +139,7 @@ export default class HumiditySensor extends THREE.Object3D {
 
     for (let sphere of this.children) {
       var colorIndex = 0;
-      if(temperature < 0) {
+      if (temperature < 0) {
         colorIndex = 0;
       } else if (temperature < 10) {
         colorIndex = 1;
@@ -175,23 +175,23 @@ export default class HumiditySensor extends THREE.Object3D {
 
     var tooltip = threeContainer.tooltip || threeContainer._scene2d.getObjectByName("tooltip")
 
-    if(tooltip){
+    if (tooltip) {
       threeContainer._scene2d.remove(tooltip)
       threeContainer.tooltip = null
       threeContainer.render_threed()
     }
 
-    if(!this.parent.visible)
+    if (!this.parent.visible)
       return;
 
-    if(!this.parent.userData)
+    if (!this.parent.userData)
       this.parent.userData = {};
 
 
     var tooltipText = '';
 
     for (let key in this.parent.userData) {
-      if(this.parent.userData[key])
+      if (this.parent.userData[key])
         tooltipText += key + ": " + this.parent.userData[key] + "\n"
     }
 
@@ -199,7 +199,7 @@ export default class HumiditySensor extends THREE.Object3D {
 
     // currentLabel.lookAt( camera.position );
 
-    if(tooltipText.length > 0) {
+    if (tooltipText.length > 0) {
       tooltip = threeContainer.tooltip = threeContainer.makeTextSprite(tooltipText)
 
       var vector = new THREE.Vector3()
@@ -211,8 +211,8 @@ export default class HumiditySensor extends THREE.Object3D {
       vector.set(threeContainer._mouse.x, threeContainer._mouse.y, 0.5)
       vector2.normalize()
 
-      vector2.x = vector2.x /2 * widthMultiplier
-      vector2.y = -vector2.y /2 * heightMultiplier
+      vector2.x = vector2.x / 2 * widthMultiplier
+      vector2.y = -vector2.y / 2 * heightMultiplier
       vector2.z = 0;
 
       vector.add(vector2)

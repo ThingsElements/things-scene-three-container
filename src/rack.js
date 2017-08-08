@@ -5,22 +5,43 @@ import Stock from './stock'
 
 export default class Rack extends THREE.Object3D {
 
-  constructor(model, canvasSize) {
+  constructor(model, canvasSize, threeContainer, sceneComponent) {
 
     super();
 
     this._model = model;
+    this._threeContainer = threeContainer;
 
     this.createObject(model, canvasSize);
-    this.castShadow = true
+    // this.castShadow = true
+  }
+
+  static get boardMaterial() {
+    if (!Rack._boardMaterial)
+      Rack._boardMaterial = new THREE.MeshBasicMaterial({
+        color: '#dedede',
+        side: THREE.DoubleSide
+      })
+
+    return Rack._boardMaterial
+  }
+
+  static get frameMaterial() {
+    if (!Rack._frameMaterial)
+      Rack._frameMaterial = new THREE.MeshLambertMaterial({
+        color: 0xcccccc
+      })
+    // Rack._frameMaterial = new THREE.LineBasicMaterial({ color: 0xcccccc, linewidth: 3 })
+
+    return Rack._frameMaterial
   }
 
   createObject(model, canvasSize) {
 
     let scale = 0.7;
 
-    let cx = (model.left + (model.width/2)) - canvasSize.width/2
-    let cy = (model.top + (model.height/2)) - canvasSize.height/2
+    let cx = (model.left + (model.width / 2)) - canvasSize.width / 2
+    let cy = (model.top + (model.height / 2)) - canvasSize.height / 2
     let cz = 0.5 * model.depth * model.shelves
 
     let rotation = model.rotation
@@ -33,10 +54,10 @@ export default class Rack extends THREE.Object3D {
 
     var shelfPattern = model.shelfPattern;
 
-    for(var i = 0; i < model.shelves; i++) {
+    for (var i = 0; i < model.shelves; i++) {
 
-      let bottom = - model.depth * model.shelves * 0.5
-      if( i > 0) {
+      let bottom = -model.depth * model.shelves * 0.5
+      if (i > 0) {
         let board = this.createRackBoard(model.width, model.height)
         board.position.set(0, bottom + (model.depth * i), 0)
         board.rotation.x = Math.PI / 2;
@@ -44,12 +65,13 @@ export default class Rack extends THREE.Object3D {
         board.material.transparent = true
 
         this.add(board)
+        // frame.geometry.merge(board.geometry, board.matrix)
       }
 
       let stock = new Stock({
-        width : model.width * scale,
-        height : model.height * scale,
-        depth : model.depth * scale,
+        width: model.width * scale,
+        height: model.height * scale,
+        depth: model.depth * scale,
         fillStyle: model.fillStyle
       })
 
@@ -59,7 +81,9 @@ export default class Rack extends THREE.Object3D {
       stock.name = this.makeLocationString(this.makeShelfString(shelfPattern, i + 1, model.shelves))
 
       this.add(stock)
+      this._threeContainer.putStock(stock.name, stock);
     }
+
 
     this.position.set(cx, cz, cy)
     this.rotation.y = rotation || 0
@@ -68,34 +92,54 @@ export default class Rack extends THREE.Object3D {
 
   createRackFrame(w, h, d) {
 
-    this.geometry = this.cube({
-      width: w,
-      height : d,
-      depth : h
-    })
+    // this.geometry = this.cube({
+    //   width: w,
+    //   height : d,
+    //   depth : h
+    // })
 
-    return new THREE.LineSegments(
-      this.geometry,
-      new THREE.LineDashedMaterial( { color: 0xcccccc, dashSize: 3, gapSize: 1, linewidth: 1 } )
-    );
+    var frames = new THREE.Group()
+    for (var i = 0; i < 4; i++) {
+      var geometry = new THREE.BoxGeometry(5, d, 5);
+      var material = Rack.frameMaterial;
+      var frame = new THREE.Mesh(geometry, material);
+      switch (i) {
+        case 0:
+          frame.position.set(w / 2, 0, h / 2)
+          break;
+        case 1:
+          frame.position.set(w / 2, 0, -h / 2)
+          break;
+        case 2:
+          frame.position.set(-w / 2, 0, h / 2)
+          break;
+        case 3:
+          frame.position.set(-w / 2, 0, -h / 2)
+          break;
+      }
+
+      frames.add(frame)
+    }
+
+    return frames
+
+    // return new THREE.LineSegments(
+    //   this.geometry,
+    //   Rack.frameMaterial
+    // );
 
   }
 
   createRackBoard(w, h) {
 
-    // var boardTexture = new THREE.TextureLoader().load('textures/textured-white-plastic-close-up.jpg');
-    // boardTexture.wrapS = boardTexture.wrapT = THREE.RepeatWrapping;
-    // boardTexture.repeat.set( 100, 100 );
-
-    // var boardMaterial = new THREE.MeshBasicMaterial( { map: boardTexture, side: THREE.DoubleSide } );
-    var boardMaterial = new THREE.MeshBasicMaterial( { color: '#dedede', side: THREE.DoubleSide } );
+    var boardMaterial = Rack.boardMaterial;
     var boardGeometry = new THREE.PlaneGeometry(w, h, 1, 1);
     var board = new THREE.Mesh(boardGeometry, boardMaterial);
 
     return board
   }
 
-  cube( size ) {
+  cube(size) {
 
     var w = size.width * 0.5;
     var h = size.height * 0.5;
@@ -103,30 +147,30 @@ export default class Rack extends THREE.Object3D {
 
     var geometry = new THREE.Geometry();
     geometry.vertices.push(
-      new THREE.Vector3( -w, -h, -d ),
-      new THREE.Vector3( -w, h, -d ),
-      new THREE.Vector3( -w, h, -d ),
-      new THREE.Vector3( w, h, -d ),
-      new THREE.Vector3( w, h, -d ),
-      new THREE.Vector3( w, -h, -d ),
-      new THREE.Vector3( w, -h, -d ),
-      new THREE.Vector3( -w, -h, -d ),
-      new THREE.Vector3( -w, -h, d ),
-      new THREE.Vector3( -w, h, d ),
-      new THREE.Vector3( -w, h, d ),
-      new THREE.Vector3( w, h, d ),
-      new THREE.Vector3( w, h, d ),
-      new THREE.Vector3( w, -h, d ),
-      new THREE.Vector3( w, -h, d ),
-      new THREE.Vector3( -w, -h, d ),
-      new THREE.Vector3( -w, -h, -d ),
-      new THREE.Vector3( -w, -h, d ),
-      new THREE.Vector3( -w, h, -d ),
-      new THREE.Vector3( -w, h, d ),
-      new THREE.Vector3( w, h, -d ),
-      new THREE.Vector3( w, h, d ),
-      new THREE.Vector3( w, -h, -d ),
-      new THREE.Vector3( w, -h, d )
+      new THREE.Vector3(-w, -h, -d),
+      new THREE.Vector3(-w, h, -d),
+      new THREE.Vector3(-w, h, -d),
+      new THREE.Vector3(w, h, -d),
+      new THREE.Vector3(w, h, -d),
+      new THREE.Vector3(w, -h, -d),
+      new THREE.Vector3(w, -h, -d),
+      new THREE.Vector3(-w, -h, -d),
+      new THREE.Vector3(-w, -h, d),
+      new THREE.Vector3(-w, h, d),
+      new THREE.Vector3(-w, h, d),
+      new THREE.Vector3(w, h, d),
+      new THREE.Vector3(w, h, d),
+      new THREE.Vector3(w, -h, d),
+      new THREE.Vector3(w, -h, d),
+      new THREE.Vector3(-w, -h, d),
+      new THREE.Vector3(-w, -h, -d),
+      new THREE.Vector3(-w, -h, d),
+      new THREE.Vector3(-w, h, -d),
+      new THREE.Vector3(-w, h, d),
+      new THREE.Vector3(w, h, -d),
+      new THREE.Vector3(w, h, d),
+      new THREE.Vector3(w, -h, -d),
+      new THREE.Vector3(w, -h, d)
     );
 
     return geometry;
@@ -136,9 +180,9 @@ export default class Rack extends THREE.Object3D {
   makeLocationString(shelfString) {
     var {
       locPattern = "{z}{s}-{u}-{sh}",
-      zone,
-      section,
-      unit
+      zone = "",
+      section = "",
+      unit = ""
     } = this._model
 
     var locationString = locPattern
@@ -158,7 +202,7 @@ export default class Rack extends THREE.Object3D {
      *  pattern -: 역순
      */
 
-    if(!pattern || !shelf || !length)
+    if (!pattern || !shelf || !length)
       return
 
     var isReverse = /^\-/.test(pattern);
@@ -167,11 +211,11 @@ export default class Rack extends THREE.Object3D {
     var fixedLength = (pattern.match(/0/g) || []).length || 0
     var shelfString = String(isReverse ? length - shelf + 1 : shelf)
 
-    if(shelfString.length > fixedLength && fixedLength > 0) {
+    if (shelfString.length > fixedLength && fixedLength > 0) {
       shelfString = shelfString.split('').shift(shelfString.length - fixedLength).join('')
     } else {
       var prefix = '';
-      for(var i = 0; i < fixedLength - shelfString.length; i++) {
+      for (var i = 0; i < fixedLength - shelfString.length; i++) {
         prefix += '0';
       }
       shelfString = prefix + shelfString;
@@ -184,7 +228,14 @@ export default class Rack extends THREE.Object3D {
 
   }
 
+  onchange(after, before) {
+    if (after.hasOwnProperty("data")) {
+      this.data = after.data;
+    }
+  }
+
 }
 
 
 scene.Component3d.register('rack', Rack)
+

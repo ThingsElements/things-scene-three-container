@@ -8,7 +8,7 @@ var registry = {}
 export default class Component3d {
 
   static register(type, clazz) {
-    if(!clazz)
+    if (!clazz)
       return registry[type]
     registry[type] = clazz
   }

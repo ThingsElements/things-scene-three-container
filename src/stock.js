@@ -22,6 +22,77 @@ export default class Stock extends THREE.Mesh {
 
   }
 
+  static get blackMaterial() {
+    if (!Stock._material_black)
+      Stock._material_black = new THREE.MeshLambertMaterial({
+        color: STATUS_COLORS.A,
+        side: THREE.FrontSide
+      })
+
+    return Stock._material_black
+  }
+  static get brownMaterial() {
+    if (!Stock._material_brown)
+      Stock._material_brown = new THREE.MeshLambertMaterial({
+        color: STATUS_COLORS.B,
+        side: THREE.FrontSide
+      })
+
+    return Stock._material_brown
+  }
+  static get redMaterial() {
+    if (!Stock._material_red)
+      Stock._material_red = new THREE.MeshLambertMaterial({
+        color: STATUS_COLORS.C,
+        side: THREE.FrontSide
+      })
+
+    return Stock._material_red
+  }
+  static get darkMaterial() {
+    if (!Stock._material_dark)
+      Stock._material_dark = new THREE.MeshLambertMaterial({
+        color: STATUS_COLORS.D,
+        side: THREE.FrontSide
+      })
+
+    return Stock._material_dark
+  }
+  static get greenMaterial() {
+    if (!Stock._material_green)
+      Stock._material_green = new THREE.MeshLambertMaterial({
+        color: STATUS_COLORS.E,
+        side: THREE.FrontSide
+      })
+
+    return Stock._material_green
+  }
+
+  static getMaterial(status) {
+    var material
+    switch (status) {
+      default:
+      case 'A':
+        material = Stock.blackMaterial
+        break;
+      case 'B':
+        material = Stock.brownMaterial
+        break;
+      case 'C':
+        material = Stock.redMaterial
+        break;
+      case 'D':
+        material = Stock.darkMaterial
+        break;
+      case 'E':
+        material = Stock.greenMaterial
+        break;
+
+    }
+
+    return material
+  }
+
   createObject(model) {
 
     this.createStock(model.width, model.height, model.depth)
@@ -35,12 +106,12 @@ export default class Stock extends THREE.Mesh {
     } = this.model
 
     this.geometry = new THREE.BoxGeometry(w, d, h);
-    this.material = new THREE.MeshLambertMaterial( { color : fillStyle, side: THREE.FrontSide } );
+    this.material = Stock.getMaterial()
     this.type = 'stock'
 
     this.visible = false
 
-    this.castShadow = true
+    // this.castShadow = true
 
   }
 
@@ -56,10 +127,18 @@ export default class Stock extends THREE.Mesh {
     //   this.visible = false
     // }
 
-    var color = STATUS_COLORS[this.userData.GUBUN || this.userData.gubun]
-    this.material.color.set(color)
+    // var color = STATUS_COLORS[this.userData.GUBUN || this.userData.gubun]
+    this.material = Stock.getMaterial(this.userData.GUBUN || this.userData.gubun)
 
-    if(!color) {
+    // this.material.color.set(color)
+
+    // if(!color) {
+    //   this.visible = false
+    // } else {
+    //   this.visible = true
+    // }
+
+    if ((this.userData.GUBUN || this.userData.gubun) == 'A') {
       this.visible = false
     } else {
       this.visible = true
@@ -70,33 +149,33 @@ export default class Stock extends THREE.Mesh {
 
     var tooltip = threeContainer.tooltip || threeContainer._scene2d.getObjectByName("tooltip")
 
-    if(tooltip) {
+    if (tooltip) {
       threeContainer._scene2d.remove(tooltip)
       threeContainer.tooltip = null
       threeContainer.render_threed()
     }
 
-    if(!this.visible)
+    if (!this.visible)
       return;
 
-    if(!this.userData)
+    if (!this.userData)
       this.userData = {};
 
     var tooltipText = '';
 
     for (let key in this.userData) {
       // exclude private data
-      if(/^__/.test(key))
+      if (/^__/.test(key))
         continue;
 
-      if(this.userData[key] && typeof this.userData[key] != 'object') {
+      if (this.userData[key] && typeof this.userData[key] != 'object') {
         tooltipText += key + ": " + this.userData[key] + "\n"
       }
     }
 
     // tooltipText = 'loc : ' + loc
 
-    if(tooltipText.length > 0) {
+    if (tooltipText.length > 0) {
       tooltip = threeContainer.tooltip = threeContainer.makeTextSprite(tooltipText)
 
       var vector = new THREE.Vector3()
@@ -126,3 +205,4 @@ export default class Stock extends THREE.Mesh {
 
   }
 }
+

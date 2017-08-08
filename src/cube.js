@@ -7,7 +7,7 @@ const NATURE = {
   mutable: false,
   resizable: true,
   rotatable: true,
-  properties : [{
+  properties: [{
     type: 'number',
     label: 'depth',
     name: 'depth',
@@ -15,7 +15,7 @@ const NATURE = {
   }]
 }
 
-export default class Cube extends THREE.Mesh{
+export default class Cube extends THREE.Mesh {
 
   constructor(model, canvasSize) {
 
@@ -29,8 +29,8 @@ export default class Cube extends THREE.Mesh{
 
   createObject(model, canvasSize) {
 
-    let cx = (model.left + (model.width/2)) - canvasSize.width/2
-    let cy = (model.top + (model.height/2)) - canvasSize.height/2
+    let cx = (model.left + (model.width / 2)) - canvasSize.width / 2
+    let cy = (model.top + (model.height / 2)) - canvasSize.height / 2
     let cz = 0.5 * model.depth
 
     let rotation = model.rotation
@@ -38,7 +38,7 @@ export default class Cube extends THREE.Mesh{
 
     this.createCube(model.width, model.height, model.depth)
 
-    this.position.set(cx,cz,cy)
+    this.position.set(cx, cz, cy)
     this.rotation.y = rotation || 0
 
   }
@@ -50,9 +50,9 @@ export default class Cube extends THREE.Mesh{
     } = this.model
 
     this.geometry = new THREE.BoxGeometry(w, d, h);
-    this.material = new THREE.MeshLambertMaterial( { color : fillStyle, side: THREE.FrontSide } );
+    this.material = new THREE.MeshLambertMaterial({ color: fillStyle, side: THREE.FrontSide });
 
-    this.castShadow = true
+    // this.castShadow = true
 
   }
 
@@ -67,7 +67,7 @@ export class Cube2d extends Rect {
     return true
   }
 
-  get controls() {}
+  get controls() { }
 
   get nature() {
     return NATURE

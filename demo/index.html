@@ -4,25 +4,25 @@
 Copyright © HatioLab Inc. All rights reserved.
 -->
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-    <title>things-scene-three-container Demo</title>
 
-    <script src="../../webcomponentsjs/webcomponents-lite.min.js"></script>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>things-scene-three-container Demo</title>
 
-    <link rel="import" href="../../things-scene-viewer/things-scene-viewer.html">
-    <link rel="import" href="../../things-scene-modeler/things-scene-properties.html">
-    <link rel="import" href="./things-subscriber.html">
-    <link rel="import" href="../../things-scene-indoor-map/things-scene-indoor-map.html">
-    <link rel="import" href="../../things-scene-forklift/things-scene-forklift.html">
-    <link rel="import" href="../../things-scene-person/things-scene-person.html">
+  <script src="../../webcomponentsjs/webcomponents-lite.min.js"></script>
+
+  <link rel="import" href="../../things-scene-viewer/things-scene-viewer.html">
+  <link rel="import" href="../../things-scene-modeler/things-scene-properties.html">
+  <link rel="import" href="./things-subscriber.html">
+  <link rel="import" href="../../things-scene-indoor-map/things-scene-indoor-map.html">
+  <link rel="import" href="../../things-scene-forklift/things-scene-forklift.html">
+  <link rel="import" href="../../things-scene-person/things-scene-person.html">
 
 
-    <link rel="import" href="./things-scene-three-container.html">
+  <link rel="import" href="./things-scene-three-container.html">
 
-    <style is="custom-style">
-
+  <style is="custom-style">
     @font-face {
       font-family: "Bitstream Vera Serif Bold";
       src: url("fonts/VeraSeBd.ttf");
@@ -34,15 +34,17 @@ Copyright © HatioLab Inc. All rights reserved.
       height: 560px;
     }
 
-    </style>
-  </head>
-  <body unresolved>
-    <template is="dom-bind" id="app">
-      <style is="custom-style">
-      :root {
+  </style>
+</head>
+
+<body unresolved>
+  <template is="dom-bind" id="app">
+    <style is="custom-style">
+       :root {
         --things-scene-three-container: {
           width: 100%;
-          height: 100%;;
+          height: 100%;
+          ;
         }
       }
 
@@ -50,7 +52,7 @@ Copyright © HatioLab Inc. All rights reserved.
         position: relative;
       }
 
-      main>.content{
+      main>.content {
         width: 1000px;
         height: 800px;
       }
@@ -61,150 +63,188 @@ Copyright © HatioLab Inc. All rights reserved.
         left: 10px;
       }
 
-      </style>
+    </style>
 
-      <p>An example of <code>&lt;things-scene-three-container&gt;</code>:</p>
+    <p>An example of <code>&lt;things-scene-three-container&gt;</code>:</p>
 
-      <things-subscriber id="subscriber"
-                         message="{{message}}">
-      </things-subscriber>
+    <things-subscriber id="subscriber" message="{{message}}">
+    </things-subscriber>
 
-      <things-scene-viewer id='scene'
-                           scene='{{scene}}'
-                           selected='{{selected}}'
-                           model='[[model]]'
-                           variables="{{variables}}"
-                           values="[[message]]"
-                           mode="1">
-        <things-scene-layer type="selection-layer"></things-scene-layer>
-        <things-scene-layer type="modeling-layer"></things-scene-layer>
-        <things-scene-handler type="text-editor"></things-scene-handler>
-        <things-scene-handler type="move-handler"></things-scene-handler>
-      </things-scene-viewer>
+    <things-scene-viewer id='scene' scene='{{scene}}' selected='{{selected}}' model='[[model]]' variables="{{variables}}" values="[[message]]"
+      mode="0">
+      <things-scene-layer type="selection-layer"></things-scene-layer>
+      <things-scene-layer type="modeling-layer"></things-scene-layer>
+      <things-scene-handler type="text-editor"></things-scene-handler>
+      <things-scene-handler type="move-handler"></things-scene-handler>
+    </things-scene-viewer>
 
-      <things-scene-properties scene="[[scene]]"
-                               selected="[[selected]]"
-                               model="{{target}}"
-                               bounds="{{bounds}}">
-        <fieldset class="same-width">
-          <legend>Three Container Properties</legend>
+    <things-scene-properties scene="[[scene]]" selected="[[selected]]" model="{{target}}" bounds="{{bounds}}">
+      <fieldset class="same-width">
+        <legend>Three Container Properties</legend>
 
-          <label>3D Mode</label>
-          <input type="checkbox" checked="{{target.threed::change}}">
+        <label>3D Mode</label>
+        <input type="checkbox" checked="{{target.threed::change}}">
 
-          <label>FOV</label>
-          <input type="number" value-as-number="{{target.fov::change}}">
+        <label>FOV</label>
+        <input type="number" value-as-number="{{target.fov::change}}">
 
-          <label>Near</label>
-          <input type="number" value-as-number="{{target.near::change}}">
+        <label>Near</label>
+        <input type="number" value-as-number="{{target.near::change}}">
 
-          <label>Far</label>
-          <input type="number" value-as-number="{{target.far::change}}">
+        <label>Far</label>
+        <input type="number" value-as-number="{{target.far::change}}">
 
-          <label>Zoom</label>
-          <input type="number" value-as-number="{{target.zoom::change}}">
+        <label>Zoom</label>
+        <input type="number" value-as-number="{{target.zoom::change}}">
 
-          <label>Auto Rotate</label>
-          <input type="checkbox" checked="{{target.autoRotate::change}}">
+        <label>Auto Rotate</label>
+        <input type="checkbox" checked="{{target.autoRotate::change}}">
 
-        </fieldset>
-      </things-scene-properties>
+      </fieldset>
+    </things-scene-properties>
+    <input type="button" value="set data" onclick="setData()">
 
-    </template>
+  </template>
 
-    <script>
-      window.addEventListener('WebComponentsReady', function(e) {
-        var app = document.querySelector('#app')
+  <script>
+    var data = {}
 
-        app.$.subscriber.start()
+    function setData() {
+      app.scene.variable('threed', data)
+    }
 
-        var zeroToNine = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    window.addEventListener('WebComponentsReady', function (e) {
+      var app = document.querySelector('#app')
 
-        function buildRow(top, left, area) {
+      app.$.subscriber.start()
 
-          return zeroToNine.map(function(x) {
-            return {
-              type : 'rack',
-              location : `LOC-${area}-${top}-${x+1}-A`,
-              left : left + 50 * x,
-              top : 100 * top,
-              width : 50,
-              height : 20,
-              depth : 100,
-              shelves : 4,
-              rotation: 0,
-              fillStyle: "#e6e6fa"
+      var zeroToNine = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+      function buildRow(top, left, area, shelves) {
+
+        return zeroToNine.map(function (x) {
+          return {
+            type: 'rack',
+            locPattern: '{z}{s}-{u}-{sh}',
+            zone: area + top,
+            section: '01',
+            unit: x,
+            shelfPattern: '00',
+            left: left + 50 * x,
+            top: 100 * top,
+            width: 50,
+            height: 20,
+            depth: 20,
+            shelves: shelves,
+            rotation: 0,
+            fillStyle: "#e6e6fa"
+          }
+        }).concat(zeroToNine.map(function (x) {
+          return {
+            locPattern: '{z}{s}-{u}-{sh}',
+            zone: area + top,
+            section: '02',
+            unit: x,
+            shelfPattern: '00',
+            type: 'rack',
+            left: left + 50 * x,
+            top: 100 * top + 20,
+            width: 50,
+            height: 20,
+            depth: 20,
+            shelves: shelves,
+            rotation: Math.PI
+          }
+        }))
+      }
+
+      const GUBUN = [
+        'A', 'B', 'C', 'D', 'E'
+      ]
+
+      const shelfCount = 50
+
+      function buildData(zone, area, shelves) {
+        zeroToNine.forEach(function (x) {
+          var key = zone + area + '01-' + x + '-'
+          for (var i = 0; i < shelves; i++) {
+            data[key + (Math.floor((i + 1) / 10) > 0 ? (i + 1) : '0' + (i + 1))] = {
+              loc: key + (Math.floor((i + 1) / 10) > 0 ? (i + 1) : '0' + (i + 1)),
+              gubun: GUBUN[Math.floor(Math.random() * 5)]
             }
-          }).concat(zeroToNine.map(function(x) {
-            return {
-              type : 'rack',
-              location : `LOC-${area}-${top}-${x+1}-B`,
-              left : left + 50 * x,
-              top : 100 * top + 20,
-              width : 50,
-              height : 20,
-              depth : 100,
-              shelves : 4,
-              rotation : Math.PI
+          }
+        })
+        zeroToNine.forEach(function (x) {
+          var key = zone + area + '02-' + x + '-'
+          for (var i = 0; i < shelves; i++) {
+            data[key + (Math.floor((i + 1) / 10) > 0 ? (i + 1) : '0' + (i + 1))] = {
+              loc: key + (Math.floor((i + 1) / 10) > 0 ? (i + 1) : '0' + (i + 1)),
+              gubun: GUBUN[Math.floor(Math.random() * 5)]
             }
-          }))
-        }
+          }
+        })
+      }
 
-        var components = [1, 2, 3, 4, 5, 6].map(function(top) {
-          return buildRow(top, 50, 1).concat((buildRow(top, 650, 2)))
-        }).reduce(function(components, row) {
-          return components.concat(row)
-        }, [])
+      var components = [1, 2, 3, 4, 5, 6].map(function (top) {
+        return buildRow(top, 50, 'A', shelfCount).concat((buildRow(top, 650, 'B', shelfCount))) //.concat((buildRow(top, 1250, 'C', shelfCount)))
+      }).reduce(function (components, row) {
+        return components.concat(row)
+      }, []);
 
-        components.push({
-          type : 'forklift',
-          left : 600,
-          top : 600,
-          width : 10,
-          height : 10,
-          depth : 10
-        })
-        // components.push({
-        //   type : 'forklift',
-        //   left : 100,
-        //   top : 100,
-        //   width : 10,
-        //   height : 10,
-        //   depth : 10
-        // })
-        // components.push({
-        //   type : 'forklift',
-        //   left : 200,
-        //   top : 500,
-        //   width : 10,
-        //   height : 10,
-        //   depth : 10
-        // })
-        components.push({
-          type : 'person',
-          left : 600,
-          top : 200,
-          width : 10,
-          height : 17,
-          depth : 10
-        })
-        components.push({
-          type : 'person',
-          left : 300,
-          top : 100,
-          width : 50,
-          height : 100,
-          depth : 50
-        })
-        components.push({
-          type : 'person',
-          left : 200,
-          top : 600,
-          width : 100,
-          height : 100,
-          depth : 180
-        })
-        components.push(
+      [1, 2, 3, 4, 5, 6].forEach(function (area) {
+        buildData('A', area, shelfCount)
+        buildData('B', area, shelfCount)
+      })
+
+      // components.push({
+      //   type : 'forklift',
+      //   left : 600,
+      //   top : 600,
+      //   width : 10,
+      //   height : 10,
+      //   depth : 10
+      // })
+      // components.push({
+      //   type : 'forklift',
+      //   left : 100,
+      //   top : 100,
+      //   width : 10,
+      //   height : 10,
+      //   depth : 10
+      // })
+      // components.push({
+      //   type : 'forklift',
+      //   left : 200,
+      //   top : 500,
+      //   width : 10,
+      //   height : 10,
+      //   depth : 10
+      // })
+      // components.push({
+      //   type : 'person',
+      //   left : 600,
+      //   top : 200,
+      //   width : 10,
+      //   height : 17,
+      //   depth : 10
+      // })
+      // components.push({
+      //   type : 'person',
+      //   left : 300,
+      //   top : 100,
+      //   width : 50,
+      //   height : 100,
+      //   depth : 50
+      // })
+      // components.push({
+      //   type : 'person',
+      //   left : 200,
+      //   top : 600,
+      //   width : 100,
+      //   height : 100,
+      //   depth : 180
+      // })
+      components.push(
         // {
         //   type:'rect',
         //   left: 600,
@@ -217,20 +257,20 @@ Copyright © HatioLab Inc. All rights reserved.
         //     fitPattern: true
         //   }
         // },
-        {
-          type:'banner',
-          left: 350,
-          top : 5,
-          zPos: 100,
-          width: 500,
-          height : 10,
-          depth: 200,
-          fillStyle: {
-            type: 'pattern',
-            image: './images/livevideo-play.png',
-            fitPattern: true
-          }
-        }
+        // {
+        //   type:'banner',
+        //   left: 350,
+        //   top : 5,
+        //   zPos: 100,
+        //   width: 500,
+        //   height : 10,
+        //   depth: 200,
+        //   fillStyle: {
+        //     type: 'pattern',
+        //     image: './images/livevideo-play.png',
+        //     fitPattern: true
+        //   }
+        // }
         // , {
         //   type : 'humidity-sensor',
         //   id: 'sensor',
@@ -346,33 +386,34 @@ Copyright © HatioLab Inc. All rights reserved.
         //     depth: 100,
         //     fillStyle: 'brown'
         // }
-        );
+      );
 
-        // components.push({
-        //   type:'path',
-        //   x1: 0,
-        //   y1 : 0,
-        //   x2: 1200,
-        //   y2 : 800
-        // })
+      // components.push({
+      //   type:'path',
+      //   x1: 0,
+      //   y1 : 0,
+      //   x2: 1200,
+      //   y2 : 800
+      // })
 
-        app.model = {
-          width: 1600,
-          height: 1200,
-          unit: 'cm',
-          components: [{
+      app.model = {
+        width: 1600,
+        height: 1200,
+        unit: 'cm',
+        components: [{
+            id: 'threed',
             type: 'three-container',
             left: 10,
             top: 10,
-            width: 1200,
-            height: 800,
+            width: 1600,
+            height: 1200,
             text: 'First Floor',
             textAlign: 'top',
             fillStyle: 'darkgray',
             fov: 20,
-            near: 0.1,
-            far: 2000,
-            zoom: 100,
+            near: 0.01,
+            far: 200000,
+            zoom: 1,
             threed: true,
             locked: true,
             fillStyle: {
@@ -387,8 +428,10 @@ Copyright © HatioLab Inc. All rights reserved.
               // fitPattern: this.pattern.fitPattern
             },
             // autoRotate : true,
-            autoRotate : false,
+            autoRotate: false,
             components: components
+            // ,
+            // data: data
           }
           // , {
           //   type: 'video-player-360',
@@ -422,37 +465,14 @@ Copyright © HatioLab Inc. All rights reserved.
           //   flatProjection: false
           // }
         ]
-        }
-
-        app.variables = {
-          key : "humidity",
-          mappings:[{
-            param: null,
-            property:"data",
-            rule:"value",
-            target:"#sensor"
-          }],
-          name: "STOCK LEVEL",
-          type: "object",
-          value: [1,2]
-        }
-
-        setInterval(function(){
-          app.message = {
-            data: {
-
-                humidity: [
-                  Math.floor(Math.random() * 40) - 10,
-                  Math.floor(Math.random() * 70)
-                ]
-              }
-
-            }
-          }, 1000)
+      }
 
 
-      });
-    </script>
+    });
 
-  </body>
+  </script>
+
+</body>
+
 </html>
+

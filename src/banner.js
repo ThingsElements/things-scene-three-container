@@ -7,7 +7,7 @@ const NATURE = {
   mutable: false,
   resizable: true,
   rotatable: true,
-  properties : [{
+  properties: [{
     type: 'number',
     label: 'zPos',
     name: 'zPos',
@@ -44,10 +44,10 @@ export default class Banner extends THREE.Object3D {
 
   createObject(model, canvasSize) {
 
-    let {left = 0, top = 0, zPos = 0, width = 1, height = 1, depth = 1} = model
+    let { left = 0, top = 0, zPos = 0, width = 1, height = 1, depth = 1 } = model
 
-    let cx = (left + width/2) - canvasSize.width/2
-    let cy = (top + height/2) - canvasSize.height/2
+    let cx = (left + width / 2) - canvasSize.width / 2
+    let cy = (top + height / 2) - canvasSize.height / 2
     let cz = zPos + 0.5 * depth
 
     let rotation = model.rotation
@@ -67,10 +67,10 @@ export default class Banner extends THREE.Object3D {
 
   createCube(w, h, d) {
 
-    var {boxColor = '#ccaa76'} = this._model
+    var { boxColor = '#ccaa76' } = this._model
 
     var geometry = new THREE.BoxGeometry(w, d, h);
-    var material = new THREE.MeshLambertMaterial( { color : boxColor, side: THREE.FrontSide } );
+    var material = new THREE.MeshLambertMaterial({ color: boxColor, side: THREE.FrontSide });
 
     var cube = new THREE.Mesh(geometry, material);
 
@@ -87,23 +87,23 @@ export default class Banner extends THREE.Object3D {
       fillStyle = '#ccaa76'
     } = this._model
 
-    if( fillStyle && fillStyle.type == 'pattern' && fillStyle.image ) {
+    if (fillStyle && fillStyle.type == 'pattern' && fillStyle.image) {
 
       var texture = this._threeContainer._textureLoader.load(
         this._threeContainer.app.url(fillStyle.image),
-        function(texture) {
+        function (texture) {
           self._threeContainer.render_threed()
         }
       )
       // texture.wrapS = THREE.RepeatWrapping
       // texture.wrapT = THREE.RepeatWrapping
-      texture.repeat.set(1,1)
+      texture.repeat.set(1, 1)
       texture.minFilter = THREE.LinearFilter
 
-      boardMaterial = new THREE.MeshBasicMaterial( { map : texture, side: THREE.FrontSide } );
+      boardMaterial = new THREE.MeshBasicMaterial({ map: texture, side: THREE.FrontSide });
 
     } else {
-      boardMaterial = new THREE.MeshLambertMaterial( { color : fillStyle|| '#ccaa76', side: THREE.FrontSide } );
+      boardMaterial = new THREE.MeshLambertMaterial({ color: fillStyle || '#ccaa76', side: THREE.FrontSide });
     }
 
     var boardGeometry = new THREE.PlaneGeometry(w, h, 1, 1);
