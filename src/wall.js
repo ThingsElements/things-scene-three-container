@@ -41,10 +41,10 @@ export default class Wall extends THREE.Mesh {
     this.position.set(cx, cz, cy)
     this.rotation.y = rotation || 0
 
-    model.opacity = model.opacity || 0.7
+    model.alpha = model.alpha || 0.7
 
-    this.material.opacity = model.opacity
-    this.material.transparent = model.opacity < 1
+    this.material.opacity = model.alpha
+    this.material.transparent = model.alpha < 1
 
   }
 
