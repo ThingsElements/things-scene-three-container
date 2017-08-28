@@ -25,13 +25,21 @@ export default class Cube extends THREE.Mesh {
 
     this.createObject(model, canvasSize);
 
+    // this.up = new THREE.Vector3(1, 0, 0)
+
+    // this.updateMatrix();
+
+    var axisHelper = new THREE.AxisHelper( 100 );
+    this.add(axisHelper);
+
+
   }
 
   createObject(model, canvasSize) {
 
     let cx = (model.left + (model.width / 2)) - canvasSize.width / 2
     let cy = (model.top + (model.height / 2)) - canvasSize.height / 2
-    let cz = 0.5 * model.depth
+    let cz = model.zPos || 0.5 * model.depth
 
     let rotation = model.rotation
     this.type = model.type
@@ -58,6 +66,43 @@ export default class Cube extends THREE.Mesh {
 
   get model() {
     return this._model
+  }
+
+  setPosition(location) {
+    var { x, y } = location
+
+    this.position.set(x, 0, y);
+  }
+
+  setQuaternion(quaternion) {
+    var { x, y, z, w } = quaternion
+
+    var q = new THREE.Quaternion()
+
+    q.set(x, y, z, w);
+
+    this.setRotationFromQuaternion(q.normalize());
+    this.updateMatrix()
+  }
+
+  onUserDataChanged() {
+    if (!this.userData)
+      return
+
+    if (this.userData.hasOwnProperty('location')) {
+      this.setPosition(this.userData.location);
+    }
+
+    if (this.userData.hasOwnProperty('qx') && this.userData.hasOwnProperty('qy') && this.userData.hasOwnProperty('qz') && this.userData.hasOwnProperty('qw')) {
+      this.setQuaternion({
+        x: this.userData.qx,
+        y: this.userData.qy,
+        z: this.userData.qz,
+        w: this.userData.qw
+      })
+    }
+
+
   }
 
 }

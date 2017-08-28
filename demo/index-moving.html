@@ -1,0 +1,200 @@
+<!doctype html>
+<!--
+@license
+Copyright © HatioLab Inc. All rights reserved.
+-->
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>things-scene-three-container Demo</title>
+
+  <script src="../../webcomponentsjs/webcomponents-lite.min.js"></script>
+
+  <link rel="import" href="../../things-scene-viewer/things-scene-viewer.html">
+  <link rel="import" href="../../things-scene-modeler/things-scene-properties.html">
+  <link rel="import" href="./things-subscriber.html">
+  <link rel="import" href="../../things-scene-mqtt/things-scene-mqtt.html">
+  <link rel="import" href="../../things-scene-indoor-map/things-scene-indoor-map.html">
+  <link rel="import" href="../../things-scene-forklift/things-scene-forklift.html">
+  <link rel="import" href="../../things-scene-person/things-scene-person.html">
+
+
+  <link rel="import" href="./things-scene-three-container.html">
+
+  <style is="custom-style">
+    @font-face {
+      font-family: "Bitstream Vera Serif Bold";
+      src: url("fonts/VeraSeBd.ttf");
+    }
+
+    things-scene-viewer {
+      display: block;
+      width: 100%;
+      height: 560px;
+    }
+  </style>
+</head>
+
+<body unresolved>
+  <template is="dom-bind" id="app">
+    <style is="custom-style">
+       :root {
+        --things-scene-three-container: {
+          width: 100%;
+          height: 100%;
+          ;
+        }
+      }
+
+      main {
+        position: relative;
+      }
+
+      main>.content {
+        width: 1000px;
+        height: 800px;
+      }
+
+      .button-group {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+      }
+    </style>
+
+    <p>An example of <code>&lt;things-scene-three-container&gt;</code>:</p>
+
+    <things-subscriber id="subscriber" message="{{message}}">
+    </things-subscriber>
+
+    <things-scene-viewer id='scene' scene='{{scene}}' selected='{{selected}}' model='[[model]]' variables="{{variables}}" values="[[message]]"
+      mode="0">
+      <things-scene-layer type="selection-layer"></things-scene-layer>
+      <things-scene-layer type="modeling-layer"></things-scene-layer>
+      <things-scene-handler type="text-editor"></things-scene-handler>
+      <things-scene-handler type="move-handler"></things-scene-handler>
+    </things-scene-viewer>
+
+    <things-scene-properties scene="[[scene]]" selected="[[selected]]" model="{{target}}" bounds="{{bounds}}">
+      <fieldset class="same-width">
+        <legend>Three Container Properties</legend>
+
+        <label>3D Mode</label>
+        <input type="checkbox" checked="{{target.threed::change}}">
+
+        <label>FOV</label>
+        <input type="number" value-as-number="{{target.fov::change}}">
+
+        <label>Near</label>
+        <input type="number" value-as-number="{{target.near::change}}">
+
+        <label>Far</label>
+        <input type="number" value-as-number="{{target.far::change}}">
+
+        <label>Zoom</label>
+        <input type="number" value-as-number="{{target.zoom::change}}">
+
+        <label>Auto Rotate</label>
+        <input type="checkbox" checked="{{target.autoRotate::change}}">
+
+      </fieldset>
+    </things-scene-properties>
+    <input type="button" value="Move" onclick="move()">
+    <input type="button" value="Stop" onclick="stop()">
+
+  </template>
+
+  <script>
+    var data = {}
+    var timer
+
+    function move() {
+      stop();
+
+      timer = setInterval(function() {
+        app.scene.variable('threed', {
+          imu: {
+            location: {
+              x: Math.floor(Math.random() * 1000) - 500,
+              y: Math.floor(Math.random() * 1000) - 500
+            }
+          }
+        })
+      }, 100)
+    }
+
+    function stop() {
+      if(timer) {
+        clearInterval(timer)
+        timer = null;
+      }
+    }
+
+    window.addEventListener('WebComponentsReady', function (e) {
+      var app = document.querySelector('#app')
+
+      app.$.subscriber.start()
+
+      app.model = {
+        width: 1600,
+        height: 1200,
+        unit: 'cm',
+        components: [{
+          id: 'threed',
+          type: 'three-container',
+          left: 10,
+          top: 10,
+          width: 1600,
+          height: 1200,
+          text: 'First Floor',
+          textAlign: 'top',
+          fillStyle: 'darkgray',
+          fov: 20,
+          near: 0.01,
+          far: 200000,
+          zoom: 1,
+          threed: true,
+          locked: true,
+          fillStyle: 'rgba(255, 0, 0, 0.3)',
+          // autoRotate : true,
+          autoRotate: false,
+          components: [{
+            id: 'imu',
+            type: 'cube',
+            left: 500,
+            top: 300,
+            width: 50,
+            height: 50,
+            depth: 50
+          }]
+          // ,
+          // data: data
+        }
+        // , {
+        //   type: 'mqtt',
+        //   left: -10,
+        //   top: -10,
+        //   width: 30,
+        //   height: 30,
+        //   hidden: true,
+        //   broker: 'localhost',
+        //   // port: 8080,
+        //   port: 1884,
+        //   topic: 'threed',
+        //   qos: 0,
+        //   clientId: 'MQTT-DEVICE-001',
+        //   retain: true,
+        //   format: 'JSON'
+        // }
+        ]
+      }
+
+
+    });
+  </script>
+
+</body>
+
+</html>

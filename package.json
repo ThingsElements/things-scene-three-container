@@ -1,6 +1,6 @@
 {
   "name": "things-scene-three-container",
-  "version": "0.0.5",
+  "version": "2.0.3",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -29,11 +29,12 @@
     "babelify": "~7.2.0",
     "browserify": "~10.2.4",
     "chai": "^3.4.1",
+    "gl-matrix": "^2.3.2",
     "mocha": "^2.3.4",
     "should": "^8.0.2",
+    "things-scene-mqtt": "github:ThingsElements/things-scene-mqtt",
     "uglifyjs": "^2.4.10",
-    "watchify": "^3.3.1",
-    "gl-matrix": "^2.3.2"
+    "watchify": "^3.3.1"
   },
   "dependencies": {}
 }

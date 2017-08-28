@@ -81,7 +81,7 @@ export default class Rack extends THREE.Object3D {
       stock.name = this.makeLocationString(this.makeShelfString(shelfPattern, i + 1, model.shelves))
 
       this.add(stock)
-      this._threeContainer.putStock(stock.name, stock);
+      this._threeContainer.putObject(stock.name, stock);
     }
 
 

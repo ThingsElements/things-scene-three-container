@@ -1,6 +1,6 @@
 {
   "name": "things-scene-three-container",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "authors": [
     "Stellan Gil <lotstar87@gmail.com>"
   ],
@@ -20,7 +20,8 @@
   "dependencies": {
     "threejs": "mrdoob/three.js#r84",
     "heatmap.js-amd": "pa7/heatmap.js",
-    "things-scene-core": "ThingsElements/things-scene-core#^2.0.0"
+    "things-scene-core": "ThingsElements/things-scene-core#^2.0.0",
+    "babylonjs": "BabylonJS/Babylon.js#^3.0.7"
   },
   "devDependencies": {
     "polymer": "Polymer/polymer#^1.2.0",
@@ -35,6 +36,7 @@
     "things-scene-person": "ThingsElements/things-scene-person",
     "stomp-websocket": "^2.3.4",
     "sockjs": "^0.3.4",
-    "web-component-tester": "^4.0.0"
+    "web-component-tester": "^4.0.0",
+    "things-scene-mqtt": "ThingsElements/things-scene-mqtt#^0.1.2"
   }
 }

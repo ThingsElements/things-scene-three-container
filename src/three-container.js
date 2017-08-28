@@ -76,18 +76,18 @@ export default class ThreeContainer extends Container {
     return component.is3dish()
   }
 
-  putStock(loc, stock) {
-    if (!this._stocks)
-      this._stocks = {}
+  putObject(id, object) {
+    if (!this._objects)
+      this._objects = {}
 
-    this._stocks[loc] = stock;
+    this._objects[id] = object;
   }
 
-  getStock(loc) {
-    if (!this._stocks)
-      this._stocks = {}
+  getObject(id) {
+    if (!this._objects)
+      this._objects = {}
 
-    return this._stocks[loc]
+    return this._objects[id]
   }
 
   /* THREE Object related .. */
@@ -135,7 +135,6 @@ export default class ThreeContainer extends Container {
 
   createObjects(components, canvasSize) {
 
-    var items = []
     components.forEach(component => {
 
       var clazz = scene.Component3d.register(component.model.type)
@@ -150,15 +149,13 @@ export default class ThreeContainer extends Container {
       if (item) {
         // items.push(item)
         setTimeout(function () {
+          item.name = component.model.id;
           this._scene3d.add(item)
+          this.putObject(component.model.id, item);
         }.bind(this))
       }
 
     })
-
-    // this._scene3d.add(items)
-
-    // this._scene3d.add(obj);
   }
 
   createHeatmap(width, height) {
@@ -634,6 +631,9 @@ export default class ThreeContainer extends Container {
     this._camera.lookAt(this._scene3d.position)
     this._2dCamera.lookAt(this._scene2d.position)
     this._camera.zoom = this.model.zoom * 0.01
+
+    var axisHelper = new THREE.AxisHelper( width );
+    this._scene3d.add( axisHelper );
 
     try {
       // RENDERER
@@ -1192,7 +1192,7 @@ export default class ThreeContainer extends Container {
 
           setTimeout(function () {
             let loc = data.loc || data.LOC || data.location || data.LOCATION;
-            let object = this.getStock(loc)
+            let object = this.getObject(loc)
             if (object) {
               object.userData = data;
               object.onUserDataChanged()
@@ -1220,7 +1220,7 @@ export default class ThreeContainer extends Container {
 
             setTimeout(function () {
               let d = this._data[location]
-              let object = this.getStock(location)
+              let object = this.getObject(location)
               if (object) {
                 object.userData = d;
                 object.onUserDataChanged()
