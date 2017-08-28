@@ -3,6 +3,18 @@
  */
 var { Component, Rect } = scene
 
+const NATURE = {
+  mutable: false,
+  resizable: true,
+  rotatable: true,
+  properties: [{
+    type: 'number',
+    label: 'depth',
+    name: 'depth',
+    property: 'depth'
+  }]
+}
+
 export default class Desk extends THREE.Object3D {
 
   constructor(model, canvasSize, threeContainer, sceneComponent) {
