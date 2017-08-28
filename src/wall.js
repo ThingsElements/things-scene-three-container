@@ -1,7 +1,19 @@
 /*
  * Copyright © HatioLab Inc. All rights reserved.
  */
-var { Component, Container, Layout, Rect } = scene
+var { Component, Rect } = scene
+
+const NATURE = {
+  mutable: false,
+  resizable: true,
+  rotatable: true,
+  properties: [{
+    type: 'number',
+    label: 'depth',
+    name: 'depth',
+    property: 'depth'
+  }]
+}
 
 export default class Wall extends THREE.Mesh {
 
@@ -40,7 +52,7 @@ export default class Wall extends THREE.Mesh {
 
     let {
       fillStyle = 'gray'
-    } = this.model
+    } = this._model
 
     this.geometry = new THREE.BoxGeometry(w, d, h);
     this.material = new THREE.MeshLambertMaterial({ color: fillStyle, side: THREE.FrontSide });

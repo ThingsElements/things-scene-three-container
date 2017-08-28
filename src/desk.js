@@ -14,11 +14,6 @@ const NATURE = {
     property: 'depth'
   }, {
     type: 'color',
-    label: 'board-color',
-    name: 'boardColor',
-    property: 'boardColor'
-  }, {
-    type: 'color',
     label: 'leg-color',
     name: 'legColor',
     property: 'legColor'
@@ -128,7 +123,7 @@ export default class Desk extends THREE.Object3D {
     var d = 10;
 
     var boardMaterial = new THREE.MeshBasicMaterial({
-      color: this._model.boardColor || '#ccaa76'
+      color: this._model.fillStyle || '#ccaa76'
     });
     var boardGeometry = new THREE.BoxGeometry(w, h, d, 1, 1);
     var board = new THREE.Mesh(boardGeometry, boardMaterial);
