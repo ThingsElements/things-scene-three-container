@@ -71,6 +71,10 @@ export class Wall2d extends Rect {
     return true
   }
 
+  get nature() {
+    return NATURE
+  }
+
   get controls() { }
 }
 
