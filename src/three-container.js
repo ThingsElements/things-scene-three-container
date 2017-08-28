@@ -55,6 +55,11 @@ const NATURE = {
     property: 'autoRotate'
   }, {
     type: 'checkbox',
+    label: 'show-axis',
+    name: 'showAxis',
+    property: 'showAxis'
+  }, {
+    type: 'checkbox',
     label: '3dmode',
     name: 'threed',
     property: 'threed'
@@ -632,8 +637,11 @@ export default class ThreeContainer extends Container {
     this._2dCamera.lookAt(this._scene2d.position)
     this._camera.zoom = this.model.zoom * 0.01
 
-    var axisHelper = new THREE.AxisHelper( width );
-    this._scene3d.add( axisHelper );
+    if (this.model.showAxis) {
+      var axisHelper = new THREE.AxisHelper( width );
+      this._scene3d.add( axisHelper );
+    }
+
 
     try {
       // RENDERER
