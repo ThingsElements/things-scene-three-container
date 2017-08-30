@@ -12,6 +12,11 @@ const NATURE = {
     label: 'depth',
     name: 'depth',
     property: 'depth'
+  }, {
+    type: 'checkbox',
+    label: 'show-axis',
+    name: 'showAxis',
+    property: 'showAxis'
   }]
 }
 
@@ -28,8 +33,11 @@ export default class Cube extends THREE.Mesh {
 
     this.updateMatrixWorld();
 
-    var axisHelper = new THREE.AxisHelper(100);
-    this.add(axisHelper);
+    if (model.showAxis) {
+      var axisHelper = new THREE.AxisHelper(100);
+      this.add(axisHelper);
+    }
+
 
 
   }
