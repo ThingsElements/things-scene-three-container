@@ -131,6 +131,8 @@ export default class HumiditySensor extends THREE.Object3D {
 
   onUserDataChanged() {
 
+    super.onUserDataChanged();
+
     var { cx, cy } = this._model
     cx = Math.floor(cx)
     cy = Math.floor(cy)

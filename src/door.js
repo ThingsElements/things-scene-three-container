@@ -1,7 +1,7 @@
 /*
  * Copyright © HatioLab Inc. All rights reserved.
  */
-var { Component, Container, Layout, Rect } = scene
+var { Component, Rect } = scene
 
 export default class Door extends THREE.Mesh {
 

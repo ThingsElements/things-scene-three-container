@@ -120,23 +120,9 @@ export default class Stock extends THREE.Mesh {
   }
 
   onUserDataChanged() {
-    // if(this.userData.__color) {
-    //   this.material.color.set(this.userData.__color)
-    //   this.visible = true
-    // } else {
-    //   this.visible = false
-    // }
+    super.onUserDataChanged();
 
-    // var color = STATUS_COLORS[this.userData.GUBUN || this.userData.gubun]
     this.material = Stock.getMaterial(this.userData.GUBUN || this.userData.gubun)
-
-    // this.material.color.set(color)
-
-    // if(!color) {
-    //   this.visible = false
-    // } else {
-    //   this.visible = true
-    // }
 
     if ((this.userData.GUBUN || this.userData.gubun) == 'A') {
       this.visible = false

@@ -1,7 +1,7 @@
 /*
  * Copyright © HatioLab Inc. All rights reserved.
  */
-var { Component, Component3d, ImageView } = scene
+var { Component, ImageView } = scene
 
 const NATURE = {
   mutable: false,

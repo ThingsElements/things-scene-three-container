@@ -138,7 +138,7 @@ Copyright © HatioLab Inc. All rights reserved.
           threed: true,
           locked: true,
           fillStyle: 'rgba(255, 0, 0, 0.3)',
-          // autoRotate : true,
+          showAxis: true,
           autoRotate: false,
           components: [{
             id: 'imu',
@@ -153,22 +153,22 @@ Copyright © HatioLab Inc. All rights reserved.
           // ,
           // data: data
         }
-        // , {
-        //   type: 'mqtt',
-        //   left: -10,
-        //   top: -10,
-        //   width: 30,
-        //   height: 30,
-        //   hidden: true,
-        //   broker: 'localhost',
-        //   // port: 8080,
-        //   port: 1884,
-        //   topic: 'threed',
-        //   qos: 0,
-        //   clientId: 'MQTT-DEVICE-001',
-        //   retain: true,
-        //   format: 'JSON'
-        // }
+        , {
+          type: 'mqtt',
+          left: -10,
+          top: -10,
+          width: 30,
+          height: 30,
+          hidden: true,
+          broker: 'localhost',
+          // port: 8080,
+          port: 1884,
+          topic: 'threed',
+          qos: 0,
+          clientId: 'MQTT-DEVICE-001',
+          retain: true,
+          format: 'JSON'
+        }
         ]
       }
 

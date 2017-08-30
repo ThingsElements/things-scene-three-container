@@ -17,19 +17,18 @@ const NATURE = {
 
 export default class Cube extends THREE.Mesh {
 
-  constructor(model, canvasSize) {
+  constructor(model, canvasSize, threeContainer) {
 
     super();
 
     this._model = model;
+    this._threeContainer = threeContainer;
 
     this.createObject(model, canvasSize);
 
-    // this.up = new THREE.Vector3(1, 0, 0)
+    this.updateMatrixWorld();
 
-    // this.updateMatrix();
-
-    var axisHelper = new THREE.AxisHelper( 100 );
+    var axisHelper = new THREE.AxisHelper(100);
     this.add(axisHelper);
 
 
@@ -60,7 +59,6 @@ export default class Cube extends THREE.Mesh {
     this.geometry = new THREE.BoxGeometry(w, d, h);
     this.material = new THREE.MeshLambertMaterial({ color: fillStyle, side: THREE.FrontSide });
 
-    // this.castShadow = true
 
   }
 
@@ -68,41 +66,13 @@ export default class Cube extends THREE.Mesh {
     return this._model
   }
 
-  setPosition(location) {
-    var { x, y } = location
-
-    this.position.set(x, 0, y);
-  }
-
-  setQuaternion(quaternion) {
-    var { x, y, z, w } = quaternion
-
-    var q = new THREE.Quaternion()
-
-    q.set(x, y, z, w);
-
-    this.setRotationFromQuaternion(q.normalize());
-    this.updateMatrix()
-  }
-
-  onUserDataChanged() {
-    if (!this.userData)
-      return
-
-    if (this.userData.hasOwnProperty('location')) {
-      this.setPosition(this.userData.location);
+  get mixer() {
+    if (!this._mixer) {
+      this._mixer = new THREE.AnimationMixer(this);
+      this._threeContainer.mixers.push(this._mixer);
     }
 
-    if (this.userData.hasOwnProperty('qx') && this.userData.hasOwnProperty('qy') && this.userData.hasOwnProperty('qz') && this.userData.hasOwnProperty('qw')) {
-      this.setQuaternion({
-        x: this.userData.qx,
-        y: this.userData.qy,
-        z: this.userData.qz,
-        w: this.userData.qw
-      })
-    }
-
-
+    return this._mixer;
   }
 
 }

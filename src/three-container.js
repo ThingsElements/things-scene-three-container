@@ -680,6 +680,7 @@ export default class ThreeContainer extends Container {
 
     this._tick = 0
     this._clock = new THREE.Clock(true)
+    this.mixers = new Array();
 
     // this.createHeatmap(width, height)
     this.createFloor(fillStyle, width, height)
@@ -699,8 +700,6 @@ export default class ThreeContainer extends Container {
   threed_animate() {
     this._animationFrame = requestAnimationFrame(this.threed_animate.bind(this));
 
-    var delta = this._clock.getDelta()
-
     // if (this.model.autoRotate)
     this.update();
 
@@ -712,6 +711,7 @@ export default class ThreeContainer extends Container {
 
   update() {
     this._controls.update();
+    this.render_threed();
   }
 
   get scene3d() {
@@ -721,6 +721,21 @@ export default class ThreeContainer extends Container {
   }
 
   render_threed() {
+    var delta
+    if(this._clock)
+      delta = this._clock.getDelta();
+
+    var mixers = this.mixers
+    for (var i in mixers) {
+      if (mixers.hasOwnProperty(i)) {
+        var mixer = mixers[i];
+        if ( mixer ) {
+          mixer.update( delta );
+        }
+
+      }
+    }
+
     if (this._renderer) {
       this._renderer.clear()
       this._renderer.render(this._scene3d, this._camera)
@@ -1123,6 +1138,31 @@ export default class ThreeContainer extends Container {
       this._scene2d.add(tooltip)
       this.render_threed()
     }
+
+  }
+
+  transcoord2dTo3d(position) {
+    var {
+      width,
+      height
+    } = this.model;
+
+    var {
+      x = 0,
+      y = 0,
+      z = 0
+    } = position;
+
+    var cx = width / 2;
+    var cy = height / 2;
+
+    var coord3d = {};
+    coord3d.x = x - cx;
+    coord3d.y = y - cy;
+    coord3d.z = z;
+
+    return coord3d;
+
 
   }
 

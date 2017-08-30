@@ -75,27 +75,6 @@ export default class Cone extends THREE.Mesh {
     this.setRotationFromQuaternion(new THREE.Quaternion(x, y, z, w));
   }
 
-  onUserDataChanged() {
-    if (!this.userData)
-      return
-
-    if (this.userData.hasOwnProperty('qx') && this.userData.hasOwnProperty('qy') && this.userData.hasOwnProperty('qz') && this.userData.hasOwnProperty('qw')) {
-      this.setQuaternion({
-        x: this.userData.qx,
-        y: this.userData.qy,
-        z: this.userData.qz,
-        w: this.userData.qw
-      })
-      // this.setEuler({
-      //   yaw: this.userData.yaw,
-      //   pitch: this.userData.pitch,
-      //   roll: this.userData.roll
-      // })
-    }
-
-
-  }
-
   get model() {
     return this._model
   }

@@ -47,7 +47,7 @@ export default class Desk extends THREE.Object3D {
 
     var min = Math.min(width, height);
 
-    return Math.min(10, min/10);
+    return Math.min(10, min / 10);
   }
 
   get margin() {

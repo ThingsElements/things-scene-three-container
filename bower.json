@@ -1,6 +1,6 @@
 {
   "name": "things-scene-three-container",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "authors": [
     "Stellan Gil <lotstar87@gmail.com>"
   ],
@@ -20,8 +20,7 @@
   "dependencies": {
     "threejs": "mrdoob/three.js#r84",
     "heatmap.js-amd": "pa7/heatmap.js",
-    "things-scene-core": "ThingsElements/things-scene-core#^2.0.0",
-    "babylonjs": "BabylonJS/Babylon.js#^3.0.7"
+    "things-scene-core": "ThingsElements/things-scene-core#^2.0.0"
   },
   "devDependencies": {
     "polymer": "Polymer/polymer#^1.2.0",

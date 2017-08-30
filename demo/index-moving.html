@@ -103,6 +103,9 @@ Copyright © HatioLab Inc. All rights reserved.
     </things-scene-properties>
     <input type="button" value="Move" onclick="move()">
     <input type="button" value="Stop" onclick="stop()">
+    <input id="x" type="number" value="0">
+    <input id="y" type="number" value="0">
+    <input type="button" value="Set" onclick="setPosition()">
 
   </template>
 
@@ -114,8 +117,8 @@ Copyright © HatioLab Inc. All rights reserved.
       stop();
 
       timer = setInterval(function() {
-        app.scene.variable('threed', {
-          imu: {
+        app.scene.variable('hatiolab-rtls', {
+          f21a2f94a117: {
             location: {
               x: Math.floor(Math.random() * 1000) - 500,
               y: Math.floor(Math.random() * 1000) - 500
@@ -132,22 +135,36 @@ Copyright © HatioLab Inc. All rights reserved.
       }
     }
 
+    function setPosition() {
+      var x = document.getElementById('x').value
+      var y = document.getElementById('y').value
+
+      app.scene.variable('hatiolab-rtls', {
+        f21a2f94a117: {
+          location: {
+            x: x,
+            y: y
+          }
+        }
+      })
+    }
+
     window.addEventListener('WebComponentsReady', function (e) {
       var app = document.querySelector('#app')
 
       app.$.subscriber.start()
 
       app.model = {
-        width: 1600,
-        height: 1200,
+        width: 600,
+        height: 400,
         unit: 'cm',
         components: [{
-          id: 'threed',
+          id: 'hatiolab-rtls',
           type: 'three-container',
           left: 10,
           top: 10,
-          width: 1600,
-          height: 1200,
+          width: 200,
+          height: 200,
           text: 'First Floor',
           textAlign: 'top',
           fillStyle: 'darkgray',
@@ -161,33 +178,56 @@ Copyright © HatioLab Inc. All rights reserved.
           // autoRotate : true,
           autoRotate: false,
           components: [{
-            id: 'imu',
+            id: 'f21a2f94a117',
             type: 'cube',
-            left: 500,
-            top: 300,
-            width: 50,
-            height: 50,
-            depth: 50
+            left: 100,
+            top: 100,
+            width: 20,
+            height: 20,
+            depth: 20
+          }, {
+            id: '1101',
+            type: 'cube',
+            left: 0,
+            top: 0,
+            width: 5,
+            height: 5,
+            depth: 5
+          }, {
+            id: '1102',
+            type: 'cube',
+            left: 100,
+            top: 0,
+            width: 5,
+            height: 5,
+            depth: 5
+          }, {
+            id: '1103',
+            type: 'cube',
+            left: 0,
+            top: 100,
+            width: 5,
+            height: 5,
+            depth: 5
           }]
           // ,
           // data: data
         }
-        // , {
-        //   type: 'mqtt',
-        //   left: -10,
-        //   top: -10,
-        //   width: 30,
-        //   height: 30,
-        //   hidden: true,
-        //   broker: 'localhost',
-        //   // port: 8080,
-        //   port: 1884,
-        //   topic: 'threed',
-        //   qos: 0,
-        //   clientId: 'MQTT-DEVICE-001',
-        //   retain: true,
-        //   format: 'JSON'
-        // }
+        , {
+          type: 'mqtt',
+          left: -10,
+          top: -10,
+          width: 30,
+          height: 30,
+          hidden: true,
+          broker: 'test.mosquitto.org',
+          port: 8080,
+          topic: 'hatiolab-rtls',
+          qos: 0,
+          clientId: 'MQTT-DEVICE-001',
+          retain: true,
+          format: 'JSON'
+        }
         ]
       }
 

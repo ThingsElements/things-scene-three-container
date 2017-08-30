@@ -1,8 +1,6 @@
 /*
  * Copyright © HatioLab Inc. All rights reserved.
  */
-var { Component, Container, Layout } = scene
-
 var registry = {}
 
 export default class Component3d {
