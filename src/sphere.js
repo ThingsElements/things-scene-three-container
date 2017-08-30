@@ -21,11 +21,12 @@ const NATURE = {
 
 export default class Sphere extends THREE.Mesh {
 
-  constructor(model, canvasSize) {
+  constructor(model, canvasSize, threeContainer) {
 
     super();
 
     this._model = model;
+    this._threeContainer = threeContainer;
 
     this.createObject(model, canvasSize);
 

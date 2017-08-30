@@ -4,6 +4,9 @@ if (THREE && THREE.Object3D) {
       return
 
     if (this.userData.hasOwnProperty('location')) {
+      if (!this._threeContainer)
+        return
+
       this._setPosition(this._threeContainer.transcoord2dTo3d(this.userData.location));
     }
 
