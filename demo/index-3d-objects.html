@@ -103,6 +103,7 @@ Copyright © HatioLab Inc. All rights reserved.
     </things-scene-properties>
     <input type="button" value="Move" onclick="move()">
     <input type="button" value="Stop" onclick="stop()">
+    <input type="button" value="Export" onclick="exportModel()">
 
   </template>
 
@@ -130,6 +131,10 @@ Copyright © HatioLab Inc. All rights reserved.
         clearInterval(timer)
         timer = null;
       }
+    }
+
+    function exportModel() {
+      app.scene.findById('threed').exportModel();
     }
 
     window.addEventListener('WebComponentsReady', function (e) {

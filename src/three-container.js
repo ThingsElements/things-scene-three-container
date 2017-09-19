@@ -606,6 +606,8 @@ export default class ThreeContainer extends Container {
     this._textureLoader.withCredential = true
     this._textureLoader.crossOrigin = 'use-credentials'
 
+    this._exporter = new THREE.OBJExporter();
+
     var {
       width,
       height,
@@ -941,8 +943,13 @@ export default class ThreeContainer extends Container {
     // this._camera.position.y = 300
     // this._camera.position.z = objectPositionVector.z
 
+  }
 
-
+  exportModel() {
+    var exported = this._exporter.parse(this._scene3d);
+    var blob = new Blob([exported], { type: "text/plain;charset=utf-8" });
+    console.log(exported)
+    // saveAs(blob, "exported.txt");
   }
 
   createTooltipForNavigator(messageObject) {

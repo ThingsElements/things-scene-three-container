@@ -9,7 +9,7 @@ const NATURE = {
   rotatable: true,
   properties: [{
     type: 'number',
-    label: 'zPos',
+    label: 'z-pos',
     name: 'zPos',
     property: 'zPos'
   }, {
@@ -24,7 +24,7 @@ const NATURE = {
     property: 'rotation'
   }, {
     type: 'color',
-    label: 'boxColor',
+    label: 'box-color',
     name: 'boxColor',
     property: 'boxColor'
   }]

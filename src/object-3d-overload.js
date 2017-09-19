@@ -67,12 +67,19 @@ if (THREE && THREE.Object3D) {
     // // euler.z -= Math.PI / 2;
     // euler.z -= Math.PI / 2;
 
+    // var mat = new THREE.Matrix4();
+    // mat.makeRotationFromQuaternion(q);
+    // mat.transpose();
 
+    // q.setFromRotationMatrix(mat);
 
     // this.setRotationFromEuler(euler);
 
     this.setRotationFromQuaternion(q)
-    this.rotateOnAxis(new THREE.Vector3(0, 0, 1), this.rotation.z -Math.PI / 2);
+    this.rotateOnAxis(new THREE.Vector3(1, 0, 0), -Math.PI);
+    this.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI);
+    this.rotateOnAxis(new THREE.Vector3(0, 0, 1), -Math.PI / 2);
+    // this.rotateOnAxis(new THREE.Vector3(0, 0, 1), -Math.PI);
     // this.updateMatrix()
   }
 

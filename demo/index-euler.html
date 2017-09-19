@@ -70,7 +70,7 @@ Copyright © HatioLab Inc. All rights reserved.
     </things-subscriber>
 
     <things-scene-viewer id='scene' scene='{{scene}}' selected='{{selected}}' model='[[model]]' variables="{{variables}}" values="[[message]]"
-      mode="0">
+      mode="0" fit="ratio">
       <things-scene-layer type="selection-layer"></things-scene-layer>
       <things-scene-layer type="modeling-layer"></things-scene-layer>
       <things-scene-handler type="text-editor"></things-scene-handler>
@@ -101,33 +101,26 @@ Copyright © HatioLab Inc. All rights reserved.
 
       </fieldset>
     </things-scene-properties>
-    <input type="button" value="set data" onclick="setData()">
 
   </template>
 
   <script>
-    var data = {}
-
-    function setData() {
-      app.scene.variable('threed', data)
-    }
-
     window.addEventListener('WebComponentsReady', function (e) {
       var app = document.querySelector('#app')
 
       app.$.subscriber.start()
 
       app.model = {
-        width: 1600,
-        height: 1200,
+        width: 1280,
+        height: 720,
         unit: 'cm',
         components: [{
           id: 'threed',
           type: 'three-container',
-          left: 10,
-          top: 10,
-          width: 1600,
-          height: 1200,
+          left: 0,
+          top: 0,
+          width: 1280,
+          height: 720,
           text: 'First Floor',
           textAlign: 'top',
           fillStyle: 'darkgray',
@@ -145,10 +138,11 @@ Copyright © HatioLab Inc. All rights reserved.
             type: 'cube',
             left: 500,
             top: 300,
-            zPos: 150,
-            width: 200,
-            height: 10,
-            depth: 200
+            zPos: 200,
+            width: 65,
+            height: 30,
+            depth: 90,
+            showAxis: true
           }]
           // ,
           // data: data
@@ -171,8 +165,6 @@ Copyright © HatioLab Inc. All rights reserved.
         }
         ]
       }
-
-
     });
   </script>
 
