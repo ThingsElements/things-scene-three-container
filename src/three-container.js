@@ -684,7 +684,7 @@ export default class ThreeContainer extends Container {
     this._clock = new THREE.Clock(true)
     this.mixers = new Array();
 
-    // this.createHeatmap(width, height)
+    this.createHeatmap(width, height)
     this.createFloor(fillStyle, width, height)
     this.createObjects(components, {
       width,
