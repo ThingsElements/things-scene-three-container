@@ -1,6 +1,6 @@
 {
   "name": "things-scene-three-container",
-  "version": "2.0.13",
+  "version": "2.0.14",
   "authors": [
     "Stellan Gil <lotstar87@gmail.com>"
   ],
@@ -18,7 +18,7 @@
     "/test/"
   ],
   "dependencies": {
-    "threejs": "mrdoob/three.js#r84",
+    "threejs": "mrdoob/three.js#r88",
     "heatmap.js-amd": "pa7/heatmap.js",
     "things-scene-core": "ThingsElements/things-scene-core#^2.0.0"
   },
