@@ -1,8 +1,9 @@
 {
-  "name": "things-scene-three-container",
+  "name": "@things-elements/things-scene-three-container",
+  "flat": true,
   "version": "2.0.21",
   "description": "",
-  "main": "index.js",
+  "main": "things-scene-three-container-min.js",
   "scripts": {
     "serve": "watchify src/index.js -o things-scene-three-container.js src/index.js & polymer serve",
     "build": "browserify src/index.js -o things-scene-three-container.js && uglifyjs things-scene-three-container.js -m -c -o things-scene-three-container-min.js"
@@ -36,5 +37,7 @@
     "uglifyjs": "^2.4.10",
     "watchify": "^3.3.1"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@hatiolab/things-scene": "^2.2.36"
+  }
 }
